@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "chat-langchain"
+version = "0.1.1"
+description = ""
+authors = ["SN <6432132+samnoyes@users.noreply.github.com>"]
+readme = "README.md"
+package-mode= false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+langchain = "^0.1.12"
+langsmith =  "^0.1.25"
+langchain-community = ">=0.0.27,<0.1"
+langchain-openai = ">=0.0.8,<0.1"
+langserve = {extras = ["server"], version = "^0.0.39"}
+fastapi = "^0.110.0"
+uvicorn = "^0.23.2"
+voyageai = "^0.1.4"
+pillow = "^10.2.0"
+tiktoken = "^0.5.2"
+cohere = "4.45"
+pydantic = "^2.6.4"
+weaviate-client = "^4.5.4"
+
+
+[tool.poetry.group.lint.dependencies]
+ruff = "^0.2.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

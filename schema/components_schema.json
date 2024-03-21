@@ -1,0 +1,1643 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "components_schema",
+  "definitions": {
+    "InboundVoiceStep": {
+      "properties": {
+        "component": {
+          "properties": {
+            "name": {
+              "const": "inbound_voice-ZjE1ZjM0MG"
+            },
+            "version": {
+              "const": "1.3.x"
+            }
+          }
+        },
+        "exits": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "const": "ok"
+              }
+            },
+            "required": ["name"]
+          }
+        }
+      },
+      "description": "Initial component for the inbound voice flow definitions, must as the first step in the flow."
+    },
+    "IncomingMessageStep": {
+      "properties": {
+        "component": {
+          "properties": {
+            "name": {
+              "const": "incoming_message-4ywkvgcEKF"
+            },
+            "version": {
+              "const": "2.4.x"
+            }
+          }
+        },
+        "exits": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "const": "ok"
+              }
+            },
+            "required": ["name"]
+          }
+        }
+      },
+      "description": "Initial component for the incoming message, must as the first step in the flow."
+    },
+    "AssignmentAndDialStep": {
+      "properties": {
+        "component": {
+          "properties": {
+            "name": {
+              "const": "assignment_and_dial-M2JhZTViYT"
+            },
+            "version": {
+              "const": "3.23.x"
+            }
+          }
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "priority": {
+              "type": "object",
+              "properties": {
+                "priorities_list": {
+                  "type": "integer",
+                  "default": 10
+                }
+              },
+              "description": "Define the priority for this assignment request.",
+              "required": ["priorities_list"]
+            },
+            "time_limit": {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "type": "integer",
+                  "default": 30
+                },
+                "waiting_music": {
+                  "type": "object"
+                }
+              },
+              "description": "Maximum time to find the configured assignment.",
+              "required": ["time"]
+            },
+            "users_to_ring": {
+              "type": "object",
+              "properties": {
+                "exhaust": {
+                  "type": "boolean"
+                },
+                "forced_queueing": {
+                  "type": "boolean"
+                },
+                "number_of_users": {
+                  "type": "integer"
+                }
+              },
+              "required": ["exhaust", "forced_queueing", "number_of_users"]
+            },
+            "waiting_message": {
+              "type": "object"
+            },
+            "assignment_parameters": {
+              "type": "object",
+              "oneOf": [
+                {
+                  "properties": {
+                    "ring_groups": {
+                      "type": "object",
+                      "properties": {
+                        "ring_groups_list": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": ["ring_groups_list"]
+                    }
+                  },
+                  "required": ["ring_groups"],
+                  "additionalProperties": false
+                },
+                {
+                  "properties": {
+                    "agents": {
+                      "type": "object",
+                      "properties": {
+                        "agents_list": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": ["agents_list"]
+                    }
+                  },
+                  "required": ["agents"],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": ["priority", "time_limit", "users_to_ring", "assignment_parameters"]
+        },
+        "exits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "enum": ["call_finished", "call_no_answer", "time_limit_reached", "no_match"]
+              }
+            },
+            "required": ["name"]
+          },
+          "required": ["call_finished", "call_no_answer", "time_limit_reached", "no_match"]
+        }
+      },
+      "description": "A component related to assigning and dialing"
+    },
+    "HangupCallStep": {
+      "properties": {
+        "component": {
+          "properties": {
+            "name": {
+              "const": "hangup_call-OTE5ZmM0NW"
+            },
+            "version": {
+              "const": "1.0.x"
+            }
+          }
+        },
+        "exits": {
+          "maxItems": 0
+        }
+      },
+      "description": "A component for terminating calls or message"
+    },
+    "VoicemailStep": {
+      "properties": {
+        "component": {
+          "properties": {
+            "name": {
+              "const": "voicemail-NGQ0ZDE5Nj"
+            },
+            "version": {
+              "const": "2.4.x"
+            }
+          }
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "record_parameters": {
+              "type": "object",
+              "oneOf": [
+                {
+                  "properties": {
+                    "with_transcription_max_duration": {
+                      "type": "integer",
+                      "default": 120
+                    }
+                  },
+                  "required": ["with_transcription_max_duration"],
+                  "additionalProperties": false,
+                  "description": "Transcribe to English"
+                },
+                {
+                  "properties": {
+                    "without_transcription_max_duration": {
+                      "type": "integer",
+                      "default": 300
+                    }
+                  },
+                  "required": ["without_transcription_max_duration"],
+                  "additionalProperties": false,
+                  "description": "Do not transcribe"
+                }
+              ],
+              "description": "Transcribe or not with Max duration in seconds."
+            },
+            "assignment_parameters": {
+              "type": "object",
+              "oneOf": [
+                {
+                  "properties": {
+                    "ring_groups": {
+                      "type": "object",
+                      "properties": {
+                        "ring_groups_list": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": ["ring_groups_list"]
+                    }
+                  },
+                  "required": ["ring_groups"],
+                  "additionalProperties": false
+                },
+                {
+                  "properties": {
+                    "agents": {
+                      "type": "object",
+                      "properties": {
+                        "agents_list": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": ["agents_list"]
+                    }
+                  },
+                  "required": ["agents"],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "required": ["record_parameters", "assignment_parameters"]
+        },
+        "exits": {
+          "maxItems": 0
+        }
+      },
+      "description": "A component for managing voicemail functionalities"
+    },
+    "StandardIVRStep": {
+      "properties": {
+        "component": {
+          "properties": {
+            "name": {
+              "const": "standard_ivr-M2NlYzMzNz"
+            },
+            "version": {
+              "const": "2.12.x"
+            }
+          }
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "title": "Text to speech",
+                  "required": ["message_list"],
+                  "properties": {
+                    "message_list": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "title": "Text to speech",
+                        "required": ["language", "text"],
+                        "properties": {
+                          "text": {
+                            "type": "string",
+                            "title": "Text to speech",
+                            "minLength": 1
+                          },
+                          "language": {
+                            "enum": [
+                              "de-DE",
+                              "en-US",
+                              "en-GB",
+                              "es-ES",
+                              "fr-FR",
+                              "it-IT",
+                              "pt-PT",
+                              "pt-BR",
+                              "ru-RU"
+                            ],
+                            "title": "Language of audio output",
+                            "default": "en-US"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "title": "Audio file upload",
+                  "required": ["talkdesk_resource"],
+                  "properties": {
+                    "talkdesk_resource": {
+                      "type": "object",
+                      "required": ["type", "id"],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "enum": ["asset"]
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "title": "Link to file",
+                  "required": ["file_url"],
+                  "properties": {
+                    "file_url": {
+                      "type": "string",
+                      "title": " ",
+                      "format": "uri",
+                      "pattern": "http(s)?://.+",
+                      "minLength": 5
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ],
+              "title": "Play audio message",
+              "description": "Configure the audio message the user will hear."
+            }
+          },
+          "required": []
+        },
+        "exits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "oneOf": [
+              {
+                "properties": {
+                  "name": {
+                    "const": "timeout"
+                  },
+                  "condition": {
+                    "type": "object",
+                    "properties": {
+                      "timeout": {
+                        "type": "integer",
+                        "title": "Time in seconds",
+                        "default": 5,
+                        "minimum": 1,
+                        "description": "Integer indicating in seconds for how long we will wait for the input. It resets as new digits are input"
+                      }
+                    },
+                    "description": "Timeout in seconds",
+                    "additionalProperties": false,
+                    "required": ["timeout"]
+                  }
+                },
+                "description": "Timeout exit"
+              },
+              {
+                "properties": {
+                  "name": {
+                    "const": "invalid"
+                  }
+                },
+                "description": "If an invalid key is pressed"
+              },
+              {
+                "properties": {
+                  "name": {
+                    "const": "error"
+                  }
+                },
+                "description": "If an error occurs"
+              },
+              {
+                "title": "Custom Exits",
+                "properties": {
+                  "name": {
+                    "enum": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#"]
+                  },
+                  "condition": {
+                    "type": "object",
+                    "title": "Keypress exits",
+                    "required": ["keypress"],
+                    "properties": {
+                      "keypress": {
+                        "enum": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#"],
+                        "title": "Keypress"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "description": "Exit that the component will use if the condition is evaluated to true"
+              }
+            ]
+          }
+        }
+      },
+      "description": "A component for Allows a contact to input data via the dial pad"
+    },
+    "SalesforceDataDipStep": {
+      "properties": {
+        "component": {
+          "properties": {
+            "name": {
+              "const": "salesforce_data_dip-YmZjYjczMj"
+            },
+            "version": {
+              "const": "3.4.x"
+            }
+          }
+        },
+        "properties": {
+          "type": "object",
+          "required": ["query"],
+          "properties": {
+            "query": {
+              "type": "string",
+              "title": "Query",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "exits": {
+          "maxItems": 0
+        }
+      },
+      "description": "Search your organization's Salesforce data for specific information using Salesforce Object Query Language (SOQL)."
+    },
+    "TimeBasedRulesStep": {
+      "properties": {
+        "component": {
+          "properties": {
+            "name": {
+              "const": "time_based_rules-NDU4NTVlNz"
+            },
+            "version": {
+              "const": "1.5.x"
+            }
+          }
+        },
+        "exits": {
+          "type": "array",
+          "anyOf": [
+            {
+              "contains": {
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "const": "no-match"
+                  }
+                }
+              },
+              "description": "If none of the rules match"
+            }
+          ],
+          "items": {
+            "type": "object",
+            "oneOf": [
+              {
+                "properties": {
+                  "name": {
+                    "const": "error"
+                  }
+                },
+                "description": "If an error occurs"
+              },
+              {
+                "title": "Time based exits",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "condition": {
+                    "_ui_": {
+                      "order": ["timezone", "inside_business_hours", "ranges"],
+                      "container": {
+                        "type": "SIMPLE_SECTION_CONTAINER"
+                      }
+                    },
+                    "type": "object",
+                    "title": "Time based exit",
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "required": ["timezone", "ranges"],
+                    "properties": {
+                      "ranges": {
+                        "_ui_": {
+                          "items": {
+                            "type": "inline"
+                          },
+                          "forceOne": true,
+                          "buttonMessage": "Add time range"
+                        },
+                        "type": "array",
+                        "items": {
+                          "_ui_": {
+                            "order": ["days", "time"],
+                            "container": {
+                              "type": "SIMPLE_SECTION_CONTAINER"
+                            }
+                          },
+                          "type": "object",
+                          "required": ["days", "time"],
+                          "properties": {
+                            "days": {
+                              "_ui_": {
+                                "field": {
+                                  "type": "weekdays"
+                                },
+                                "container": {
+                                  "type": "SIMPLE_SECTION_CONTAINER"
+                                }
+                              },
+                              "type": "array",
+                              "items": {
+                                "enum": [
+                                  "MONDAY",
+                                  "TUESDAY",
+                                  "WEDNESDAY",
+                                  "THURSDAY",
+                                  "FRIDAY",
+                                  "SATURDAY",
+                                  "SUNDAY"
+                                ],
+                                "type": "string"
+                              },
+                              "minItems": 1
+                            },
+                            "time": {
+                              "_ui_": {
+                                "field": {
+                                  "type": "two_column_grid"
+                                },
+                                "order": ["from", "to"],
+                                "container": {
+                                  "type": "SIMPLE_SECTION_CONTAINER"
+                                }
+                              },
+                              "type": "object",
+                              "required": ["from", "to"],
+                              "properties": {
+                                "to": {
+                                  "_ui_": {
+                                    "field": {
+                                      "type": "time_input"
+                                    },
+                                    "container": {
+                                      "type": "time_input"
+                                    }
+                                  },
+                                  "type": "string",
+                                  "title": "To",
+                                  "example": "22:10:00",
+                                  "pattern": "^[0-9]|0[0-9]|1[0-9]|2[0-3]:[0-5][0-9]:[0-5][0-9]$",
+                                  "minLength": 1
+                                },
+                                "from": {
+                                  "_ui_": {
+                                    "field": {
+                                      "type": "time_input"
+                                    },
+                                    "container": {
+                                      "type": "time_input"
+                                    }
+                                  },
+                                  "type": "string",
+                                  "title": "From",
+                                  "example": "02:15:00",
+                                  "pattern": "^[0-9]|0[0-9]|1[0-9]|2[0-3]:[0-5][0-9]:[0-5][0-9]$",
+                                  "minLength": 1
+                                }
+                              },
+                              "additionalProperties": false
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "minItems": 1,
+                        "description": "Ordered set of time ranges to test against"
+                      },
+                      "timezone": {
+                        "_ui_": {
+                          "type": "timezone"
+                        },
+                        "type": "string",
+                        "title": "Timezone",
+                        "example": "America/Los_Angeles",
+                        "minLength": 1
+                      },
+                      "inside_business_hours": {
+                        "_ui_": {
+                          "enabledMessage": "Inside business hours",
+                          "disabledMessage": "Outside business hours"
+                        },
+                        "type": "boolean",
+                        "title": "Time range",
+                        "description": "whether this rule is interpreted as being inside business hours"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "description": "Define exits based on week days and time ranges"
+              }
+            ]
+          }
+        }
+      },
+      "description": "A component for Route based on time of day and day of the week"
+    },
+    "CalendarBasedRuleStep": {
+      "properties": {
+        "component": {
+          "properties": {
+            "name": {
+              "const": "calendar_based_rules-OTQ1M2UxMG"
+            },
+            "version": {
+              "const": "1.3.x"
+            }
+          }
+        },
+        "exits": {
+          "type": "array",
+          "anyOf": [
+            {
+              "contains": {
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "const": "no-match"
+                  }
+                }
+              },
+              "description": "If none of the rules match"
+            }
+          ],
+          "items": {
+            "type": "object",
+            "oneOf": [
+              {
+                "properties": {
+                  "name": {
+                    "const": "error"
+                  }
+                },
+                "description": "If an error occurs"
+              },
+              {
+                "title": "Custom Exits",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "condition": {
+                    "_ui_": {
+                      "order": ["timezone", "repeats_annually", "dates"],
+                      "container": {
+                        "type": "simple_section_container"
+                      }
+                    },
+                    "type": "object",
+                    "title": "Calendar Based Exit",
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "required": ["timezone", "repeats_annually", "dates"],
+                    "properties": {
+                      "dates": {
+                        "_ui_": {
+                          "field": {
+                            "type": "oneof_array"
+                          }
+                        },
+                        "type": "array",
+                        "items": {
+                          "_ui_": {
+                            "field": {
+                              "type": "one_of_calendar"
+                            },
+                            "container": {
+                              "type": "simple_section_container"
+                            }
+                          },
+                          "oneOf": [
+                            {
+                              "_ui_": {
+                                "container": {
+                                  "type": "simple_section_container"
+                                }
+                              },
+                              "type": "object",
+                              "title": "Add day",
+                              "required": ["day"],
+                              "properties": {
+                                "day": {
+                                  "_ui_": {
+                                    "field": {
+                                      "type": "date_picker"
+                                    },
+                                    "container": {
+                                      "type": "empty_container"
+                                    },
+                                    "placeholder": "Select a day..."
+                                  },
+                                  "type": "object",
+                                  "default": null,
+                                  "required": ["day", "month", "year"],
+                                  "properties": {
+                                    "day": {
+                                      "type": "integer",
+                                      "maximum": 31,
+                                      "minimum": 1
+                                    },
+                                    "year": {
+                                      "type": "integer",
+                                      "minimum": 0
+                                    },
+                                    "month": {
+                                      "type": "integer",
+                                      "maximum": 12,
+                                      "minimum": 1
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            {
+                              "_ui_": {
+                                "container": {
+                                  "type": "simple_section_container"
+                                }
+                              },
+                              "type": "object",
+                              "title": "Add range",
+                              "required": ["range"],
+                              "properties": {
+                                "range": {
+                                  "_ui_": {
+                                    "field": {
+                                      "type": "date_picker_range"
+                                    },
+                                    "container": {
+                                      "type": "empty_container"
+                                    },
+                                    "placeholder": "Select a range..."
+                                  },
+                                  "type": "object",
+                                  "default": null,
+                                  "required": ["from", "to"],
+                                  "properties": {
+                                    "to": {
+                                      "_ui_": {
+                                        "container": {
+                                          "type": "simple_section_container"
+                                        }
+                                      },
+                                      "type": "object",
+                                      "required": ["day", "month", "year"],
+                                      "properties": {
+                                        "day": {
+                                          "type": "integer",
+                                          "maximum": 31,
+                                          "minimum": 1
+                                        },
+                                        "year": {
+                                          "type": "integer",
+                                          "minimum": 0
+                                        },
+                                        "month": {
+                                          "type": "integer",
+                                          "maximum": 12,
+                                          "minimum": 1
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    },
+                                    "from": {
+                                      "type": "object",
+                                      "required": ["day", "month", "year"],
+                                      "properties": {
+                                        "day": {
+                                          "type": "integer",
+                                          "maximum": 31,
+                                          "minimum": 1
+                                        },
+                                        "year": {
+                                          "type": "integer",
+                                          "minimum": 0
+                                        },
+                                        "month": {
+                                          "type": "integer",
+                                          "maximum": 12,
+                                          "minimum": 1
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                }
+                              },
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "minItems": 1,
+                        "description": "Ordered set of calendar ranges to test against"
+                      },
+                      "timezone": {
+                        "_ui_": {
+                          "field": {
+                            "type": "timezone"
+                          }
+                        },
+                        "type": "string",
+                        "title": "Timezone",
+                        "example": "America/Los_Angeles",
+                        "minLength": 1
+                      },
+                      "repeats_annually": {
+                        "_ui_": {
+                          "enabledMessage": "Repeats annually",
+                          "disabledMessage": "Doesn't repeat annually"
+                        },
+                        "type": "boolean",
+                        "title": "Dates",
+                        "default": false
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "description": "Define exits based on calendar rules"
+              }
+            ]
+          }
+        }
+      },
+      "description": "A component for Route based on days of the year"
+    },
+    "VADigitalStep": {
+      "properties": {
+        "component": {
+          "properties": {
+            "name": {
+              "const": "virtual_agent_digital-XVw36ZTfp3"
+            },
+            "version": {
+              "const": "1.10.x"
+            }
+          }
+        },
+        "exits": {
+          "type": "array",
+          "allOf": [
+            {
+              "contains": {
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "const": "success"
+                  }
+                }
+              },
+              "description": "If the interaction was handled by the virtual agent and ended successfully"
+            },
+            {
+              "contains": {
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "const": "escalation"
+                  }
+                }
+              },
+              "description": "If there is a request for the interaction to be escalated to a human agent"
+            },
+            {
+              "contains": {
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "const": "failure"
+                  }
+                }
+              },
+              "description": "If an unexpected error occurs with the virtual agent"
+            }
+          ]
+        }
+      },
+      "description": "A component for VA digital"
+    },
+    "ConditionalStep": {
+      "properties": {
+        "component": {
+          "properties": {
+            "name": {
+              "const": "conditional_statement-ZDQ2YzRkZT"
+            },
+            "version": {
+              "const": "3.3.x"
+            }
+          }
+        },
+        "exits": {
+          "type": "array",
+          "anyOf": [
+            {
+              "contains": {
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "const": "no-match"
+                  }
+                }
+              },
+              "description": "If no expression evaluates to true"
+            }
+          ],
+          "items": {
+            "type": "object",
+            "oneOf": [
+              {
+                "properties": {
+                  "name": {
+                    "const": "error"
+                  }
+                },
+                "description": "If an error occurs"
+              },
+              {
+                "title": "Custom Exits",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "condition": {
+                    "type": "object",
+                    "title": "Condition",
+                    "required": ["operation", "conditions"],
+                    "properties": {
+                      "operation": {
+                        "_ui_": {
+                          "field": {
+                            "type": "selection_group"
+                          },
+                          "options": {
+                            "OR": {
+                              "label": "ANY"
+                            },
+                            "AND": {
+                              "label": "ALL"
+                            }
+                          }
+                        },
+                        "enum": ["AND", "OR"],
+                        "type": "string",
+                        "title": "Matching",
+                        "default": "AND"
+                      },
+                      "conditions": {
+                        "type": "object",
+                        "required": ["expressions"],
+                        "properties": {
+                          "expressions": {
+                            "_ui_": {
+                              "field": {
+                                "type": "conditional_statement_array",
+                                "hide_labels": true
+                              },
+                              "container": {
+                                "type": "conditional_statement_array",
+                                "add_button": {
+                                  "type": "link",
+                                  "label": "Add condition"
+                                }
+                              }
+                            },
+                            "type": "array",
+                            "items": {
+                              "_ui_": {
+                                "type": "conditional"
+                              },
+                              "type": "object",
+                              "oneOf": [
+                                {
+                                  "type": "object",
+                                  "required": ["equal"],
+                                  "properties": {
+                                    "equal": {
+                                      "type": "object",
+                                      "required": ["left_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "boolean"
+                                        },
+                                        "right_operand": {
+                                          "anyOf": [
+                                            {
+                                              "type": "null"
+                                            },
+                                            {
+                                              "type": "boolean"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["equal"],
+                                  "properties": {
+                                    "equal": {
+                                      "type": "object",
+                                      "required": ["left_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "number"
+                                        },
+                                        "right_operand": {
+                                          "anyOf": [
+                                            {
+                                              "type": "null"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["equal"],
+                                  "properties": {
+                                    "equal": {
+                                      "type": "object",
+                                      "required": ["left_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        },
+                                        "right_operand": {
+                                          "anyOf": [
+                                            {
+                                              "type": "null"
+                                            },
+                                            {
+                                              "type": "string"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["not_equal"],
+                                  "properties": {
+                                    "not_equal": {
+                                      "type": "object",
+                                      "required": ["left_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "boolean"
+                                        },
+                                        "right_operand": {
+                                          "anyOf": [
+                                            {
+                                              "type": "null"
+                                            },
+                                            {
+                                              "type": "boolean"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["not_equal"],
+                                  "properties": {
+                                    "not_equal": {
+                                      "type": "object",
+                                      "required": ["left_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "number"
+                                        },
+                                        "right_operand": {
+                                          "anyOf": [
+                                            {
+                                              "type": "null"
+                                            },
+                                            {
+                                              "type": "number"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["not_equal"],
+                                  "properties": {
+                                    "not_equal": {
+                                      "type": "object",
+                                      "required": ["left_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        },
+                                        "right_operand": {
+                                          "anyOf": [
+                                            {
+                                              "type": "null"
+                                            },
+                                            {
+                                              "type": "string"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["less_than"],
+                                  "properties": {
+                                    "less_than": {
+                                      "type": "object",
+                                      "required": ["left_operand", "right_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "number"
+                                        },
+                                        "right_operand": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["less_than"],
+                                  "properties": {
+                                    "less_than": {
+                                      "type": "object",
+                                      "required": ["left_operand", "right_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        },
+                                        "right_operand": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["less_or_equal_than"],
+                                  "properties": {
+                                    "less_or_equal_than": {
+                                      "type": "object",
+                                      "required": ["left_operand", "right_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "number"
+                                        },
+                                        "right_operand": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["less_or_equal_than"],
+                                  "properties": {
+                                    "less_or_equal_than": {
+                                      "type": "object",
+                                      "required": ["left_operand", "right_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        },
+                                        "right_operand": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["greater_than"],
+                                  "properties": {
+                                    "greater_than": {
+                                      "type": "object",
+                                      "required": ["left_operand", "right_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "number"
+                                        },
+                                        "right_operand": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["greater_than"],
+                                  "properties": {
+                                    "greater_than": {
+                                      "type": "object",
+                                      "required": ["left_operand", "right_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        },
+                                        "right_operand": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["greater_or_equal_than"],
+                                  "properties": {
+                                    "greater_or_equal_than": {
+                                      "type": "object",
+                                      "required": ["left_operand", "right_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "number"
+                                        },
+                                        "right_operand": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["greater_or_equal_than"],
+                                  "properties": {
+                                    "greater_or_equal_than": {
+                                      "type": "object",
+                                      "required": ["left_operand", "right_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        },
+                                        "right_operand": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["contains"],
+                                  "properties": {
+                                    "contains": {
+                                      "type": "object",
+                                      "required": ["left_operand", "right_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        },
+                                        "right_operand": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "required": ["contains"],
+                                  "properties": {
+                                    "contains": {
+                                      "type": "object",
+                                      "required": ["left_operand", "right_operand"],
+                                      "properties": {
+                                        "left_operand": {
+                                          "type": "number"
+                                        },
+                                        "right_operand": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                }
+                              ]
+                            },
+                            "title": "Conditions",
+                            "minItems": 1
+                          }
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "description": "Configure the conditions that will be used to direct the interaction to specific exits"
+              }
+            ]
+          }
+        }
+      },
+      "description": "This component evaluates expressions defined in it and returns the outcome of the first expression that yields true"
+    },
+    "AutomatedMessageStep": {
+      "properties": {
+        "component": {
+          "properties": {
+            "name": {
+              "const": "automated_message-ZTE3NGQwZj"
+            },
+            "version": {
+              "const": "0.2.x"
+            }
+          }
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "text_message_info": {
+              "_ui_": {
+                "order": ["text_message"]
+              },
+              "type": "object",
+              "title": "Compose message",
+              "required": ["text_message"],
+              "properties": {
+                "text_message": {
+                  "_ui_": {
+                    "type": "textarea"
+                  },
+                  "type": "string",
+                  "title": "Message",
+                  "minLength": 1
+                }
+              },
+              "description": "Configure the automated text message that will appear for the user",
+              "additionalProperties": false
+            }
+          }
+        },
+        "exits": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "const": "ok"
+              }
+            },
+            "required": ["name"]
+          }
+        }
+      },
+      "description": "A component for configure the automated text message that will appear for the user"
+    },
+    "AssignChatWithCapacityStep": {
+      "properties": {
+        "component": {
+          "properties": {
+            "name": {
+              "const": "assign_a_chat_with_capacity-td6QrY1wty"
+            },
+            "version": {
+              "const": "2.4.x"
+            }
+          }
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "priority": {
+              "type": "object",
+              "properties": {
+                "priorities_list": {
+                  "type": "integer",
+                  "default": 5
+                }
+              },
+              "description": "Define the priority for this assignment request.",
+              "required": ["priorities_list"]
+            },
+            "time_limit": {
+              "type": "object",
+              "properties": {
+                "time": {
+                  "type": "integer",
+                  "default": 30
+                },
+                "waiting_music": {
+                  "type": "object"
+                }
+              },
+              "description": "Maximum time to find the configured assignment.",
+              "required": ["time"]
+            },
+            "assignment_parameters": {
+              "type": "object",
+              "oneOf": [
+                {
+                  "properties": {
+                    "ring_groups": {
+                      "type": "object",
+                      "properties": {
+                        "ring_groups_list": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": ["ring_groups_list"]
+                    }
+                  },
+                  "required": ["ring_groups"],
+                  "additionalProperties": false
+                },
+                {
+                  "properties": {
+                    "agents": {
+                      "type": "object",
+                      "properties": {
+                        "agents_list": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": ["agents_list"]
+                    }
+                  },
+                  "required": ["agents"],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "offer_type": {
+              "type": "object",
+              "properties": {
+                "offer_types": {
+                  "type": "string",
+                  "enum": ["direct-assign"],
+                  "default": "direct-assign"
+                }
+              }
+            }
+          }
+        },
+        "exits": {
+          "type": "array",
+          "allOf": [
+            {
+              "contains": {
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "const": "no_match"
+                  }
+                }
+              },
+              "description": "If a match could not be found"
+            },
+            {
+              "contains": {
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "const": "chat_started"
+                  }
+                }
+              },
+              "description": "If there was a successful match and a conversation with an agent has started"
+            },
+            {
+              "contains": {
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "const": "time_limit_reached"
+                  }
+                }
+              },
+              "description": "If there was a match but all agents are busy and the configured time out was reached"
+            },
+            {
+              "contains": {
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "const": "no_answer"
+                  }
+                }
+              },
+              "description": "If there was at least one successful offer attempt but no agent was available"
+            }
+          ]
+        }
+      },
+      "description": "A component related to assigning a chat"
+    }
+  }
+}

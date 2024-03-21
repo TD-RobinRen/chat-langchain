@@ -1,0 +1,249 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Studio call flow meta-schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "A unique identifier",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "account_id": {
+      "type": "string",
+      "description": "Account identifier, the identifier of the account to which this record belongs.",
+      "pattern": "^[0-9a-fA-F]{24}$"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User identifier, the identifier of the user who created this record.",
+      "pattern": "^[0-9a-fA-F]{24}$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name, usually representing a human-readable title or name for this record."
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description or additional information about this record."
+    },
+    "trigger_type": {
+      "type": "string",
+      "description": "Trigger type, indicating the manner or condition under which this record is triggered.",
+      "enum": [
+        "voice_inbound",
+        "voice_outbound",
+        "livechat_inbound",
+        "message_inbound",
+        "api",
+        "module"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "description": "Status, indicating the current status of this record, such as 'published'.",
+      "enum": ["draft", "published", "archived", "deleted"]
+    },
+    "version": {
+      "type": "integer",
+      "description": "Version number, the version identifier of this record."
+    },
+    "previous_version": {
+      "type": "string",
+      "description": "Identifier of the previous version, pointing to the prior version of this record."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Creation time, the date and time when the record was created."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Update time, the date and time when the record was last updated."
+    },
+    "valid": {
+      "type": "boolean",
+      "description": "Validity flag, indicating whether this record is valid."
+    },
+    "validation_status": {
+      "type": "string",
+      "description": "Validation status, showing the validation status of this record, such as 'valid'.",
+      "enum": ["valid", "error", "warning", "validating", "not_validated"]
+    },
+    "initial_step_id": {
+      "type": "string",
+      "description": "Initial step identifier, pointing to the initial step in the process.",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "group_id": {
+      "type": "string",
+      "description": "Group identifier, the identifier of the group or category to which this record belongs."
+    },
+    "pre_conditions": {
+      "type": "object",
+      "description": "Pre-conditions, defining conditions that must be met for this record to be valid."
+    },
+    "steps": {
+      "type": "array",
+      "description": "A list of steps in a process, each representing a specific action or task.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the step.",
+            "pattern": "^[0-9a-f]{32}$"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable name for the step."
+          },
+          "component": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": ["name", "version"]
+          },
+          "properties": {
+            "type": "object",
+            "description": "A set of properties and configurations for the step."
+          },
+          "exits": {
+            "type": "array",
+            "description": "Possible exit points or outcomes from this step.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_key": {
+                  "type": "string",
+                  "description": "A UUID identifying the exit, following the UUID format.",
+                  "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Name of the exit."
+                },
+                "transition": {
+                  "type": "string",
+                  "description": "Identifier of the step to transition to after this exit.",
+                  "pattern": "^[0-9a-f]{32}$"
+                }
+              },
+              "required": ["_key", "name", "transition"]
+            }
+          },
+          "context_mappings": {
+            "type": "object",
+            "description": "Mappings of context variables for this step",
+            "default": {}
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date and time when the step was created."
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "components_schema#/definitions/InboundVoiceStep"
+          },
+          {
+            "$ref": "components_schema#/definitions/IncomingMessageStep"
+          },
+          {
+            "$ref": "components_schema#/definitions/AssignmentAndDialStep"
+          },
+          {
+            "$ref": "components_schema#/definitions/HangupCallStep"
+          },
+          {
+            "$ref": "components_schema#/definitions/VoicemailStep"
+          },
+          {
+            "$ref": "components_schema#/definitions/StandardIVRStep"
+          },
+          {
+            "$ref": "components_schema#/definitions/SalesforceDataDipStep"
+          },
+          {
+            "$ref": "components_schema#/definitions/VADigitalStep"
+          },
+          {
+            "$ref": "components_schema#/definitions/ConditionalStep"
+          },
+          {
+            "$ref": "components_schema#/definitions/CalendarBasedRuleStep"
+          },
+          {
+            "$ref": "components_schema#/definitions/TimeBasedRulesStep"
+          },
+          {
+            "$ref": "components_schema#/definitions/AutomatedMessageStep"
+          },
+          {
+            "$ref": "components_schema#/definitions/AssignChatWithCapacityStep"
+          }
+        ],
+        "required": [
+          "id",
+          "name",
+          "component",
+          "properties",
+          "exits",
+          "context_mappings",
+          "created_at"
+        ]
+      },
+      "minItems": 1
+    },
+    "model": {
+      "type": "object",
+      "description": "The context variables for this flow",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "The name of this variable"
+        },
+        "exposed": {
+          "type": "boolean",
+          "description": "Exposed the values"
+        },
+        "format": {
+          "type": "object",
+          "description": "The format of the variable",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "The type of the variable"
+            },
+            "$schema": {
+              "type": "string",
+              "description": "The schema of the variable",
+              "default": "http://json-schema.org/draft-04/schema#"
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "description",
+    "trigger_type",
+    "status",
+    "version",
+    "created_at",
+    "updated_at",
+    "valid",
+    "validation_status",
+    "initial_step_id",
+    "steps"
+  ]
+}
