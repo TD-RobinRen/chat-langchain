@@ -1,0 +1,70 @@
+{
+  
+  "name": "incoming_api_request-YjRiZDYyZj",
+  "title": "API request",
+  "version": "0.1.1",
+  "icon": "api",
+  "description": "Initial component for api flow definitions.",
+  "initial_step": true,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 300000,
+  "supported_trigger_types": [
+    "api"
+  ],
+  "status": "available",
+  "properties": {
+  },
+  "default_exits": [
+    {
+      "name": "ok",
+      "type": "mandatory",
+      "title": "Ok",
+      "description": "If the component succeeds"
+    },
+    {
+      "name": "error",
+      "type": "invisible",
+      "title": "Error",
+      "description": "If an error occurs"
+    }
+  ],
+  "data": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "interaction_id": {
+        "type": "string"
+      },
+      "request_parameters": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "additionalProperties": false
+  },
+  "data_sources": {
+  },
+  "metadata": {
+  },
+  "enabled_accounts": [
+
+  ],
+  "function_mapping": {
+    "function": {
+      "name": "api_call",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "none",
+        "template": ""
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{\"exit\": {{#error}}\"error\"{{/error}} {{#ok}}\"ok\"{{/ok}}, \"output_data\": {{#error}}{{{error.to_json}}}{{/error}} {{#ok}}{{{ok.to_json}}}{{/ok}} }"
+      }
+    },
+    "max_execution_time": 10
+  }
+}

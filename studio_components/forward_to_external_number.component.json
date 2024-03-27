@@ -1,0 +1,223 @@
+{
+ 
+  "name": "forward_to_external_number-NWI5ZGVmYT",
+  "title": "Forward to External Number",
+  "version": "3.5.0",
+  "icon": "forward_to_external_number",
+  "description": "Forward the voice call to an external phone number.",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 120000,
+  "supported_trigger_types": [
+    "voice_inbound",
+    "api",
+    "module"
+  ],
+  "status": "available",
+  "properties": {
+    "_ui_": {
+      "order": [
+        "caller_configuration",
+        "external_number"
+      ]
+    },
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "external_number"
+    ],
+    "properties": {
+      "external_number": {
+        "type": "object",
+        "title": "External number",
+        "required": [
+          "forward_address",
+          "ringing_timeout_seconds"
+        ],
+        "properties": {
+          "forward_address": {
+            "_ui_": {
+              "type": "radio_choice",
+              "title": "Destination number",
+              "container": {
+                "type": "empty_container"
+              }
+            },
+            "oneOf": [
+              {
+                "_ui_": {
+                  "order": [
+                    "prefix",
+                    "number"
+                  ],
+                  "container": {
+                    "type": "inline_fields_container"
+                  }
+                },
+                "type": "object",
+                "title": "Manual configuration...",
+                "required": [
+                  "prefix",
+                  "number"
+                ],
+                "properties": {
+                  "number": {
+                    "_ui_": {
+                      "errors": {
+                        "pattern": "Please provide a valid phone number.",
+                        "required": "Phone number is required."
+                      },
+                      "container": {
+                        "type": "empty_container"
+                      },
+                      "placeholder": "Please input destination number..."
+                    },
+                    "type": "string",
+                    "pattern": "^[0-9]{3,15}$"
+                  },
+                  "prefix": {
+                    "_ui_": {
+                      "field": {
+                        "type": "phone_prefix"
+                      },
+                      "errors": {
+                        "required": "Country code is required."
+                      },
+                      "container": {
+                        "type": "empty_container"
+                      },
+                      "placeholder": "Country"
+                    },
+                    "type": "string",
+                    "default": "+1",
+                    "pattern": "^\\+[0-9]{1,4}$"
+                  }
+                }
+              },
+              {
+                "_ui_": {
+                  "container": {
+                    "type": "empty_container"
+                  }
+                },
+                "type": "object",
+                "title": "From variable in the flow context...",
+                "required": [
+                  "number_from_context"
+                ],
+                "properties": {
+                  "number_from_context": {
+                    "_ui_": {
+                      "type": "simple_selection_dropdown",
+                      "data_source": "context"
+                    },
+                    "type": "string",
+                    "default": ""
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          },
+          "ringing_timeout_seconds": {
+            "_ui_": {
+              "hint": "Value should be between 1 and 600 seconds."
+            },
+            "type": "integer",
+            "title": "Max ringing time in seconds",
+            "default": 35,
+            "maximum": 600,
+            "minimum": 1
+          }
+        },
+        "description": "Configure the external number settings."
+      },
+      "caller_configuration": {
+        "type": "object",
+        "title": "Caller configuration",
+        "required": [
+          "source_address_type"
+        ],
+        "properties": {
+          "source_address_type": {
+            "_ui_": {
+              "type": "radio_choice",
+              "title": "Number to show during outbound",
+              "options": {
+                "contact": {
+                  "label": "Contact number"
+                },
+                "talkdesk_inbound_number": {
+                  "label": "Touchpoint"
+                }
+              }
+            },
+            "enum": [
+              "contact",
+              "talkdesk_inbound_number"
+            ],
+            "type": "string",
+            "default": "contact"
+          }
+        },
+        "description": "Configure the details of caller side of the call being forwarded."
+      }
+    }
+  },
+  "default_exits": [
+    {
+      "name": "ok",
+      "type": "invisible",
+      "title": "Ok"
+    },
+    {
+      "name": "call_no_answer",
+      "type": "mandatory",
+      "title": "No answer",
+      "description": "There was at least one successful dial but no call pickup (this includes: ringing timeout, busy, rejected)."
+    },
+    {
+      "name": "invalid",
+      "type": "mandatory",
+      "title": "Invalid number",
+      "description": "This exit will be selected if the provided number is invalid."
+    },
+    {
+      "name": "room_finished",
+      "type": "invisible",
+      "title": "Room Finished"
+    }
+  ],
+  "on_error": "call_no_answer",
+  "data": {
+  },
+  "data_sources": {
+  },
+  "pre_conditions": {
+    "post_call": false,
+    "voice_participant": true
+  },
+  "metadata": {
+  },
+  "enabled_accounts": [
+
+  ],
+  "function_mapping": {
+    "function": {
+      "name": "forward_to_external",
+      "version": "2.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "mustache",
+        "template": "{ {{#properties}} {{#external_number}} \"forward_address\": {{#forward_address}}{{#number_from_context.length}}\"{{{number_from_context}}}\", {{/number_from_context.length}}{{^number_from_context.length}}\"{{{prefix}}}{{{number}}}\",{{/number_from_context.length}}{{/forward_address}}{{#ringing_timeout_seconds}} \"ringing_timeout_in_seconds\": {{{ringing_timeout_seconds}}}, {{/ringing_timeout_seconds}} {{/external_number}} \"source_address_type\": \"{{{caller_configuration.source_address_type}}}\" {{/properties}} }"
+      },
+      "output": {
+        "engine": "mustache",
+        "template": "{ \"exit\": \"{{#ok}}ok{{/ok}}{{#call_no_answer}}call_no_answer{{/call_no_answer}}{{#provider_rejected}}invalid{{/provider_rejected}}{{#error}}error{{/error}}{{#number_rejected}}invalid{{/number_rejected}}{{#room_finished}}room_finished{{/room_finished}}\", \"output_data\": {{#error}}{ \"code\" : \"{{code}}\", \"message\": \"{{message}}\" }{{/error}}{{^error}}{{#room_finished}}{ \"code\": \"{{code}}\", \"message\": \"{{message}}\" }{{/room_finished}}{{^room_finished}}{}{{/room_finished}} {{/error}} }"
+      }
+    },
+    "max_execution_time": 14410
+  }
+}

@@ -1,0 +1,93 @@
+{
+  
+  "name": "traffic_splitter-ZjgwOTU1ZG",
+  "title": "Traffic Splitter",
+  "version": "1.3.4",
+  "icon": "traffic_splitter",
+  "description": "Traffic splitter enables the flow to distribute the interactions homogeneously according to specified weights.",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 1800000,
+  "supported_trigger_types": [
+    "api",
+    "livechat_inbound",
+    "voice_inbound",
+    "message_inbound",
+    "module"
+  ],
+  "status": "available",
+  "properties": {
+  },
+  "default_exits": [
+    {
+      "name": "error",
+      "type": "invisible",
+      "title": "Error",
+      "description": "If an error occurs"
+    }
+  ],
+  "custom_exits": {
+    "title": "Splitting distribution",
+    "description": "Traffic splitter enables the flow to distribute the interactions homogeneously according to specified weights.",
+    "condition": {
+      "type": "object",
+      "title": "Exit",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": [
+        "weight"
+      ],
+      "properties": {
+        "weight": {
+          "type": "integer",
+          "title": "Weight ratio",
+          "default": 50,
+          "maximum": 1000000,
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "mandatory": true,
+    "min_custom_exits": 1,
+    "can_be_disabled": true,
+    "_ui_": {
+      "min_custom_exits": 2,
+      "headers": [
+        {
+          "type": "distribution_summary",
+          "mappings": {
+            "value": "condition.weight",
+            "disabled": "disabled"
+          }
+        }
+      ]
+    }
+  },
+  "data": {
+  },
+  "data_sources": {
+  },
+  "metadata": {
+  },
+  "enabled_accounts": [
+
+  ],
+  "function_mapping": {
+    "function": {
+      "name": "traffic_splitter_function",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "mustache_json",
+        "template": "{ \"exits\": [ {{#exits}}{{#exits.length}}{{#condition}}{ \"name\": \"{{name}}\", \"weight\": {{{weight}}} }, {{/condition}}{{/exits.length}}{{/exits}} ] }"
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{ \"exit\": \"{{output}}\", \"output_data\": {{{data}}} }"
+      }
+    },
+    "max_execution_time": 10
+  }
+}

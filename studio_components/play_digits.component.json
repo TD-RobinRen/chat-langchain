@@ -1,0 +1,97 @@
+{
+  "name": "play_digits-NzIzNzYyZj",
+  "title": "Play Digits",
+  "version": "0.2.0",
+  "icon": "play_audio",
+  "description": "Configure digits to play DTMF tones during a call",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 120000,
+  "supported_trigger_types": [
+    "voice_inbound",
+    "api",
+    "module"
+  ],
+  "status": "available",
+  "properties": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "digits"
+    ],
+    "properties": {
+      "digits": {
+        "type": "string",
+        "title": "Digits"
+      }
+    },
+    "additionalProperties": false
+  },
+  "default_exits": [
+    {
+      "name": "ok",
+      "type": "mandatory",
+      "title": "Ok",
+      "description": "If the component succeeds"
+    }
+  ],
+  "on_error": "ok",
+  "data": {},
+  "data_sources": {},
+  "pre_conditions": {
+    "voice_participant": true
+  },
+  "metadata": {},
+  "enabled_accounts": {
+    "prd": {
+      "td-us-1": [
+        "59f1baa5d882d21f2971a261",
+        "5accca558a97090022242853",
+        "5af4715325cd25001607d273",
+        "5ee91fd114826f000159c448",
+        "5efcae04714e9d000113e846",
+        "607483e0f47cb0e40c50f04d",
+        "5d88e4651b762400019f62c9",
+        "5ede7bc9ca75e70001fe090e",
+        "63448ffbc83deb71e966926f",
+        "6352f495e077a14eedce5d83",
+        "637651772e80c4285085aba3",
+        "61f8b66e12aeb0e4651876aa",
+        "59dcf18c6c00120016b9f89f",
+        "6386687bf12f836cd9c8a933",
+        "62e6f858b0b614431989eab5",
+        "5f1f61f23b4e6d00011525ba",
+        "658dc38fd35fca7ecd99fb73",
+        "65685a0bfbea4b7684365bca"
+      ],
+      "td-eu-1": [
+        "60e6bde1af3fb0e46553ec3f",
+        "60f18d2b3796b0e4803b6c2b",
+        "634603d00be4f57b06b8b2c9",
+        "64b1345298728122c1502a2a"
+      ],
+      "td-ca-1": [
+        "61601bb2ddf8b0e4656215fe",
+        "617181e660e2b0e46e2d20c7"
+      ]
+    }
+  },
+  "function_mapping": {
+    "function": {
+      "name": "play_digits",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "mustache_json",
+        "template": "{ {{#properties}}\"digits\": \"{{{digits}}}\" {{/properties}} }"
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{ \"exit\": \"{{{output}}}\" }"
+      }
+    },
+    "max_execution_time": 120
+  }
+}

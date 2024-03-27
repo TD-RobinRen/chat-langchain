@@ -1,0 +1,57 @@
+{
+  "name": "hang_up-GC1Usd23ghe627s",
+  "title": "Hangup",
+  "version": "1.0.3",
+  "icon": "hangup",
+  "description": "hangs up the call",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 300000,
+  "supported_trigger_types": [
+    "voice_outbound"
+  ],
+  "status": "available",
+  "properties": {
+  },
+  "default_exits": [
+    {
+      "name": "room_finished",
+      "type": "optional",
+       "title": "Call disconnected",
+      "description": "The participant was disconnected from the call with success",
+      "effects": {
+        "voice_participant": false
+      }
+    }
+  ],
+  "data": {
+  },
+  "data_sources": {
+  },
+  "metadata": {
+  },
+  "pre_conditions": {
+    "voice_participant": true
+  },
+  "enabled_accounts": [
+
+  ],
+  "function_mapping": {
+    "function": {
+      "name": "hangup_call",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "mustache_json",
+        "template": "{}"
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{ \"exit\": \"{{output}}\", {{#data}} \"output_data\": {} {{/data}} }"
+      }
+    },
+    "max_execution_time": 30
+  }
+}

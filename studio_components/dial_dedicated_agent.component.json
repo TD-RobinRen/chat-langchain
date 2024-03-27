@@ -1,0 +1,162 @@
+{
+  "name": "dial_dedicated_agent-odQvjBVvex",
+  "title": "Dial Agent",
+  "version": "3.2.1",
+  "icon": "dial_agent",
+  "description": "Dial a specific agent without availability checks",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 14415000,
+  "supported_trigger_types": [
+    "voice_inbound"
+  ],
+  "status": "available",
+  "properties": {
+    "_ui_": {
+      "order": [
+        "assignment_parameters",
+        "ringing_parameters"
+      ]
+    },
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "assignment_parameters",
+      "ringing_parameters"
+    ],
+    "properties": {
+      "assignment_parameters": {
+        "_ui_": {
+          "type": "radio_choice",
+          "title": "Select how to find an agent"
+        },
+        "oneOf": [
+          {
+            "type": "object",
+            "title": "An agent in your account",
+            "required": [
+              "agent_id"
+            ],
+            "properties": {
+              "agent_id": {
+                "_ui_": {
+                  "type": "simple_selection_dropdown",
+                  "data_source": "agents"
+                },
+                "type": "string",
+                "data_source": "agents"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "title": "Variable in the flow context",
+            "required": [
+              "agent_context"
+            ],
+            "properties": {
+              "agent_context": {
+                "_ui_": {
+                  "type": "simple_selection_dropdown",
+                  "data_source": "context"
+                },
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "Assignment Parameters",
+        "description": "Select and configure which attributes will be used for matching a call with an agent"
+      },
+      "ringing_parameters": {
+        "type": "object",
+        "title": "Maximum ringing time",
+        "description": "Maximum time to ring the selected agent",
+        "required": [
+          "timeout"
+        ],
+        "properties": {
+          "timeout": {
+            "_ui_": {
+              "hint": "The value should be between 30 and 600 seconds."
+            },
+            "type": "integer",
+            "title": "Time in seconds",
+            "maximum": 600,
+            "minimum": 30
+          }
+        }
+      }
+    },
+    "additionalProperties": false
+  },
+  "default_exits": [
+    {
+      "name": "call_no_answer",
+      "type": "mandatory",
+      "title": "No answer",
+      "description": "There was at least one successful dial attempt but no agent was available.",
+      "effects": {
+        "voice_participant": true
+      }
+    },
+    {
+      "name": "call_aborted",
+      "type": "invisible",
+      "title": "Call aborted"
+    },
+    {
+      "name": "call_finished",
+      "type": "invisible",
+      "title": "Call Finished",
+      "description": "There was a successful match and a conversation with an agent has finished."
+    },
+    {
+      "name": "no_match",
+      "type": "mandatory",
+      "title": "No match",
+      "description": "A match could not be found."
+    },
+    {
+      "name": "error",
+      "type": "invisible",
+      "title": "error"
+    },
+    {
+      "name": "room_finished",
+      "type": "invisible",
+      "title": "Room finished"
+    }
+  ],
+  "data": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {},
+    "additionalProperties": false
+  },
+  "pre_conditions": {
+    "post_call": false
+  },
+  "metadata": {},
+  "enabled_accounts": [],
+  "function_mapping": {
+    "function": {
+      "name": "dial_dedicated_agent_rx",
+      "version": "2.1.x"
+    },
+    "templates": {
+      "input": {
+        "engine": "mustache_json",
+        "template": "{ {{#properties}}\"user\": {{#assignment_parameters}} {{#agent_id}} \"{{{.}}}\", \"type\": \"id\" {{/agent_id}}{{#agent_context}} \"{{{.}}}\", \"type\": \"email\"  {{/agent_context}} {{/assignment_parameters}} {{#ringing_parameters}} {{#timeout}}, \"ringing_timeout\": \"{{{.}}}\" {{/timeout}} {{/ringing_parameters}} {{/properties}} }"
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{ \"exit\": \"{{output}}\", \"output_data\": {{{data.to_json}}} }"
+      }
+    },
+    "max_execution_time": 14410
+  }
+}

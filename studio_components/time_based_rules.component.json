@@ -1,0 +1,212 @@
+{
+  "name": "time_based_rules-NDU4NTVlNz",
+  "title": "Time Based Rules",
+  "version": "1.5.1",
+  "icon": "time_based_rules",
+  "description": "Route based on time of day and day of the week",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 15000,
+  "supported_trigger_types": [
+    "api",
+    "livechat_inbound",
+    "voice_inbound",
+    "message_inbound",
+    "module",
+    "voice_outbound"
+  ],
+  "status": "available",
+  "properties": {},
+  "default_exits": [
+    {
+      "name": "no-match",
+      "type": "mandatory",
+      "title": "No match",
+      "description": "If none of the rules match"
+    }
+  ],
+  "custom_exits": {
+    "title": "Time based exits",
+    "description": "Define exits based on week days and time ranges",
+    "condition": {
+      "_ui_": {
+        "order": ["timezone", "inside_business_hours", "ranges"],
+        "container": {
+          "type": "SIMPLE_SECTION_CONTAINER"
+        }
+      },
+      "type": "object",
+      "title": "Time based exit",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": ["timezone", "ranges"],
+      "properties": {
+        "ranges": {
+          "_ui_": {
+            "field": {
+              "add_button": {
+                "label": "Add time range"
+              }
+            },
+            "items": {
+              "type": "inline"
+            },
+            "forceOne": true
+          },
+          "type": "array",
+          "items": {
+            "_ui_": {
+              "order": ["days", "time"],
+              "container": {
+                "type": "SIMPLE_SECTION_CONTAINER"
+              }
+            },
+            "type": "object",
+            "required": ["days", "time"],
+            "properties": {
+              "days": {
+                "_ui_": {
+                  "field": {
+                    "type": "weekdays"
+                  }
+                },
+                "type": "array",
+                "items": {
+                  "enum": [
+                    "MONDAY",
+                    "TUESDAY",
+                    "WEDNESDAY",
+                    "THURSDAY",
+                    "FRIDAY",
+                    "SATURDAY",
+                    "SUNDAY"
+                  ],
+                  "type": "string"
+                },
+                "default": [
+                  "MONDAY",
+                  "TUESDAY",
+                  "WEDNESDAY",
+                  "THURSDAY",
+                  "FRIDAY"
+                ],
+                "minItems": 1
+              },
+              "time": {
+                "_ui_": {
+                  "field": {
+                    "type": "two_column_grid"
+                  },
+                  "order": ["from", "to"],
+                  "container": {
+                    "type": "time_based_rule"
+                  }
+                },
+                "type": "object",
+                "required": ["from", "to"],
+                "properties": {
+                  "to": {
+                    "_ui_": {
+                      "field": {
+                        "type": "time_input"
+                      },
+                      "container": {
+                        "type": "time_input"
+                      }
+                    },
+                    "type": "string",
+                    "title": "To",
+                    "default": "18:00:00",
+                    "example": "22:10:00",
+                    "pattern": "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$",
+                    "minLength": 1
+                  },
+                  "from": {
+                    "_ui_": {
+                      "field": {
+                        "type": "time_input"
+                      },
+                      "container": {
+                        "type": "time_input"
+                      }
+                    },
+                    "type": "string",
+                    "title": "From",
+                    "default": "09:00:00",
+                    "example": "02:15:00",
+                    "pattern": "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "timezone": {
+          "_ui_": {
+            "type": "timezone"
+          },
+          "type": "string",
+          "title": "Timezone",
+          "example": "America/Los_Angeles",
+          "minLength": 1
+        },
+        "inside_business_hours": {
+          "_ui_": {
+            "type": "radio_choice",
+            "options": {
+              "true": {
+                "label": "Report as: Inside business hours"
+              },
+              "false": {
+                "label": "Report as: Outside business hours"
+              }
+            }
+          },
+          "enum": [true, false],
+          "title": "Time Range",
+          "default": true,
+          "description": "Define criteria for the time rules to apply"
+        }
+      },
+      "additionalProperties": false
+    },
+    "mandatory": true,
+    "min_custom_exits": 1,
+    "can_be_disabled": false
+  },
+  "on_error": "no-match",
+  "data": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "match": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "data_sources": {},
+  "metadata": {},
+  "enabled_accounts": [],
+  "function_mapping": {
+    "function": {
+      "name": "time_rules",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "broken_mustache",
+        "template": "{ \"rules\": [{{#exits}}{{#condition}}{ \"exit\": {{{name}}}, \"zone_id\": {{{timezone}}}, \"ranges\": [{{#ranges}}{ {{#time}}\"from\": {{{from}}}, \"to\": {{{to}}},{{/time}} \"days_of_week\": {{{days}}} },{{/ranges}}], {{#inside_business_hours}} \"inside_business_hours\": {{{inside_business_hours}}} {{/inside_business_hours}} },{{/condition}}{{/exits}}]}"
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{ \"exit\": {{#error}}\"error\"{{/error}}{{^error}}\"{{matched_rule}}\"{{/error}}, \"output_data\": {{#error}}{{{error.to_json}}}{{/error}}{{^error}}{ \"match\": \"{{matched_rule}}\" }{{/error}}}"
+      }
+    },
+    "max_execution_time": 10
+  }
+}

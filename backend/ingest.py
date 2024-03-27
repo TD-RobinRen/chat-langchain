@@ -11,17 +11,32 @@ from langchain.indexes import SQLRecordManager, index
 from langchain_community.vectorstores import Weaviate
 from langchain_core.embeddings import Embeddings
 from langchain_openai import OpenAIEmbeddings
+from langchain_community.document_loaders import DirectoryLoader
+from langchain_community.document_loaders import JSONLoader
+from pprint import pprint
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def load_index_schema():
-    file_path='./schema/index.json'
-    return json.loads(Path(file_path).read_text())
+while_list = ['name', 'version', 'default_exits']
 
-def load_components_schema():
-    file_path='./schema/components_schema.json'
+def metadata_func(record: dict, metadata: dict) -> dict:
+    metadata["name"] = record.get("name")
+    metadata["version"] = record.get("version")
+    return metadata
+
+def load_components_folder():
+    loader = DirectoryLoader(
+        './studio_components',
+        glob="**/*.json",
+        loader_cls=JSONLoader,
+        loader_kwargs={'jq_schema': '.', 'metadata_func': metadata_func, 'text_content': False},
+        show_progress=True)
+    return loader.load()
+
+def load_components_description():
+    file_path='./schema/components_descriptions.json'
     return json.loads(Path(file_path).read_text())
 
 def get_embeddings_model() -> Embeddings:
@@ -38,9 +53,8 @@ def ingest_docs():
     DATABASE_NAME = os.environ["DATABASE_NAME"]
     RECORD_MANAGER_DB_URL = f"postgresql://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
 
-    docs_from_index = load_index_schema()
-    docs_from_components = load_components_schema()
-    splitter = RecursiveJsonSplitter(max_chunk_size=1280)
+    components_docs = load_components_folder()
+    components_description = load_components_description()
 
     embedding = get_embeddings_model()
 
@@ -55,7 +69,7 @@ def ingest_docs():
         text_key="text",
         embedding=embedding,
         by_text=False,
-        attributes=["source", "title"],
+        attributes=["source", "description", "name", "version"],
     )
 
     record_manager = SQLRecordManager(
@@ -63,20 +77,22 @@ def ingest_docs():
     )
     record_manager.create_schema()
 
-    docs_transformed = splitter.create_documents(texts=[docs_from_index, docs_from_components])
-
-    logger.info(f"Loaded {len(docs_transformed)} docs from schema")
-    # We try to return 'source' and 'title' metadata when querying vector store and
+    # We try to return 'source' and 'description' metadata when querying vector store and
     # Weaviate will error at query time if one of the attributes is missing from a
     # retrieved document.
-    for doc in docs_transformed:
+    for idx, doc in enumerate(components_docs):
         if "source" not in doc.metadata:
             doc.metadata["source"] = ""
-        if "title" not in doc.metadata:
-            doc.metadata["title"] = ""
+        component_name = os.path.basename(doc.metadata['source']).replace('.json', '')
+        description = components_description.get(component_name, {}).get('description', '')
+        doc.metadata["description"] = description
+        doc.metadata["seq_num"] = idx
+        doc.page_content = ""
+      
+    logger.info(f"Loaded {len(components_docs)} docs from schema")
 
     indexing_stats = index(
-        docs_transformed,
+        components_docs,
         record_manager,
         vectorstore,
         cleanup="full",

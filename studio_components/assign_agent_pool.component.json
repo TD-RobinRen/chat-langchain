@@ -1,0 +1,243 @@
+{
+  "name": "assign_agent_pool-DnZ3fjDa7E",
+  "title": "Assign agent pool",
+  "version": "0.3.4",
+  "icon": "assign_agent_pool",
+  "description": "Request an assignment and dial the agents return for this interaction.",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 14415000,
+  "supported_trigger_types": [
+    "api"
+  ],
+  "status": "available",
+  "properties": {
+    "_ui_": {
+      "order": [
+        "assignment_parameters",
+        "time_limit"
+      ]
+    },
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "assignment_parameters",
+      "time_limit"
+    ],
+    "properties": {
+      "time_limit": {
+        "_ui_": {
+          "order": [
+            "time_selection"
+          ]
+        },
+        "type": "object",
+        "title": "Maximum waiting time",
+        "properties": {
+          "time_selection": {
+            "_ui_": {
+              "type": "radio_choice",
+              "container": {
+                "type": "small_title_section"
+              }
+            },
+            "title": "Select how to set waiting time",
+            "oneOf": [
+              {
+                "type": "object",
+                "title": "Time in seconds",
+                "required": [
+                  "time"
+                ],
+                "properties": {
+                  "time": {
+                    "_ui_": {
+                      "hint": "The max value is capped at 30 seconds."
+                    },
+                    "type": "integer",
+                    "title": "Time in seconds",
+                    "maximum": 30,
+                    "minimum": 1
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "title": "Variable in the flow context",
+                "required": [
+                  "time_context_variable"
+                ],
+                "properties": {
+                  "time_context_variable": {
+                    "_ui_": {
+                      "type": "simple_selection_dropdown",
+                      "data_source": "context"
+                    },
+                    "type": "number",
+                    "default": 30
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "description": "Maximum time to find the configured assignment",
+        "additionalProperties": false
+      },
+      "assignment_parameters": {
+        "type": "object",
+        "required": [
+          "pool_id"
+        ],
+        "properties": {
+          "pool_id": {
+            "_ui_": {
+              "title": "Pool ID",
+              "type": "simple_selection_dropdown",
+              "data_source": "context"
+            },
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "title": "Assignment Parameters",
+        "description": "Configure the Pool ID that will be used to match a call with an agent"
+      }
+    },
+    "additionalProperties": false
+  },
+  "default_exits": [
+    {
+      "name": "call_finished",
+      "type": "invisible",
+      "title": "Call finished",
+      "description": "There was a successful match and a conversation with an agent has finished.",
+      "effects": {
+        "post_call": true
+      }
+    },
+    {
+      "name": "call_aborted",
+      "type": "invisible",
+      "title": "Call aborted"
+    },
+    {
+      "name": "ok",
+      "type": "invisible",
+      "title": "Ok"
+    },
+    {
+      "name": "call_no_answer",
+      "type": "mandatory",
+      "title": "No answer",
+      "description": "There was at least one successful dial attempt but no agent was available."
+    },
+    {
+      "name": "time_limit_reached",
+      "type": "mandatory",
+      "title": "Maximum waiting time reached",
+      "description": "There was a match but all agents are busy and the configured time out was reached."
+    },
+    {
+      "name": "no_match",
+      "type": "mandatory",
+      "title": "No match found",
+      "description": "A match could not be found."
+    },
+    {
+      "name": "error",
+      "type": "invisible",
+      "title": "error"
+    },
+    {
+      "name": "room_finished",
+      "type": "invisible",
+      "title": "Room finished"
+    },
+    {
+      "name": "queue_size_limit_reached",
+      "type": "invisible",
+      "title": "Queue size limit reached"
+    }
+  ],
+  "data": {},
+  "data_sources": {},
+  "pre_conditions": {
+    "post_call": false
+  },
+  "metadata": {},
+  "enabled_accounts": {
+    "prd": {
+      "td-us-1": [
+        "5accca558a97090022242853",
+        "5af4715325cd25001607d273",
+        "611250f9f87cb0e4fa6ec329",
+        "61125f4beb0bb0e4d744095e",
+        "60478591d936b0e49017d486",
+        "5fa18df6c2b2420001c77724",
+        "637651772e80c4285085aba3",
+        "61f8b66e12aeb0e4651876aa",
+        "6297f9e7b0f12651193c7fe1",
+        "61c48f9bb6edb0e455c413a9",
+        "64ac22abaa2c2b11912d3f83",
+        "61e03af4c706b0e4b6203287",
+        "648b225fabe524764bd7c675",
+        "638e7f2d3a665a4c43cbec3b",
+        "61f2d79acc63b0e43d7def28",
+        "61f2d6f5b8f2b0e4d4b552f8",
+        "61f2d7459604b0e478a64739",
+        "61f2d783cc63b0e43c7def28",
+        "61f2d7629604b0e479a64739",
+        "61f2d6d1cc63b0e43b7def28",
+        "644e9fd597b99b14800869da",
+        "62c58cea1269e00546ca576d"
+      ],
+      "td-eu-1": [
+        "60f18d2b3796b0e4803b6c2b",
+        "6127c7ddabc6b0e4d26964df",
+        "612d2345abc6b0e4d56964df",
+        "612d23f1ff04b0e4426c1e32",
+        "612d2391abc6b0e4d66964df",
+        "612d23cac458b0e4ed118b2c",
+        "613f973b1763b0e4cf7c4408",
+        "613f977551afb0e4f7c97c16",
+        "613f97a81763b0e4d07c4408",
+        "613f97d051afb0e4f8c97c16",
+        "61e03af4c706b0e4b6203287",
+        "61c5d7d196ebb0e483f81659",
+        "612d241dabc6b0e4d76964df",
+        "613f98b5cf0db0e4d4c947dd",
+        "613f97f9cf0db0e4d3c947dd",
+        "613f981b51afb0e4f9c97c16",
+        "63bee11c33fed00339d418e3",
+        "64ac24b098728122c1502a28",
+        "646b9705bc5dba27b3c13dc2",
+        "61c5d7d196ebb0e483f81659",
+        "612f959a28a5b0e4ff5dfd87"
+      ],
+      "td-ca-1": [
+        "617181e660e2b0e46e2d20c7",
+        "635fa5a5a9457956dffb9ae0",
+        "64ac256266a24e4e418be9c7"
+      ]
+    }
+  },
+  "function_mapping": {
+    "function": {
+      "name": "assign_agent_pool",
+      "version": "2.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "mustache_json",
+        "template": "{ {{#properties}} {{#assignment_parameters}}\"attributes\": [{{#pool_id}}{\"type\": \"set\", \"comparison_function\": \"contains\", \"name\": \"pool_id\", \"value\": [\"{{{pool_id}}}\"]} {{/pool_id}} ], {{/assignment_parameters}}{{#time_limit}}{{#time_selection}} {{#time}}\"time_limit\":{{{time}}}{{/time}}{{^time}} {{#time_context_variable}}\"time_limit\":{{{time_context_variable}}}{{/time_context_variable}} {{^time_context_variable}}\"time_limit\":30 {{/time_context_variable}}{{/time}}, {{/time_selection}} {{/time_limit}} {{/properties}} \"exit_transitions\": { {{#exits}}  {{#transition}} \"{{{name}}}\": \"{{{transition}}}\", {{/transition}} {{/exits}} } }"
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{ \"exit\": \"{{output}}\", \"output_data\": {{{data.to_json}}} }"
+      }
+    },
+    "max_execution_time": 14410
+  }
+}

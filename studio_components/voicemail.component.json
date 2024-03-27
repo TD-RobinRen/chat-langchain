@@ -1,0 +1,265 @@
+{
+  
+  "name": "voicemail-NGQ0ZDE5Nj",
+  "title": "Voicemail",
+  "version": "2.4.3",
+  "icon": "voicemail",
+  "description": "Send to voicemail (assigning agents or ring groups) and ends the flow execution.",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 15000,
+  "supported_trigger_types": [
+    "voice_inbound",
+    "module"
+  ],
+  "status": "available",
+  "properties": {
+    "_ui_": {
+      "order": [
+        "assignment_parameters",
+        "record_parameters"
+      ]
+    },
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "assignment_parameters",
+      "record_parameters"
+    ],
+    "properties": {
+      "record_parameters": {
+        "_ui_": {
+          "type": "radio_choice",
+          "title": "Transcription",
+          "description": "The recorded voicemail is transcribed and made available to agents."
+        },
+        "oneOf": [
+          {
+            "type": "object",
+            "title": "Do not transcribe",
+            "required": [
+              "without_transcription_max_duration"
+            ],
+            "properties": {
+              "without_transcription_max_duration": {
+                "_ui_": {
+                  "hint": "Between 60 and 3600 seconds."
+                },
+                "type": "integer",
+                "title": "Max duration in seconds",
+                "default": 300,
+                "maximum": 3600,
+                "minimum": 60
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "title": "Transcribe to English",
+            "required": [
+              "with_transcription_max_duration"
+            ],
+            "properties": {
+              "with_transcription_max_duration": {
+                "_ui_": {
+                  "hint": "Between 60 and 120 seconds."
+                },
+                "type": "integer",
+                "title": "Max duration in seconds",
+                "default": 120,
+                "maximum": 120,
+                "minimum": 60
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "Recording",
+        "description": "Configure the voicemail recording."
+      },
+      "assignment_parameters": {
+        "_ui_": {
+          "type": "selection_group",
+          "title": "Select assignment type"
+        },
+        "oneOf": [
+          {
+            "type": "object",
+            "title": "Ring Groups",
+            "properties": {
+              "ring_groups": {
+                "_ui_": {
+                  "type": "radio_choice",
+                  "title": "Select how to find ring groups"
+                },
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "title": "List of Ring Groups in your account",
+                    "required": [
+                      "ring_groups_list"
+                    ],
+                    "properties": {
+                      "ring_groups_list": {
+                        "_ui_": {
+                          "type": "multi_selection_dropdown",
+                          "data_source": "ring_groups"
+                        },
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "title": "Variables in the flow context",
+                    "required": [
+                      "ring_groups_context"
+                    ],
+                    "properties": {
+                      "ring_groups_context": {
+                        "_ui_": {
+                          "type": "multi_selection_dropdown",
+                          "data_source": "context"
+                        },
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "title": "Agents",
+            "properties": {
+              "agents": {
+                "_ui_": {
+                  "type": "radio_choice",
+                  "title": "Select how to find agents"
+                },
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "title": "List of agents in your account",
+                    "required": [
+                      "agents_list"
+                    ],
+                    "properties": {
+                      "agents_list": {
+                        "_ui_": {
+                          "type": "multi_selection_dropdown",
+                          "data_source": "agents"
+                        },
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "minItems": 1,
+                        "data_source": "agents"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "title": "Variables in the flow context",
+                    "required": [
+                      "agents_context"
+                    ],
+                    "properties": {
+                      "agents_context": {
+                        "_ui_": {
+                          "type": "multi_selection_dropdown",
+                          "data_source": "context"
+                        },
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "Assignment Parameters",
+        "description": "Select and configure which attributes will be used for redirecting voicemail to agents"
+      }
+    },
+    "additionalProperties": false
+  },
+  "default_exits": [
+    {
+      "name": "completed",
+      "type": "invisible",
+      "title": "Completed",
+      "description": "Voicemail has recorded successfully"
+    },
+    {
+      "name": "failed",
+      "type": "invisible",
+      "title": "Failed",
+      "description": "Contact did not leave a voicemail"
+    },
+    {
+      "name": "error",
+      "type": "invisible",
+      "title": "Error",
+      "description": "Voicemail could not be executed"
+    }
+  ],
+  "data": {
+  },
+  "data_sources": {
+    "agents": {
+      "path": "assignment_parameters.agents.agents_list",
+      "data_type": "array"
+    }
+  },
+  "pre_conditions": {
+    "voice_participant": true,
+    "post_call": false
+  },
+  "metadata": {
+  },
+  "enabled_accounts": [
+
+  ],
+  "function_mapping": {
+    "function": {
+      "name": "voicemail",
+      "version": "2.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "mustache",
+        "template": "{ {{#properties}}{{#record_parameters}}{{#without_transcription_max_duration}}\"max_duration\": {{{without_transcription_max_duration}}}, \"transcribe\": false{{/without_transcription_max_duration}}{{#with_transcription_max_duration}}\"max_duration\": {{{with_transcription_max_duration}}}, \"transcribe\": true{{/with_transcription_max_duration}}{{/record_parameters}} {{/properties}} }"
+      },
+      "output": {
+        "engine": "mustache",
+        "template": "{ {{#completed}} \"exit\": \"completed\" {{/completed}} {{#failed}} \"exit\": \"failed\" {{/failed}} {{#error}}\"exit\":\"error\", \"output_data\":{{{error.to_json}}}{{/error}} }"
+      }
+    },
+    "max_execution_time": 600
+  }
+}

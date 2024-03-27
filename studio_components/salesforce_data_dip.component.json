@@ -1,0 +1,111 @@
+{
+  "name": "salesforce_data_dip-YmZjYjczMj",
+  "title": "Salesforce data dip",
+  "version": "3.4.1",
+  "icon": "salesforce_data_dip",
+  "description": "Search your organization's Salesforce data for specific information using Salesforce Object Query Language (SOQL).",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": true,
+  "dynamic_type": "output",
+  "max_execution_time": 10000,
+  "supported_trigger_types": [
+    "api",
+    "voice_inbound",
+    "voice_outbound",
+    "message_inbound",
+    "module"
+  ],
+  "status": "available",
+  "properties": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "query"
+    ],
+    "properties": {
+      "query": {
+        "_ui_": {
+          "type": "textarea"
+        },
+        "type": "string",
+        "title": "Query",
+        "minLength": 1
+      }
+    },
+    "additionalProperties": false
+  },
+  "default_exits": [
+    {
+      "name": "ok",
+      "type": "mandatory",
+      "title": "Ok",
+      "description": "If query succeeds"
+    },
+    {
+      "name": "no_result",
+      "type": "mandatory",
+      "title": "No result",
+      "description": "If there is no result for the query"
+    },
+    {
+      "name": "timeout",
+      "type": "mandatory",
+      "title": "Timeout",
+      "description": "If the maximum waiting time for a response is exceeded",
+      "condition": {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "required": [
+          "timeout"
+        ],
+        "properties": {
+          "timeout": {
+            "type": "integer",
+            "title": "Time in seconds",
+            "default": 8,
+            "maximum": 10,
+            "minimum": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "upstream_error",
+      "type": "mandatory",
+      "title": "Connection error",
+      "description": "If an error occurs"
+    }
+  ],
+  "on_error": "upstream_error",
+  "data": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#"
+  },
+  "data_sources": {
+  },
+  "metadata": {
+  },
+  "enabled_accounts": [
+
+  ],
+  "function_mapping": {
+    "function": {
+      "name": "soql",
+      "version": "2.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "broken_mustache",
+        "template": "{ {{#exits}} {{#condition}} {{#timeout}} \"timeout\": {{{timeout}}}, {{/timeout}} \"unit\": \"seconds\", {{/condition}} {{/exits}} {{#properties}} {{#query}} \"query\": {{{query}}}, {{/query}} \"_ignore\": true {{/properties}} }"
+      },
+      "output": {
+        "engine": "mustache",
+        "template": "{ {{#no_result}} \"exit\": \"no_result\", \"output_data\": {} {{/no_result}} {{#response}} \"exit\": \"ok\", \"output_data\": {{{response.to_json}}} {{/response}} {{#timeout}} \"exit\": \"timeout\", \"output_data\": {{{timeout.to_json}}} {{/timeout}} {{#upstream_error}} \"exit\": \"upstream_error\", \"output_data\": {{{upstream_error.to_json}}} {{/upstream_error}} {{#error}} \"exit\": \"upstream_error\", \"output_data\": {{{error.to_json}}} {{/error}} }"
+      }
+    },
+    "url": "https://soql-component.{BASE_URL_ENDPOINT}/schema",
+    "max_execution_time": 20
+  }
+}

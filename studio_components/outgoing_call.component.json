@@ -1,0 +1,160 @@
+{
+  "name": "outgoing_call-Ej6cQy2EMW",
+  "title": "Outgoing call",
+  "version": "0.1.12",
+  "icon": "outgoing_call",
+  "description": "Initial component for the manual outbound flow definitions.",
+  "initial_step": true,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 300000,
+  "supported_trigger_types": ["voice_outbound"],
+  "status": "available",
+  "properties": {},
+  "default_exits": [
+    {
+      "name": "ok",
+      "type": "mandatory",
+      "title": "Success",
+      "description": "If the component succeeds",
+      "effects": {
+        "voice_participant": true
+      }
+    },
+    {
+      "name": "error",
+      "type": "invisible",
+      "title": "Error",
+      "description": "If an error occurs"
+    }
+  ],
+  "data": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "_ui_": {
+      "order": [
+        "contact",
+        "interaction_id",
+        "outbound_caller_id",
+        "agent",
+        "ring_groups"
+      ],
+      "groups": [
+        {
+          "properties": [
+            "contact.id",
+            "contact.name",
+            "contact.address",
+            "contact.company",
+            "contact.location",
+            "contact.exact_match",
+            "destination_number"
+          ],
+          "title": "Contact variables",
+          "subtitle": "Define the variables that will be populated with the values generated on exit"
+        },
+        {
+          "properties": [
+            "interaction_id",
+            "outbound_caller_id",
+            "agent.id",
+            "ring_groups"
+          ],
+          "title": "Interaction variables",
+          "subtitle": "Define the variables that will be populated with the values generated on exit"
+        }
+      ]
+    },
+    "properties": {
+      "contact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "label": "Contact ID",
+            "title": "Contact ID",
+            "type": "string"
+          },
+          "name": {
+            "label": "Contact name",
+            "title": "Contact name",
+            "type": "string"
+          },
+          "address": {
+            "label": "Contact address",
+            "title": "Contact address",
+            "type": "string"
+          },
+          "company": {
+            "label": "Contact company",
+            "title": "Contact company",
+            "type": "string"
+          },
+          "location": {
+            "label": "Contact location",
+            "title": "Contact location",
+            "type": "string"
+          },
+          "exact_match": {
+            "label": "Contact exact match",
+            "title": "Contact exact match",
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "interaction_id": {
+        "type": "string",
+        "title": "Interaction ID"
+      },
+      "outbound_caller_id": {
+        "type": "string",
+        "title": "Outbound caller ID"
+      },
+      "agent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "label": "Agent ID",
+            "title": "Agent ID",
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ring_groups": {
+        "type": "string",
+        "title": "Ring groups"
+      },
+      "destination_number": {
+        "type": "string",
+        "format": "phone",
+        "pattern": "^\\+?[1-9]\\d{1,14}$",
+        "minLength": 1,
+        "title": "Destination number"
+      }
+    },
+    "additionalProperties": false
+  },
+  "data_sources": {},
+  "metadata": {},
+  "enabled_accounts": [
+
+  ],
+  "function_mapping": {
+    "function": {
+      "name": "outgoing_call",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "none",
+        "template": ""
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{\"exit\": {{#error}}\"error\"{{/error}} {{#ok}}\"ok\"{{/ok}}, \"output_data\": {{#error}}{{{error.to_json}}}{{/error}} {{#ok}}{{{ok.to_json}}}{{/ok}} }"
+      }
+    },
+    "max_execution_time": 10
+  }
+}

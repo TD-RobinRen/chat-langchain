@@ -1,0 +1,246 @@
+{
+  "name": "calendar_based_rules-OTQ1M2UxMG",
+  "title": "Calendar Based Rules",
+  "version": "1.3.0",
+  "icon": "calendar_based_rules",
+  "description": "Route based on days of the year",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 15000,
+  "supported_trigger_types": [
+    "api",
+    "livechat_inbound",
+    "voice_inbound",
+    "message_inbound",
+    "module",
+    "voice_outbound"
+  ],
+  "status": "available",
+  "properties": {},
+  "default_exits": [
+    {
+      "name": "no-match",
+      "type": "mandatory",
+      "title": "No match",
+      "description": "If none of the rules match"
+    }
+  ],
+  "custom_exits": {
+    "title": "Calendar based exits",
+    "description": "Define exits based on calendar rules",
+    "condition": {
+      "_ui_": {
+        "order": ["timezone", "repeats_annually", "dates"],
+        "container": {
+          "type": "simple_section_container"
+        }
+      },
+      "type": "object",
+      "title": "Calendar Based Exit",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": ["timezone", "repeats_annually", "dates"],
+      "properties": {
+        "dates": {
+          "_ui_": {
+            "field": {
+              "type": "oneof_array"
+            }
+          },
+          "type": "array",
+          "items": {
+            "_ui_": {
+              "field": {
+                "type": "one_of_calendar"
+              },
+              "container": {
+                "type": "simple_section_container"
+              }
+            },
+            "oneOf": [
+              {
+                "_ui_": {
+                  "container": {
+                    "type": "simple_section_container"
+                  }
+                },
+                "type": "object",
+                "title": "Add day",
+                "required": ["day"],
+                "properties": {
+                  "day": {
+                    "_ui_": {
+                      "field": {
+                        "type": "date_picker"
+                      },
+                      "container": {
+                        "type": "empty_container"
+                      },
+                      "placeholder": "Select a day..."
+                    },
+                    "type": "object",
+                    "default": null,
+                    "required": ["day", "month", "year"],
+                    "properties": {
+                      "day": {
+                        "type": "integer",
+                        "maximum": 31,
+                        "minimum": 1
+                      },
+                      "year": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "month": {
+                        "type": "integer",
+                        "maximum": 12,
+                        "minimum": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "_ui_": {
+                  "container": {
+                    "type": "simple_section_container"
+                  }
+                },
+                "type": "object",
+                "title": "Add range",
+                "required": ["range"],
+                "properties": {
+                  "range": {
+                    "_ui_": {
+                      "field": {
+                        "type": "date_picker_range"
+                      },
+                      "container": {
+                        "type": "empty_container"
+                      },
+                      "placeholder": "Select a range..."
+                    },
+                    "type": "object",
+                    "default": null,
+                    "required": ["from", "to"],
+                    "properties": {
+                      "to": {
+                        "_ui_": {
+                          "container": {
+                            "type": "simple_section_container"
+                          }
+                        },
+                        "type": "object",
+                        "required": ["day", "month", "year"],
+                        "properties": {
+                          "day": {
+                            "type": "integer",
+                            "maximum": 31,
+                            "minimum": 1
+                          },
+                          "year": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "month": {
+                            "type": "integer",
+                            "maximum": 12,
+                            "minimum": 1
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "from": {
+                        "type": "object",
+                        "required": ["day", "month", "year"],
+                        "properties": {
+                          "day": {
+                            "type": "integer",
+                            "maximum": 31,
+                            "minimum": 1
+                          },
+                          "year": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "month": {
+                            "type": "integer",
+                            "maximum": 12,
+                            "minimum": 1
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          },
+          "minItems": 1,
+          "description": "Ordered set of calendar ranges to test against"
+        },
+        "timezone": {
+          "_ui_": {
+            "field": {
+              "type": "timezone"
+            }
+          },
+          "type": "string",
+          "title": "Timezone",
+          "example": "America/Los_Angeles",
+          "minLength": 1
+        },
+        "repeats_annually": {
+          "_ui_": {
+            "enabledMessage": "Repeats annually",
+            "disabledMessage": "Doesn't repeat annually"
+          },
+          "type": "boolean",
+          "title": "Dates",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "mandatory": true,
+    "min_custom_exits": 1,
+    "can_be_disabled": false
+  },
+  "on_error": "no-match",
+  "data": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": ["match"],
+    "properties": {
+      "match": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "data_sources": {},
+  "metadata": {},
+  "enabled_accounts": [],
+  "function_mapping": {
+    "function": {
+      "name": "calendar_rules",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "broken_mustache",
+        "template": "{ \"rules\": [ {{#exits}}{{#condition}} { \"exit\": {{{name}}}, \"zone_id\": {{{timezone}}}, \"ranges\": [ {{#dates}} { {{#range}} \"from\": {{{from}}}, \"to\": {{{to}}}, \"repeats_annually\": {{{repeats_annually}}}, {{/range}} {{#day}} \"from\": {{{day}}}, \"to\": {{{day}}}, \"repeats_annually\": {{{repeats_annually}}}, {{/day}} },{{/dates}} ]}, {{/condition}}{{/exits}} ]}"
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{ \"exit\": {{#error}}\"error\"{{/error}}{{^error}}\"{{matched_rule}}\"{{/error}}, \"output_data\": {{#error}}{{{error.to_json}}}{{/error}}{{^error}}{ \"match\": \"{{matched_rule}}\" }{{/error}}}"
+      }
+    },
+    "max_execution_time": 10
+  }
+}

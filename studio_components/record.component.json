@@ -1,0 +1,62 @@
+{
+  "name": "record-ZGE1ZDUyOD",
+  "title": "Record",
+  "version": "1.4.0",
+  "icon": "record",
+  "description": "Enable or disable call recording",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 15000,
+  "supported_trigger_types": [
+    "voice_inbound",
+    "module",
+    "api",
+    "voice_outbound"
+  ],
+  "status": "available",
+  "properties": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": ["record_call"],
+    "properties": {
+      "record_call": {
+        "type": "boolean",
+        "title": "Enable Recording",
+        "default": true,
+        "description": "When enabled, the calls routed through this step will be recorded."
+      }
+    },
+    "additionalProperties": false
+  },
+  "default_exits": [
+    {
+      "name": "ok",
+      "type": "mandatory",
+      "title": "Ok",
+      "description": "If the component succeeds"
+    }
+  ],
+  "on_error": "ok",
+  "data": {},
+  "data_sources": {},
+  "metadata": {},
+  "enabled_accounts": [],
+  "function_mapping": {
+    "function": {
+      "name": "record",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "broken_mustache",
+        "template": "{ {{#properties}} \"record_call\": {{{record_call}}} {{/properties}} }"
+      },
+      "output": {
+        "engine": "broken_mustache",
+        "template": "{ {{#error}} {{{error}}} {{/error}} {{^error}} \"exit\": \"ok\" {{/error}} }"
+      }
+    },
+    "max_execution_time": 10
+  }
+}

@@ -102,7 +102,7 @@ export function ChatWindow(props: { conversationId: string }) {
       const remoteChain = new RemoteRunnable({
         url: apiBaseUrl + "/chat",
         options: {
-          timeout: 60000,
+          timeout: 600000,
         },
       });
       const llmDisplayName = llm ?? "openai_gpt";
@@ -223,7 +223,7 @@ export function ChatWindow(props: { conversationId: string }) {
         </div>
       </Flex>
       <div
-        className="flex flex-col-reverse w-full mb-2 overflow-auto"
+        className="flex flex-col-reverse w-full mb-2 overflow-auto flex-1"
         ref={messageContainerRef}
       >
         {messages.length > 0 ? (

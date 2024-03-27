@@ -1,0 +1,1121 @@
+{
+  "name": "assignment_and_dial-M2JhZTViYT",
+  "title": "Assignment and Dial",
+  "version": "3.23.1",
+  "icon": "assignment_and_dial",
+  "description": "Request an assignment and dial the agents return for this interaction.",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 14415000,
+  "supported_trigger_types": [
+    "voice_inbound",
+    "module"
+  ],
+  "status": "available",
+  "properties": {
+    "_ui_": {
+      "order": [
+        "assignment_parameters",
+        "users_to_ring",
+        "priority",
+        "time_limit",
+        "waiting_message"
+      ]
+    },
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "assignment_parameters",
+      "priority",
+      "time_limit"
+    ],
+    "properties": {
+      "priority": {
+        "_ui_": {
+          "type": "radio_choice",
+          "title": "Select how to define priority"
+        },
+        "oneOf": [
+          {
+            "type": "object",
+            "title": "List of priorities",
+            "required": [
+              "priorities_list"
+            ],
+            "properties": {
+              "priorities_list": {
+                "_ui_": {
+                  "hint": "Priorities are defined 1-10 in which 1 is the highest priority value and 10 is the lowest priority value.",
+                  "type": "inline_options"
+                },
+                "enum": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10
+                ],
+                "default": 10
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "title": "Variable in the flow context",
+            "required": [
+              "priorities_context"
+            ],
+            "properties": {
+              "priorities_context": {
+                "_ui_": {
+                  "type": "simple_selection_dropdown",
+                  "data_source": "context"
+                },
+                "type": "number",
+                "default": 10
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "Priority",
+        "description": "Define the priority for this assignment request"
+      },
+      "time_limit": {
+        "type": "object",
+        "title": "Maximum waiting time",
+        "required": [
+          "time"
+        ],
+        "properties": {
+          "time": {
+            "type": "integer",
+            "title": "Time in seconds",
+            "maximum": 10800,
+            "minimum": 1
+          },
+          "waiting_music": {
+            "_ui_": {
+              "type": "selection_group",
+              "title": "Waiting music to play"
+            },
+            "oneOf": [
+              {
+                "type": "object",
+                "title": "Default Music",
+                "properties": {
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "title": "Audio file upload",
+                "required": [
+                  "talkdesk_resource"
+                ],
+                "properties": {
+                  "talkdesk_resource": {
+                    "_ui_": {
+                      "hint": "Allowed files types: .wav and .mp3",
+                      "type": "audio_file_upload",
+                      "title": "Audio file",
+                      "metadata": {
+                        "context": "CXM"
+                      },
+                      "data_source": "assets",
+                      "placeholder": "Please choose a file...",
+                      "supported_formats": "audio/mp3,audio/mpeg,audio/wav"
+                    },
+                    "type": "object",
+                    "required": [
+                      "type",
+                      "id"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "enum": [
+                          "asset"
+                        ],
+                        "default": "asset"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "_ui_": {
+                  "type": "radio_choice",
+                  "title": "Select audio file source"
+                },
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "title": "URL to audio file",
+                    "required": [
+                      "file_url"
+                    ],
+                    "properties": {
+                      "file_url": {
+                        "_ui_": {
+                          "hint": "Allowed formats are .mp3 and .wav",
+                          "type": "input_test_play_audio",
+                          "placeholder": "Insert the link to your audio file..."
+                        },
+                        "type": "string",
+                        "format": "uri",
+                        "default": "",
+                        "pattern": "http(s)?://.+",
+                        "minLength": 5
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "title": "Variable in the flow context",
+                    "required": [
+                      "file_url_context_variable"
+                    ],
+                    "properties": {
+                      "file_url_context_variable": {
+                        "_ui_": {
+                          "type": "simple_selection_dropdown",
+                          "data_source": "context"
+                        },
+                        "type": "string",
+                        "default": ""
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ],
+                "title": "Other sources"
+              }
+            ]
+          }
+        },
+        "description": "Maximum time to find the configured assignment",
+        "additionalProperties": false
+      },
+      "users_to_ring": {
+        "_ui_": {
+          "order": [
+            "forced_queueing",
+            "exhaust",
+            "number_of_users"
+          ]
+        },
+        "type": "object",
+        "title": "Agents to ring",
+        "required": [
+          "number_of_users"
+        ],
+        "properties": {
+          "exhaust": {
+            "_ui_": {
+              "type": "radio_choice",
+              "options": [
+                "Exhaust",
+                "Single Attempt"
+              ]
+            },
+            "enum": [
+              true,
+              false
+            ],
+            "title": "Assignment strategy",
+            "default": true,
+            "description": "Exhaust — The agents will be rung until we exhaust all possibilities or a timeout is reached. Single Attempt — Ringing will be done a single time (the setting for the number of agents to ring in parallel will be respected)."
+          },
+          "forced_queueing": {
+            "_ui_": {
+              "type": "radio_choice",
+              "options": [
+                "Only available",
+                "Consider any status"
+              ]
+            },
+            "enum": [
+              false,
+              true
+            ],
+            "title": "Status of agents",
+            "default": false,
+            "description": "Specify which agent statuses are eligible for assignment."
+          },
+          "number_of_users": {
+            "type": "integer",
+            "title": "Number of agents",
+            "default": 1,
+            "maximum": 10,
+            "minimum": 1
+          }
+        },
+        "description": "Maximum number of agents that will be rang in parallel",
+        "additionalProperties": false
+      },
+      "waiting_message": {
+        "_ui_": {
+          "type": "dropdown_choice"
+        },
+        "oneOf": [
+          {
+            "type": "object",
+            "title": "No message",
+            "properties": {
+            },
+            "additionalProperties": false
+          },
+          {
+            "_ui_": {
+              "order": [
+                "audio_message",
+                "delay"
+              ]
+            },
+            "type": "object",
+            "title": "Play waiting message...",
+            "required": [
+              "audio_message",
+              "delay"
+            ],
+            "properties": {
+              "delay": {
+                "type": "integer",
+                "title": "Delay in seconds",
+                "default": 60,
+                "maximum": 10800,
+                "minimum": 1,
+                "description": "Time before playing the instructions for the first time."
+              },
+              "audio_message": {
+                "_ui_": {
+                  "type": "selection_group",
+                  "title": "Select the type of message"
+                },
+                "oneOf": [
+                  {
+                    "_ui_": {
+                      "order": [
+                        "language",
+                        "text"
+                      ]
+                    },
+                    "type": "object",
+                    "title": "Text to speech",
+                    "required": [
+                      "text",
+                      "language"
+                    ],
+                    "properties": {
+                      "text": {
+                        "_ui_": {
+                          "type": "textarea"
+                        },
+                        "type": "string",
+                        "title": "Message to play",
+                        "minLength": 1
+                      },
+                      "language": {
+                        "_ui_": {
+                          "type": "language_selection"
+                        },
+                        "enum": [
+                          "de-DE",
+                          "en-US",
+                          "en-GB",
+                          "es-ES",
+                          "fr-FR",
+                          "it-IT",
+                          "pt-PT",
+                          "pt-BR",
+                          "ru-RU",
+                          "da-DK",
+                          "ca-ES",
+                          "nl-NL",
+                          "en-AU",
+                          "en-CA",
+                          "en-IN",
+                          "fi-FI",
+                          "fr-CA",
+                          "ja-JP",
+                          "ko-KR",
+                          "nb-NO",
+                          "pl-PL",
+                          "es-MX",
+                          "sv-SE",
+                          "zh-CN",
+                          "zh-HK",
+                          "zh-TW",
+                          "arb",
+                          "de-AT",
+                          "en-NZ",
+                          "en-ZA",
+                          "en-GB-WLS",
+                          "hi-IN",
+                          "is-IS",
+                          "ro-RO",
+                          "es-US",
+                          "tr-TR",
+                          "cy-GB"
+                        ],
+                        "title": "Language of audio output",
+                        "default": "en-US",
+                        "description": "(1) Language only available if you have text to Speech powered by Amazon Polly enabled in your account"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "title": "Audio file upload",
+                    "required": [
+                      "talkdesk_resource"
+                    ],
+                    "properties": {
+                      "talkdesk_resource": {
+                        "_ui_": {
+                          "hint": "Allowed files types: .wav and .mp3",
+                          "type": "audio_file_upload",
+                          "metadata": {
+                            "context": "CXM"
+                          },
+                          "data_source": "assets",
+                          "placeholder": "Please choose a file...",
+                          "supported_formats": "audio/mp3,audio/mpeg,audio/wav"
+                        },
+                        "type": "object",
+                        "required": [
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "enum": [
+                              "asset"
+                            ]
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "_ui_": {
+                      "type": "radio_choice",
+                      "title": "Select audio file source"
+                    },
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "title": "URL to audio file",
+                        "required": [
+                          "file_url"
+                        ],
+                        "properties": {
+                          "file_url": {
+                            "_ui_": {
+                              "hint": "Allowed formats are .mp3 and .wav",
+                              "type": "input_test_play_audio",
+                              "placeholder": "Insert the link to your audio file..."
+                            },
+                            "type": "string",
+                            "format": "uri",
+                            "default": "",
+                            "pattern": "http(s)?://.+",
+                            "minLength": 5
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "title": "Variable in the flow context",
+                        "required": [
+                          "file_url_context_variable"
+                        ],
+                        "properties": {
+                          "file_url_context_variable": {
+                            "_ui_": {
+                              "type": "simple_selection_dropdown",
+                              "data_source": "context"
+                            },
+                            "type": "string",
+                            "default": ""
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ],
+                    "title": "Other sources"
+                  }
+                ]
+              },
+              "recurrence_delay": {
+                "_ui_": {
+                  "type": "radio_choice",
+                  "container": {
+                    "type": "small_title_section"
+                  }
+                },
+                "oneOf": [
+                  {
+                    "_ui_": {
+                      "container": {
+                        "type": "EMPTY_CONTAINER"
+                      }
+                    },
+                    "type": "object",
+                    "title": "Do not repeat",
+                    "required": [
+                      "play_only_once"
+                    ],
+                    "properties": {
+                      "play_only_once": {
+                        "_ui_": {
+                          "field": {
+                            "type": "undefined"
+                          },
+                          "container": {
+                            "type": "EMPTY_CONTAINER"
+                          }
+                        },
+                        "type": "boolean",
+                        "default": true
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "title": "Repeat every...",
+                    "required": [
+                      "time_in_seconds"
+                    ],
+                    "properties": {
+                      "time_in_seconds": {
+                        "type": "integer",
+                        "default": 60,
+                        "maximum": 10800,
+                        "minimum": 1
+                      }
+                    },
+                    "description": "Time between each playback of the instructions message",
+                    "additionalProperties": false
+                  }
+                ],
+                "title": "Repetition in seconds",
+                "description": "Specify if the message should be repeated and the time interval between repetitions."
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "Waiting message",
+        "description": "Message to explain keypress alternatives offered to contacts while they are in the waiting queue"
+      },
+      "assignment_parameters": {
+        "_ui_": {
+          "type": "selection_group",
+          "title": "Select assignment type"
+        },
+        "oneOf": [
+          {
+            "type": "object",
+            "title": "Ring Groups",
+            "properties": {
+              "ring_groups": {
+                "_ui_": {
+                  "type": "radio_choice",
+                  "title": "Select how to find ring groups"
+                },
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "title": "List of Ring Groups in your account",
+                    "required": [
+                      "ring_groups_list"
+                    ],
+                    "properties": {
+                      "ring_groups_list": {
+                        "_ui_": {
+                          "type": "multi_selection_dropdown",
+                          "data_source": "ring_groups"
+                        },
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "title": "Variables in the flow context",
+                    "required": [
+                      "ring_groups_context"
+                    ],
+                    "properties": {
+                      "ring_groups_context": {
+                        "_ui_": {
+                          "type": "multi_selection_dropdown",
+                          "data_source": "context"
+                        },
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "title": "Agents",
+            "properties": {
+              "agents": {
+                "_ui_": {
+                  "type": "radio_choice",
+                  "title": "Select how to find agents"
+                },
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "title": "List of agents in your account",
+                    "required": [
+                      "agents_list"
+                    ],
+                    "properties": {
+                      "agents_list": {
+                        "_ui_": {
+                          "type": "multi_selection_dropdown",
+                          "data_source": "agents"
+                        },
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "minItems": 1,
+                        "data_source": "agents"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "title": "Variables in the flow context",
+                    "required": [
+                      "agents_context"
+                    ],
+                    "properties": {
+                      "agents_context": {
+                        "_ui_": {
+                          "type": "multi_selection_dropdown",
+                          "data_source": "context"
+                        },
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "minItems": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "_ui_": {
+              "order": [
+                "icon_with_text_and_link",
+                "attributes"
+              ]
+            },
+            "type": "object",
+            "title": "Attributes",
+            "required": [
+              "attributes"
+            ],
+            "properties": {
+              "attributes": {
+                "_ui_": {
+                  "order": [
+                    "attributes_rule",
+                    "attributes_list",
+                    "sort_agents_by"
+                  ]
+                },
+                "type": "object",
+                "required": [
+                  "attributes_rule",
+                  "attributes_list",
+                  "sort_agents_by"
+                ],
+                "properties": {
+                  "sort_agents_by": {
+                    "_ui_": {
+                      "type": "radio_choice",
+                      "options": {
+                        "most-idle": {
+                          "label": "Idle time",
+                          "description": "Agents with more idle time will be selected first."
+                        },
+                        "most-proficient": {
+                          "label": "Most proficient",
+                          "description": "Sort by most proficient agents in the first attribute/variable row selected."
+                        }
+                      }
+                    },
+                    "enum": [
+                      "most-idle",
+                      "most-proficient"
+                    ],
+                    "type": "string",
+                    "title": "Sort agents by",
+                    "default": "most-idle"
+                  },
+                  "attributes_list": {
+                    "_ui_": {
+                      "field": {
+                        "type": "oneof_array",
+                        "add_button": {
+                          "type": "link",
+                          "label": "Attribute"
+                        },
+                        "button_type": "popup"
+                      },
+                      "items": {
+                        "type": "inline"
+                      },
+                      "options": {
+                        "empty_array_message": "Add an attribute or a variable"
+                      }
+                    },
+                    "type": "array",
+                    "items": {
+                      "_ui_": {
+                        "field": {
+                          "type": "one_of_calendar"
+                        },
+                        "container": {
+                          "type": "empty_container"
+                        }
+                      },
+                      "oneOf": [
+                        {
+                          "_ui_": {
+                            "icon": "star_half",
+                            "container": {
+                              "type": "inline_fields_container"
+                            },
+                            "icon_color": "green_700"
+                          },
+                          "type": "object",
+                          "title": "Attribute",
+                          "required": [
+                            "attribute"
+                          ],
+                          "properties": {
+                            "attribute": {
+                              "_ui_": {
+                                "type": "attribute_proficiency_container",
+                                "order": [
+                                  "attribute_id",
+                                  "proficiency"
+                                ]
+                              },
+                              "type": "object",
+                              "required": [
+                                "attribute_id",
+                                "proficiency"
+                              ],
+                              "properties": {
+                                "proficiency": {
+                                  "_ui_": {
+                                    "type": "dropdown",
+                                    "field": {
+                                      "type": "proficiency_selector"
+                                    },
+                                    "options": [
+                                      {
+                                        "color": "dark_green",
+                                        "label": "5 stars",
+                                        "number_of_stars": 5,
+                                        "proficiency_value": 100
+                                      },
+                                      {
+                                        "color": "green",
+                                        "label": "4 stars",
+                                        "number_of_stars": 4,
+                                        "proficiency_value": 80
+                                      },
+                                      {
+                                        "color": "yellow",
+                                        "label": "3 stars",
+                                        "number_of_stars": 3,
+                                        "proficiency_value": 60
+                                      },
+                                      {
+                                        "color": "orange",
+                                        "label": "2 stars",
+                                        "number_of_stars": 2,
+                                        "proficiency_value": 40
+                                      },
+                                      {
+                                        "color": "red",
+                                        "label": "1 star",
+                                        "number_of_stars": 1,
+                                        "proficiency_value": 20
+                                      }
+                                    ],
+                                    "container": {
+                                      "type": "empty_container"
+                                    },
+                                    "placeholder": "Select a proficiency"
+                                  },
+                                  "enum": [
+                                    0,
+                                    20,
+                                    40,
+                                    60,
+                                    80,
+                                    100
+                                  ],
+                                  "type": "number"
+                                },
+                                "attribute_id": {
+                                  "_ui_": {
+                                    "type": "simple_selection_dropdown",
+                                    "container": {
+                                      "type": "empty_container"
+                                    },
+                                    "data_source": "attributes_abr",
+                                    "placeholder": "Select an attribute"
+                                  },
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "_ui_": {
+                            "icon": "code_braces",
+                            "container": {
+                              "type": "inline_fields_container"
+                            },
+                            "icon_color": "blue_700"
+                          },
+                          "type": "object",
+                          "title": "Variable",
+                          "required": [
+                            "variable"
+                          ],
+                          "properties": {
+                            "variable": {
+                              "_ui_": {
+                                "order": [
+                                  "attribute_variable_name",
+                                  "proficiency"
+                                ],
+                                "container": {
+                                  "type": "attribute_variable_proficiency_container"
+                                }
+                              },
+                              "type": "object",
+                              "required": [
+                                "attribute_variable_name",
+                                "proficiency"
+                              ],
+                              "properties": {
+                                "proficiency": {
+                                  "_ui_": {
+                                    "type": "dropdown",
+                                    "field": {
+                                      "type": "proficiency_selector"
+                                    },
+                                    "options": [
+                                      {
+                                        "color": "dark_green",
+                                        "label": "5 stars",
+                                        "number_of_stars": 5,
+                                        "proficiency_value": 100
+                                      },
+                                      {
+                                        "color": "green",
+                                        "label": "4 stars",
+                                        "number_of_stars": 4,
+                                        "proficiency_value": 80
+                                      },
+                                      {
+                                        "color": "yellow",
+                                        "label": "3 stars",
+                                        "number_of_stars": 3,
+                                        "proficiency_value": 60
+                                      },
+                                      {
+                                        "color": "orange",
+                                        "label": "2 stars",
+                                        "number_of_stars": 2,
+                                        "proficiency_value": 40
+                                      },
+                                      {
+                                        "color": "red",
+                                        "label": "1 star",
+                                        "number_of_stars": 1,
+                                        "proficiency_value": 20
+                                      }
+                                    ],
+                                    "container": {
+                                      "type": "empty_container"
+                                    },
+                                    "placeholder": "Select a proficiency"
+                                  },
+                                  "enum": [
+                                    0,
+                                    20,
+                                    40,
+                                    60,
+                                    80,
+                                    100
+                                  ],
+                                  "type": "number"
+                                },
+                                "attribute_variable_name": {
+                                  "_ui_": {
+                                    "type": "simple_selection_dropdown",
+                                    "container": {
+                                      "type": "empty_container"
+                                    },
+                                    "data_source": "context",
+                                    "placeholder": "Select a variable"
+                                  },
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "title": "Attributes",
+                    "maxItems": 10,
+                    "minItems": 1
+                  },
+                  "attributes_rule": {
+                    "_ui_": {
+                      "type": "radio_choice",
+                      "options": {
+                        "or": {
+                          "label": "OR condition",
+                          "description": "Any agent with one or all attributes is considered eligible for assignment."
+                        },
+                        "and": {
+                          "label": "AND condition",
+                          "description": "Only agents with all the selected attributes will be eligible."
+                        }
+                      }
+                    },
+                    "enum": [
+                      "or",
+                      "and"
+                    ],
+                    "type": "string",
+                    "title": "Attributes rule",
+                    "default": "or"
+                  }
+                }
+              },
+              "icon_with_text_and_link": {
+                "_ui_": {
+                  "type": "icon_with_text_and_link",
+                  "link_url": "https://studio.talkdesk.com/docs/reporting",
+                  "icon_name": "info",
+                  "link_text": "Find how reporting works with Attributes.",
+                  "icon_color": "co--primary-600",
+                  "description": "Want to report this step? Make sure a Reporting step comes earlier in the flow."
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "Assignment Parameters",
+        "description": "Select and configure which attributes will be used for matching a call with an agent"
+      }
+    },
+    "additionalProperties": false
+  },
+  "default_exits": [
+    {
+      "name": "call_finished",
+      "type": "optional",
+      "title": "Call finished",
+      "description": "There was a successful match and a conversation with an agent has finished.",
+      "effects": {
+        "post_call": true
+      }
+    },
+    {
+      "name": "call_aborted",
+      "type": "invisible",
+      "title": "Call aborted"
+    },
+    {
+      "name": "ok",
+      "type": "invisible",
+      "title": "Ok"
+    },
+    {
+      "name": "call_no_answer",
+      "type": "mandatory",
+      "title": "No answer",
+      "description": "There was at least one successful dial attempt but no agent was available."
+    },
+    {
+      "name": "time_limit_reached",
+      "type": "mandatory",
+      "title": "Maximum waiting time reached",
+      "description": "There was a match but all agents are busy and the configured time out was reached."
+    },
+    {
+      "name": "no_match",
+      "type": "mandatory",
+      "title": "No match found",
+      "description": "A match could not be found."
+    },
+    {
+      "name": "error",
+      "type": "invisible",
+      "title": "error"
+    },
+    {
+      "name": "room_finished",
+      "type": "invisible",
+      "title": "Room finished"
+    },
+    {
+      "name": "queue_size_limit_reached",
+      "type": "invisible",
+      "title": "Queue size limit reached"
+    }
+  ],
+  "custom_exits": {
+    "title": "Alternative Exits",
+    "description": "Offer key press alternatives to callers while they are in waiting queue.",
+    "condition": {
+      "type": "object",
+      "title": "Keypress exits",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": [
+        "keypress"
+      ],
+      "properties": {
+        "keypress": {
+          "_ui_": {
+            "type": "selection_group"
+          },
+          "enum": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "*",
+            "#"
+          ],
+          "title": "Keypress"
+        }
+      },
+      "additionalProperties": false
+    },
+    "mandatory": false,
+    "min_custom_exits": 0,
+    "can_be_disabled": false
+  },
+  "data": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "selection",
+      "user_id"
+    ],
+    "properties": {
+      "user_id": {
+        "type": "string",
+        "title": "agent id"
+      },
+      "selection": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "data_sources": {
+    "agents": {
+      "path": "assignment_parameters.agents.agents_list",
+      "data_type": "array"
+    }
+  },
+  "pre_conditions": {
+    "voice_participant": true,
+    "post_call": false
+  },
+  "metadata": {
+  },
+  "enabled_accounts": [
+
+  ],
+  "function_mapping": {
+    "function": {
+      "name": "assignment_and_dial",
+      "version": "2.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "broken_mustache",
+        "template": "{ {{#properties}} {{#assignment_parameters}}\"attributes\": [{{#agents}}{\"type\": \"string\", {{#agents_list.length}}\"comparison_function\": \"contains\", \"name\": \"id\", \"value\": {{{agents_list}}}, {{/agents_list.length}}{{#agents_context.length}}\"comparison_function\": \"contains\", \"name\": \"email\", \"value\":{{{agents_context}}}, {{/agents_context.length}}}, {{/agents}}{{#ring_groups}}{\"type\": \"set\", \"comparison_function\": \"contains\", \"name\": \"ring_groups\", {{#ring_groups_list.length}}\"value\":{{{ring_groups_list}}}, {{/ring_groups_list.length}}{{#ring_groups_context.length}}\"value\":{{{ring_groups_context}}}, {{/ring_groups_context.length}}},{{/ring_groups}}{{#attributes}}{\"type\": \"set\", \"comparison_function\": \"contains\", \"name\": \"attributes\", \"value\":{\"attribute_query\": { \"operator\": {{{attributes_rule}}}, \"sort_agents_by\": {{{sort_agents_by}}}, \"args\":[{{#attributes_list}}{\"proficiency\": {{#attribute}}{{{proficiency}}}{{/attribute}}{{#variable}}{{{proficiency}}}{{/variable}}, \"comparison_operator\": \"gte\", {{#attribute}}\"attribute_id\": {{{attribute_id}}}}{{/attribute}}{{#variable}}\"attribute_name\": {{{attribute_variable_name}}}}{{/variable}}, {{/attributes_list}}]}} }, {{/attributes}}], {{/assignment_parameters}}{{#users_to_ring}} {{#exhaust}} \"exhaust_enabled\": {{{exhaust}}}, {{/exhaust}} {{#forced_queueing}} \"forced_queueing_enabled\": {{{forced_queueing}}}, {{/forced_queueing}} {{#number_of_users}} \"users_to_ring\":{{{number_of_users}}}, {{/number_of_users}}{{/users_to_ring}}{{#priority}}{{#priorities_list}}\"priority\":{{{priorities_list}}}, {{/priorities_list}}{{#priorities_context}}\"priority\":{{{priorities_context}}}, {{/priorities_context}}{{/priority}}{{#time_limit}}\"time_limit\":{{{time}}}, {{#waiting_music}} {{#file_url}} \"waiting_music\": { \"type\": \"file_url\", \"value\": {{{file_url}}} }, {{/file_url}} {{#file_url_context_variable}} \"waiting_music\": { \"type\": \"file_url\", \"value\": {{{file_url_context_variable}}} }, {{/file_url_context_variable}} {{#talkdesk_resource}} \"waiting_music\": { \"type\": {{{type}}}, \"value\": {{{id}}} }, {{/talkdesk_resource}} {{/waiting_music}} {{/time_limit}} {{#waiting_message}} {{#delay}} \"waiting_message\": { \"audio_message\": { {{#audio_message}}{{#file_url}}\"type\": \"file_url\", \"value\": {{{file_url}}}{{/file_url}}{{#file_url_context_variable}}\"type\": \"file_url\", \"value\": {{{file_url_context_variable}}}{{/file_url_context_variable}}{{#text}}\"type\": \"text\", \"value\": {{{text}}}{{#language}}, \"language\": {{{language}}} {{/language}}{{/text}}{{#talkdesk_resource}}\"type\": \"asset\", \"value\": {{{id}}}{{/talkdesk_resource}}{{/audio_message}} }, \"first_delay\": {{{delay}}}{{#recurrence_delay}}{{#time_in_seconds}}, \"recurrence_delay\": {{{time_in_seconds}}} {{/time_in_seconds}}{{/recurrence_delay}} }, {{/delay}} {{/waiting_message}} {{/properties}} \"choices\": { {{#exits}} {{#condition}} {{#keypress}} {{{keypress}}} : { \"output\" : {{{name}}} }, {{/keypress}} {{/condition}} {{/exits}} }, \"exit_transitions\": { {{#exits}}  {{#transition}} {{{name}}}: {{{transition}}}, {{/transition}} {{/exits}} } }"
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{ \"exit\": \"{{output}}\", \"output_data\": {{{data.to_json}}} }"
+      }
+    },
+    "max_execution_time": 14410
+  }
+}

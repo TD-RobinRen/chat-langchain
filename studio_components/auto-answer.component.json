@@ -1,0 +1,89 @@
+{
+  "name": "autoanswer-ZjJjOTRkMG",
+  "title": "Auto-answer",
+  "version": "1.4.1",
+  "icon": "auto_answer_setting",
+  "description": "Enable or disable auto-answer",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 15000,
+  "supported_trigger_types": [
+    "api",
+    "voice_inbound",
+    "module"
+  ],
+  "status": "available",
+  "properties": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "auto_answer": {
+        "_ui_": {
+          "type": "radio_choice"
+        },
+        "oneOf": [
+          {
+            "type": "object",
+            "title": "Enabled",
+            "required": [
+              "timeout"
+            ],
+            "properties": {
+              "timeout": {
+                "type": "integer",
+                "title": "Timeout in seconds",
+                "default": 1,
+                "maximum": 40,
+                "minimum": 0
+              }
+            }
+          },
+          {
+            "type": "boolean",
+            "const": false,
+            "title": "Disabled"
+          }
+        ],
+        "title": "Auto-answering mode",
+        "description": "When enabled, calls assigned to agents will be answered automatically after a brief delay."
+      }
+    },
+    "additionalProperties": false
+  },
+  "default_exits": [
+    {
+      "name": "ok",
+      "type": "mandatory",
+      "title": "Ok",
+      "description": "If the component succeeds"
+    }
+  ],
+  "on_error": "ok",
+  "data": {
+  },
+  "data_sources": {
+  },
+  "metadata": {
+  },
+  "enabled_accounts": [
+
+  ],
+  "function_mapping": {
+    "function": {
+      "name": "settings",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "mustache_json",
+        "template": "{ {{#properties}} \"settings\": { {{#auto_answer}} {{#timeout}} \"auto_answer\": true, \"auto_answer_timeout\": {{timeout}} {{/timeout}} {{^timeout}} \"auto_answer\": true {{/timeout}} {{/auto_answer}} {{^auto_answer}} \"auto_answer\": false {{/auto_answer}} } {{/properties}} }"
+      },
+      "output": {
+        "engine": "broken_mustache",
+        "template": "{ {{#error}} {{{error}}} {{/error}} {{^error}} \"exit\": \"ok\" {{/error}} }"
+      }
+    },
+    "max_execution_time": 10
+  }
+}

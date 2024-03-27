@@ -1,0 +1,106 @@
+{
+  "name": "reporting-ZDMxMTBiZD",
+  "title": "Reporting",
+  "version": "1.3.0",
+  "icon": "reporting",
+  "description": "Change reporting ring group",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 15000,
+  "supported_trigger_types": [
+    "voice_inbound",
+    "message_inbound",
+    "module",
+    "api"
+  ],
+  "status": "available",
+  "properties": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "reporting_queue_name"
+    ],
+    "properties": {
+      "reporting_queue_name": {
+        "_ui_": {
+          "type": "radio_choice"
+        },
+        "oneOf": [
+          {
+            "type": "object",
+            "title": "List of Ring Groups in your account",
+            "required": [
+              "ring_group"
+            ],
+            "properties": {
+              "ring_group": {
+                "_ui_": {
+                  "type": "simple_selection_dropdown",
+                  "data_source": "ring_groups",
+                  "placeholder": "Select one ring group"
+                },
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "title": "Variables in the flow context",
+            "required": [
+              "variable"
+            ],
+            "properties": {
+              "variable": {
+                "_ui_": {
+                  "type": "simple_variable_selection_dropdown",
+                  "data_source": "context",
+                  "placeholder": "Select one variable"
+                },
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "title": "Ring group for reporting",
+        "description": "Select on which ring group the next assignments will be reported on."
+      }
+    },
+    "additionalProperties": false
+  },
+  "default_exits": [
+    {
+      "name": "ok",
+      "type": "mandatory",
+      "title": "Ok",
+      "description": "If the component succeeds"
+    }
+  ],
+  "on_error": "ok",
+  "data": {
+  },
+  "data_sources": {
+  },
+  "metadata": {
+  },
+  "enabled_accounts": [
+
+  ],
+  "function_mapping": {
+    "function": {
+      "name": "settings",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "broken_mustache",
+        "template": "{ {{#properties}} \"settings\": { \"reporting_queue_name\": {{#reporting_queue_name}} {{{ring_group}}} {{{variable}}} {{/reporting_queue_name}} } {{/properties}} }"
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{ {{#error}} {{{error}}} {{/error}} {{^error}} \"exit\": \"ok\" {{/error}}, \"output_data\": { \"contact_id\": \"{{contact_id}}\" }}"
+      }
+    },
+    "max_execution_time": 10
+  }
+}

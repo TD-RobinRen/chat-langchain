@@ -1,0 +1,457 @@
+{
+  "name": "conditional_statement-ZDQ2YzRkZT",
+  "title": "Conditional Statement",
+  "version": "3.3.1",
+  "icon": "conditional_statement",
+  "description": "This component evaluates expressions defined in it and returns the outcome of the first expression that yields true",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 1000,
+  "supported_trigger_types": [
+    "api",
+    "livechat_inbound",
+    "voice_inbound",
+    "message_inbound",
+    "module",
+    "voice_outbound"
+  ],
+  "status": "available",
+  "properties": {},
+  "default_exits": [
+    {
+      "name": "no-match",
+      "type": "mandatory",
+      "title": "No Match",
+      "description": "If no expression evaluates to true"
+    }
+  ],
+  "custom_exits": {
+    "title": "Custom Exits",
+    "description": "Configure the conditions that will be used to direct the interaction to specific exits",
+    "condition": {
+      "type": "object",
+      "title": "Condition",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": [
+        "operation",
+        "conditions"
+      ],
+      "properties": {
+        "operation": {
+          "_ui_": {
+            "field": {
+              "type": "selection_group"
+            },
+            "options": {
+              "OR": {
+                "label": "ANY"
+              },
+              "AND": {
+                "label": "ALL"
+              }
+            }
+          },
+          "enum": [
+            "AND",
+            "OR"
+          ],
+          "type": "string",
+          "title": "Matching",
+          "default": "AND"
+        },
+        "conditions": {
+          "type": "object",
+          "required": [
+            "expressions"
+          ],
+          "properties": {
+            "expressions": {
+              "_ui_": {
+                "field": {
+                  "type": "conditional_statement_array",
+                  "hide_labels": true
+                },
+                "container": {
+                  "type": "conditional_statement_array",
+                  "add_button": {
+                    "type": "link",
+                    "label": "Add condition"
+                  }
+                }
+              },
+              "type": "array",
+              "items": {
+                "_ui_": {
+                  "type": "conditional"
+                },
+                "type": "object",
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "equal"
+                    ],
+                    "properties": {
+                      "equal": {
+                        "type": "object",
+                        "required": [
+                          "left_operand"
+                        ],
+                        "properties": {
+                          "left_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "right_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "not_equal"
+                    ],
+                    "properties": {
+                      "not_equal": {
+                        "type": "object",
+                        "required": [
+                          "left_operand"
+                        ],
+                        "properties": {
+                          "left_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "right_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "less_than"
+                    ],
+                    "properties": {
+                      "less_than": {
+                        "type": "object",
+                        "required": [
+                          "left_operand",
+                          "right_operand"
+                        ],
+                        "properties": {
+                          "left_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "right_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "less_or_equal_than"
+                    ],
+                    "properties": {
+                      "less_or_equal_than": {
+                        "type": "object",
+                        "required": [
+                          "left_operand",
+                          "right_operand"
+                        ],
+                        "properties": {
+                          "left_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "right_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "greater_than"
+                    ],
+                    "properties": {
+                      "greater_than": {
+                        "type": "object",
+                        "required": [
+                          "left_operand",
+                          "right_operand"
+                        ],
+                        "properties": {
+                          "left_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "right_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "greater_or_equal_than"
+                    ],
+                    "properties": {
+                      "greater_or_equal_than": {
+                        "type": "object",
+                        "required": [
+                          "left_operand",
+                          "right_operand"
+                        ],
+                        "properties": {
+                          "left_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "right_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "contains"
+                    ],
+                    "properties": {
+                      "contains": {
+                        "type": "object",
+                        "required": [
+                          "left_operand",
+                          "right_operand"
+                        ],
+                        "properties": {
+                          "left_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "right_operand": {
+                            "oneOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "title": "Conditions",
+              "minItems": 1
+            }
+          }
+        }
+      }
+    },
+    "mandatory": true,
+    "min_custom_exits": 1,
+    "can_be_disabled": false
+  },
+  "on_error": "no-match",
+  "data": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "match"
+    ],
+    "properties": {
+      "match": {
+        "type": "string"
+      }
+    },
+    "description": "Empty object on 'ok' exit, error message if there is an error",
+    "additionalProperties": false
+  },
+  "data_sources": {},
+  "metadata": {},
+  "enabled_accounts": [],
+  "function_mapping": {
+    "function": {
+      "name": "conditional_statement",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "mustache_json",
+        "template": "{\"conditions\":[ {{#exits}} {{#condition}} { \"expressions\": {{{conditions.expressions.to_json}}}, \"operation\": \"{{operation}}\", \"name\": \"{{name}}\" }, {{/condition}}{{/exits}} ]}"
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{ \"exit\": {{#matched_condition}}\"{{matched_condition}}\"{{/matched_condition}}{{^matched_condition}}\"error\"{{/matched_condition}}, \"output_data\": {{#matched_condition}}{ \"match\": \"{{matched_condition}}\" }{{/matched_condition}}{{#error}}{{{error.to_json}}}{{/error}}}"
+      }
+    },
+    "max_execution_time": 10
+  }
+}

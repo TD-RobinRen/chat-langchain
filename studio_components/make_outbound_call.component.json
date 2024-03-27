@@ -1,0 +1,188 @@
+{
+  "name": "outbound_call-NjI0YzA3MD",
+  "title": "Make outbound call",
+  "version": "0.34.0",
+  "icon": "outbound_call",
+  "description": "",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 15000,
+  "supported_trigger_types": [
+    "api"
+  ],
+  "status": "available",
+  "properties": {
+    "_ui_": {
+      "order": [
+        "display_call_number_settings",
+        "destination_number_settings"
+      ]
+    },
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "required": [
+      "display_call_number_settings",
+      "destination_number_settings"
+    ],
+    "properties": {
+      "destination_number_settings": {
+        "_ui_": {
+          "order": [
+            "destination_number",
+            "ringing_time"
+          ]
+        },
+        "type": "object",
+        "title": "Destination number",
+        "required": [
+          "destination_number",
+          "ringing_time"
+        ],
+        "properties": {
+          "ringing_time": {
+            "_ui_": {
+              "hint": "Value should be between 10 and 600 seconds"
+            },
+            "type": "integer",
+            "title": "Maximum ringing time",
+            "default": 15,
+            "maximum": 600,
+            "minimum": 10
+          },
+          "destination_number": {
+            "_ui_": {
+              "type": "simple_selection_dropdown",
+              "data_source": "context",
+              "placeholder": "Select an option"
+            },
+            "type": "string",
+            "title": "Destination number variable"
+          }
+        },
+        "description": "Configure the destination number settings",
+        "additionalProperties": false
+      },
+      "display_call_number_settings": {
+        "title": "Outbound call number",
+        "description": "Select the source phone number to be used in outbound call",
+        "_ui_": {
+          "type": "radio_choice",
+          "title": "Select how to find outbound number"
+        },
+        "oneOf": [
+          {
+            "type": "object",
+            "title": "Talkdesk account number",
+            "required": [
+              "outbound_caller_id"
+            ],
+            "properties": {
+              "outbound_caller_id": {
+                "_ui_": {
+                  "type": "simple_selection_dropdown",
+                  "data_source": "numbers",
+                  "placeholder": "Select an option"
+                },
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "title": "Variable in flow context",
+            "required": [
+              "context_outbound_caller_id"
+            ],
+            "properties": {
+              "context_outbound_caller_id": {
+                "_ui_": {
+                  "type": "simple_selection_dropdown",
+                  "data_source": "context",
+                  "placeholder": "Select an option"
+                },
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "default_exits": [
+    {
+      "name": "call_answered",
+      "type": "mandatory",
+      "title": "Answered",
+      "description": "This exit will be selected if the call is answered",
+      "effects": {
+        "outbound_attempt": true,
+        "voice_participant": true
+      }
+    },
+    {
+      "name": "invalid_number",
+      "type": "mandatory",
+      "title": "Invalid number",
+      "description": "This exit will be selected if the destination number is invalid",
+      "effects": {
+        "outbound_attempt": true
+      }
+    },
+    {
+      "name": "busy",
+      "type": "mandatory",
+      "title": "Busy",
+      "description": "There was at least one successful dial but the call was rejected",
+      "effects": {
+        "outbound_attempt": true
+      }
+    },
+    {
+      "name": "call_no_answer",
+      "type": "mandatory",
+      "title": "No answer",
+      "description": "There was at least one successful dial but no call pickup",
+      "effects": {
+        "outbound_attempt": true
+      }
+    },
+    {
+      "name": "invalid_outbound_number",
+      "type": "optional",
+      "title": "Invalid outbound number",
+      "description": "If the outbound number doesn't belong to this Talkdesk account",
+      "effects": {
+        "outbound_attempt": true
+      }
+    }
+  ],
+  "on_error": "call_no_answer",
+  "data": {},
+  "data_sources": {},
+  "pre_conditions": {
+    "outbound_attempt": false,
+    "voice_participant": false
+  },
+  "metadata": {},
+  "enabled_accounts": [],
+  "function_mapping": {
+    "function": {
+      "name": "outbound_call",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "mustache_json",
+        "template": "{ {{#properties}} \"outbound_caller_id\": {{#display_call_number_settings.outbound_caller_id}} \"{{display_call_number_settings.outbound_caller_id}}\" {{/display_call_number_settings.outbound_caller_id}} {{#display_call_number_settings.context_outbound_caller_id}} \"{{display_call_number_settings.context_outbound_caller_id}}\" {{/display_call_number_settings.context_outbound_caller_id}}, \"destination_number\": \"{{destination_number_settings.destination_number}}\", \"ringing_time\": \"{{destination_number_settings.ringing_time}}\" {{/properties}} }"
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{ \"exit\": \"{{output}}\", \"output_data\": {{{data.to_json}}} }"
+      }
+    },
+    "max_execution_time": 600
+  }
+}

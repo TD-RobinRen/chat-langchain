@@ -1,0 +1,352 @@
+{
+ 
+  "name": "voice_ivr-M2JmMTc2YT",
+  "title": "Voice IVR",
+  "version": "2.10.1",
+  "icon": "voice_ivr",
+  "description": "Voice IVR component that allows gathering speech input on a call.",
+  "initial_step": false,
+  "interactive": true,
+  "dynamic": false,
+  "max_execution_time": 10000,
+  "supported_trigger_types": [
+    "api",
+    "voice_inbound",
+    "module",
+    "voice_outbound"
+  ],
+  "status": "available",
+  "properties": {
+    "_ui_": {
+      "type": "voice_ivr_manual_component",
+      "order": [
+        "language_selection",
+        "audio_message",
+        "timeout_selection"
+      ]
+    },
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "language_selection",
+      "audio_message",
+      "timeout_selection"
+    ],
+    "properties": {
+      "audio_message": {
+        "_ui_": {
+          "type": "selection_group",
+          "title": "Select the type of message"
+        },
+        "oneOf": [
+          {
+            "_ui_": {
+              "order": [
+                "text"
+              ]
+            },
+            "type": "object",
+            "title": "Text to speech",
+            "required": [
+              "text"
+            ],
+            "properties": {
+              "text": {
+                "_ui_": {
+                  "type": "textarea",
+                  "placeholder": "Write the message the caller will hear..."
+                },
+                "type": "string",
+                "title": "Message to output",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "title": "Audio file upload",
+            "required": [
+              "talkdesk_resource"
+            ],
+            "properties": {
+              "talkdesk_resource": {
+                "_ui_": {
+                  "hint": "Allowed files types: .wav and .mp3",
+                  "type": "audio_file_upload",
+                  "title": "Audio file",
+                  "metadata": {
+                    "context": "CXM"
+                  },
+                  "data_source": "assets",
+                  "placeholder": "Please choose a file...",
+                  "supported_formats": "audio/mp3,audio/mpeg,audio/wav"
+                },
+                "type": "object",
+                "required": [
+                  "type",
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": [
+                      "asset"
+                    ],
+                    "default": "asset"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "_ui_": {
+              "type": "radio_choice",
+              "title": "Select audio file source"
+            },
+            "oneOf": [
+              {
+                "type": "object",
+                "title": "URL to audio file",
+                "required": [
+                  "file_url"
+                ],
+                "properties": {
+                  "file_url": {
+                    "_ui_": {
+                      "hint": "Allowed formats are .mp3 and .wav",
+                      "type": "input_test_play_audio",
+                      "placeholder": "Insert the link to your audio file..."
+                    },
+                    "type": "string",
+                    "format": "uri",
+                    "default": "",
+                    "pattern": "http(s)?://.+",
+                    "minLength": 5
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "title": "Variable in the flow context",
+                "required": [
+                  "file_url_context_variable"
+                ],
+                "properties": {
+                  "file_url_context_variable": {
+                    "_ui_": {
+                      "type": "simple_selection_dropdown",
+                      "data_source": "context"
+                    },
+                    "type": "string",
+                    "default": ""
+                  }
+                },
+                "additionalProperties": false
+              }
+            ],
+            "title": "Other sources"
+          }
+        ],
+        "title": "Play audio message",
+        "description": "Configure the audio message the user will hear."
+      },
+      "timeout_selection": {
+        "type": "object",
+        "title": "Speech recognition",
+        "properties": {
+          "speech_timeout": {
+            "type": "integer",
+            "title": "Recognition timeout in seconds",
+            "default": 2,
+            "minimum": 1,
+            "description": "How long we wait for speech before matching it to a keyword."
+          }
+        },
+        "description": "Settings for speech recognition."
+      },
+      "language_selection": {
+        "type": "object",
+        "title": "Language",
+        "properties": {
+          "language": {
+            "_ui_": {
+              "type": "language_selection"
+            },
+            "enum": [
+              "de-DE",
+              "en-US",
+              "en-GB",
+              "es-ES",
+              "fr-FR",
+              "it-IT",
+              "pt-PT",
+              "pt-BR",
+              "ru-RU",
+              "da-DK",
+              "ca-ES",
+              "nl-NL",
+              "en-AU",
+              "en-CA",
+              "en-IN",
+              "fi-FI",
+              "fr-CA",
+              "ja-JP",
+              "ko-KR",
+              "nb-NO",
+              "pl-PL",
+              "es-MX",
+              "sv-SE",
+              "he-IL",
+              "zh-CN",
+              "zh-HK",
+              "zh-TW",
+              "en-NZ",
+              "en-ZA",
+              "hi-IN",
+              "is-IS",
+              "ro-RO",
+              "es-US",
+              "tr-TR"
+            ],
+            "title": "Language of voice and audio",
+            "default": "en-US",
+            "description": "(1) Language only available if you have text to Speech powered by Amazon Polly enabled in your account"
+          }
+        },
+        "description": "Configure the language the component will detect and the language of the audio outputs."
+      }
+    },
+    "additionalProperties": false
+  },
+  "default_exits": [
+    {
+      "name": "no_match",
+      "type": "mandatory",
+      "title": "No match",
+      "description": "If the voice command doesn't match any keyword."
+    },
+    {
+      "name": "timeout",
+      "type": "mandatory",
+      "title": "Timeout",
+      "description": "If no voice command is detected or the caller doesn't speak until timeout."
+    }
+  ],
+  "custom_exits": {
+    "title": "Voice command exits",
+    "description": "Define the voice keyword the caller needs to speak to select that exit.",
+    "condition": {
+      "type": "object",
+      "title": "Voice command",
+      "$schema": "http://json-schema.org/draft-06/schema#",
+      "properties": {
+        "routing_conditions": {
+          "_ui_": {
+            "container": {
+              "type": "small_title_section"
+            }
+          },
+          "type": "object",
+          "title": "Keywords",
+          "required": [
+            "value",
+            "operation"
+          ],
+          "properties": {
+            "value": {
+              "_ui_": {
+                "field": {
+                  "type": "array",
+                  "add_button": {
+                    "type": "link",
+                    "label": "Add keyword"
+                  }
+                },
+                "items": {
+                  "type": "inline"
+                }
+              },
+              "type": "array",
+              "items": {
+                "_ui_": {
+                  "container": {
+                    "type": "simple_section_container"
+                  }
+                },
+                "type": "object",
+                "required": [
+                  "value",
+                  "operation"
+                ],
+                "properties": {
+                  "value": {
+                    "_ui_": {
+                      "placeholder": "Insert keyword..."
+                    },
+                    "type": "string"
+                  },
+                  "operation": {
+                    "const": "contains"
+                  }
+                }
+              }
+            },
+            "operation": {
+              "const": "any"
+            }
+          }
+        }
+      }
+    },
+    "mandatory": true,
+    "min_custom_exits": 1,
+    "can_be_disabled": false
+  },
+  "on_error": "no_match",
+  "data": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "speech"
+    ],
+    "properties": {
+      "speech": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  },
+  "data_sources": {
+  },
+  "pre_conditions": {
+    "voice_participant": true
+  },
+  "metadata": {
+  },
+  "enabled_accounts": [
+
+  ],
+  "function_mapping": {
+    "function": {
+      "name": "voice_ivr",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "mustache_json",
+        "template": "{ {{#properties}}{{#language_selection}} \"language\": \"{{{language}}}\", {{/language_selection}} \"audio_message\": { {{#audio_message}}{{#file_url}}\"type\": \"file_url\", \"value\": \"{{file_url}}\"{{/file_url}}{{#file_url_context_variable}}\"type\": \"file_url\", \"value\": \"{{file_url_context_variable}}\"{{/file_url_context_variable}}{{#text}}\"type\": \"text\", \"value\": \"{{text}}\" {{#language_selection}}, \"language\": \"{{{language}}}\" {{/language_selection}} {{/text}}{{#talkdesk_resource}}\"type\": \"asset\", \"value\": \"{{{id}}}\"{{/talkdesk_resource}}{{/audio_message}} }{{#timeout_selection}}, \"speech_timeout\": {{{speech_timeout}}}{{/timeout_selection}}, {{/properties}} \"choices\": { {{#exits}}{{#exits.length}}{{#condition}}{{#routing_conditions}} \"{{name}}\": {{{routing_conditions.to_json}}}, {{/routing_conditions}}{{/condition}}{{/exits.length}}{{/exits}} } }"
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{ \"exit\": \"{{output}}\"{{#data}}, \"output_data\": {\"speech\": \"{{speech}}\"} {{/data}} }"
+      }
+    },
+    "max_execution_time": 120
+  }
+}

@@ -1,0 +1,129 @@
+{
+  
+  "name": "estimated_waiting_time-YTZiMDViNj",
+  "title": "Estimated waiting time",
+  "version": "1.1.3",
+  "icon": "estimated_waiting_time",
+  "description": "Request the estimated waiting time for a ring group and, it returns the expected time.",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 14415000,
+  "supported_trigger_types": [
+    "voice_inbound",
+    "module"
+  ],
+  "status": "available",
+  "properties": {
+    "_ui_": {
+      "order": [
+        "estimated_waiting_time_parameters"
+      ]
+    },
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "estimated_waiting_time_parameters"
+    ],
+    "properties": {
+      "estimated_waiting_time_parameters": {
+        "_ui_": {
+          "type": "radio_choice",
+          "title": "Select how to find ring groups"
+        },
+        "oneOf": [
+          {
+            "type": "object",
+            "title": "List of ring groups in your account",
+            "required": [
+              "ring_group"
+            ],
+            "properties": {
+              "ring_group": {
+                "_ui_": {
+                  "type": "simple_selection_dropdown",
+                  "data_source": "ring_groups"
+                },
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "title": "Variable in flow context",
+            "required": [
+              "ring_group_context"
+            ],
+            "properties": {
+              "ring_group_context": {
+                "_ui_": {
+                  "type": "simple_selection_dropdown",
+                  "data_source": "context"
+                },
+                "type": "string",
+                "default": ""
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "title": "Assignment Parameters",
+        "description": "Select which attributes will be used for estimated waiting time"
+      }
+    },
+    "additionalProperties": false
+  },
+  "default_exits": [
+    {
+      "name": "ok",
+      "type": "mandatory",
+      "title": "Successful exit",
+      "description": "General exit to next step"
+    },
+    {
+      "name": "indeterminate",
+      "type": "mandatory",
+      "title": "Indeterminate exit",
+      "description": "You can define an alternate exit in case of was not possible to calculate the EWT"
+    }
+  ],
+  "on_error": "indeterminate",
+  "data": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [
+      "estimated_waiting_time_in_seconds"
+    ],
+    "properties": {
+      "estimated_waiting_time_in_seconds": {
+        "type": "number"
+      }
+    },
+    "additionalProperties": false
+  },
+  "data_sources": {
+  },
+  "metadata": {
+  },
+  "enabled_accounts": [
+
+  ],
+  "function_mapping": {
+    "function": {
+      "name": "estimated_waiting_time_rx",
+      "version": "1.0.x"
+    },
+    "templates": {
+      "input": {
+        "engine": "mustache",
+        "template": "{ {{#properties}}{{#estimated_waiting_time_parameters}}\"ring_groups\":[\"{{{ring_group}}}{{^ring_group}}{{{ring_group_context}}}{{/ring_group}}\"]{{/estimated_waiting_time_parameters}}{{/properties}} }"
+      },
+      "output": {
+        "engine": "broken_mustache",
+        "template": "{ \"exit\": {{{status}}} {{#estimated_waiting_time_in_seconds}} , \"output_data\": { \"estimated_waiting_time_in_seconds\": {{{estimated_waiting_time_in_seconds}}} } {{/estimated_waiting_time_in_seconds}} }"
+      }
+    },
+    "max_execution_time": 15
+  }
+}

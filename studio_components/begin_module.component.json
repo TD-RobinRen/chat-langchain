@@ -1,0 +1,60 @@
+{
+  "title": "Begin module",
+  "name": "begin_module-XchrRXvtG2",
+  "version": "1.0.0",
+  "icon": "begin_module",
+  "description": "Initial component for module definitions.",
+  "initial_step": true,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 300000,
+  "supported_trigger_types": [
+    "module"
+  ],
+  "status": "available",
+  "properties": {},
+  "default_exits": [
+    {
+      "name": "success",
+      "type": "mandatory",
+      "title": "Success",
+      "description": "If the component succeeds"
+    },
+    {
+      "name": "error",
+      "type": "invisible",
+      "title": "Error",
+      "description": "If an error occurs"
+    }
+  ],
+  "data": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "request_parameters": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "additionalProperties": false
+  },
+  "data_sources": {},
+  "function_mapping": {
+    "function": {
+      "name": "api_call",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "none",
+        "template": ""
+      },
+      "output": {
+        "engine": "mustache_json",
+        "template": "{\"exit\": {{#error}}\"error\"{{/error}} {{#ok}}\"success\"{{/ok}}, \"output_data\": {{#ok}} {{{ok.to_json}}} {{/ok}} {{#error}} {{{error.to_json}}} {{/error}} }"
+      }
+    },
+    "max_execution_time": 10
+  },
+  "enabled_accounts": []
+}

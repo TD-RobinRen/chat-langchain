@@ -1,0 +1,213 @@
+{
+  "name": "play_audio-NjFkZDU2MG",
+  "title": "Play Audio",
+  "version": "2.16.1",
+  "icon": "play_audio",
+  "description": "Configure the audio message the user will hear.",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 120000,
+  "supported_trigger_types": [
+    "api",
+    "voice_inbound",
+    "module",
+    "voice_outbound"
+  ],
+  "status": "available",
+  "properties": {
+    "type": "object",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": ["audio_message"],
+    "properties": {
+      "audio_message": {
+        "_ui_": {
+          "type": "selection_group",
+          "title": "Select the type of message"
+        },
+        "oneOf": [
+          {
+            "_ui_": {
+              "order": ["language", "text"]
+            },
+            "type": "object",
+            "title": "Text to speech",
+            "required": ["text", "language"],
+            "properties": {
+              "text": {
+                "_ui_": {
+                  "type": "textarea"
+                },
+                "type": "string",
+                "title": "Text to speech",
+                "minLength": 1
+              },
+              "language": {
+                "_ui_": {
+                  "type": "language_selection"
+                },
+                "enum": [
+                  "de-DE",
+                  "en-US",
+                  "en-GB",
+                  "es-ES",
+                  "fr-FR",
+                  "it-IT",
+                  "pt-PT",
+                  "pt-BR",
+                  "ru-RU",
+                  "da-DK",
+                  "ca-ES",
+                  "nl-NL",
+                  "en-AU",
+                  "en-CA",
+                  "en-IN",
+                  "fi-FI",
+                  "fr-CA",
+                  "ja-JP",
+                  "ko-KR",
+                  "nb-NO",
+                  "pl-PL",
+                  "es-MX",
+                  "sv-SE",
+                  "zh-CN",
+                  "zh-HK",
+                  "zh-TW",
+                  "arb",
+                  "de-AT",
+                  "en-NZ",
+                  "en-ZA",
+                  "en-GB-WLS",
+                  "hi-IN",
+                  "is-IS",
+                  "ro-RO",
+                  "es-US",
+                  "tr-TR",
+                  "cy-GB"
+                ],
+                "title": "Language of audio output",
+                "default": "en-US",
+                "description": "(1) Language only available if you have text to Speech powered by Amazon Polly enabled in your account"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "title": "Audio file upload",
+            "required": ["talkdesk_resource"],
+            "properties": {
+              "talkdesk_resource": {
+                "_ui_": {
+                  "hint": "Allowed files types: .wav and .mp3",
+                  "type": "audio_file_upload",
+                  "title": "Audio file",
+                  "metadata": {
+                    "context": "CXM"
+                  },
+                  "data_source": "assets",
+                  "placeholder": "Please choose a file...",
+                  "supported_formats": "audio/mp3,audio/mpeg,audio/wav"
+                },
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "enum": ["asset"],
+                    "default": "asset"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "_ui_": {
+              "type": "radio_choice",
+              "title": "Select audio file source"
+            },
+            "oneOf": [
+              {
+                "type": "object",
+                "title": "URL to audio file",
+                "required": ["file_url"],
+                "properties": {
+                  "file_url": {
+                    "_ui_": {
+                      "hint": "Allowed formats are .mp3 and .wav",
+                      "type": "input_test_play_audio",
+                      "placeholder": "Insert the link to your audio file..."
+                    },
+                    "type": "string",
+                    "format": "uri",
+                    "default": "",
+                    "pattern": "http(s)?://.+",
+                    "minLength": 5
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "title": "Variable in the flow context",
+                "required": ["file_url_context_variable"],
+                "properties": {
+                  "file_url_context_variable": {
+                    "_ui_": {
+                      "type": "simple_selection_dropdown",
+                      "data_source": "context"
+                    },
+                    "type": "string",
+                    "default": ""
+                  }
+                },
+                "additionalProperties": false
+              }
+            ],
+            "title": "Other sources"
+          }
+        ],
+        "title": "Play audio message",
+        "description": "Configure the audio message the user will hear."
+      }
+    },
+    "additionalProperties": false
+  },
+  "default_exits": [
+    {
+      "name": "ok",
+      "type": "mandatory",
+      "title": "Ok",
+      "description": "If the component succeeds"
+    }
+  ],
+  "on_error": "ok",
+  "data": {},
+  "data_sources": {},
+  "pre_conditions": {
+    "voice_participant": true
+  },
+  "metadata": {},
+  "enabled_accounts": [],
+  "function_mapping": {
+    "function": {
+      "name": "play_message",
+      "version": "2.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "broken_mustache",
+        "template": "{ {{#properties}}\"audio_message\": { {{#audio_message}}{{#file_url}}\"type\": \"file_url\", \"value\": {{{file_url}}}{{/file_url}}{{#file_url_context_variable}}\"type\": \"file_url\", \"value\": {{{file_url_context_variable}}}{{/file_url_context_variable}}{{#text}}\"type\": \"text\", \"value\": {{{text}}}{{#language}}, \"language\": {{{language}}} {{/language}}{{/text}}{{#talkdesk_resource}}\"type\": \"asset\", \"value\": {{{id}}}{{/talkdesk_resource}}{{/audio_message}} }{{/properties}} }"
+      },
+      "output": {
+        "engine": "broken_mustache",
+        "template": "{ \"exit\": {{{output}}}, {{#data}} \"output_data\": {{{data}}} {{/data}} }"
+      }
+    },
+    "max_execution_time": 2400
+  }
+}

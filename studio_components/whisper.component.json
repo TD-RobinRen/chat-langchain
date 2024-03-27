@@ -1,0 +1,224 @@
+{
+    "name": "whisper-bnfc7Nftys",
+    "title": "Set whisper message",
+    "version": "0.0.4",
+    "icon": "agent_whisper",
+    "description": "Configure the whisper.",
+    "initial_step": false,
+    "interactive": false,
+    "color": "agent_whisper",
+    "dynamic": false,
+    "max_execution_time": 120000,
+    "supported_trigger_types": [
+        "api",
+        "voice_inbound",
+        "voice_outbound"
+    ],
+    "status": "available",
+    "properties": {
+        "type": "object",
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "required": [
+            "whisper_configurations"
+        ],
+        "properties": {
+            "whisper_configurations": {
+                "_ui_": {
+                    "type": "radio_choice"
+                },
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "title": "Disabled",
+                        "properties": {},
+                        "additionalProperties": false
+                    },
+                    {
+                        "_ui_": {
+                            "container": {
+                                "type": "box_container"
+                            }
+                        },
+                        "type": "object",
+                        "$schema": "http://json-schema.org/draft-04/schema#",
+                        "required": [
+                            "audio_message"
+                        ],
+                        "properties": {
+                            "audio_message": {
+                                "_ui_": {
+                                    "type": "selection_group",
+                                    "title": "Select the type of message"
+                                },
+                                "oneOf": [
+                                    {
+                                        "_ui_": {
+                                            "order": [
+                                                "language",
+                                                "text"
+                                            ]
+                                        },
+                                        "type": "object",
+                                        "title": "Text to speech",
+                                        "required": [
+                                            "text",
+                                            "language"
+                                        ],
+                                        "properties": {
+                                            "text": {
+                                                "_ui_": {
+                                                    "type": "textarea"
+                                                },
+                                                "type": "string",
+                                                "title": "Message to output",
+                                                "minLength": 1,
+                                                "maxLength": 75,
+                                                "pattern": ".*[a-zA-Z0-9].*"
+                                            },
+                                            "language": {
+                                                "_ui_": {
+                                                    "type": "language_selection"
+                                                },
+                                                "enum": [
+                                                    "de-DE",
+                                                    "en-US",
+                                                    "en-GB",
+                                                    "es-ES",
+                                                    "fr-FR",
+                                                    "it-IT",
+                                                    "pt-PT",
+                                                    "pt-BR",
+                                                    "ru-RU",
+                                                    "da-DK",
+                                                    "ca-ES",
+                                                    "nl-NL",
+                                                    "en-AU",
+                                                    "en-CA",
+                                                    "en-IN",
+                                                    "fi-FI",
+                                                    "fr-CA",
+                                                    "ja-JP",
+                                                    "ko-KR",
+                                                    "nb-NO",
+                                                    "pl-PL",
+                                                    "es-MX",
+                                                    "sv-SE",
+                                                    "zh-CN",
+                                                    "zh-HK",
+                                                    "zh-TW"
+                                                ],
+                                                "title": "Language of audio output",
+                                                "default": "en-US"
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    },
+                                    {
+                                        "type": "object",
+                                        "title": "Audio file upload",
+                                        "required": [
+                                            "talkdesk_resource"
+                                        ],
+                                        "properties": {
+                                            "talkdesk_resource": {
+                                                "_ui_": {
+                                                    "hint": "Allowed files types: .wav and .mp3",
+                                                    "type": "audio_file_upload",
+                                                    "title": "Audio file",
+                                                    "metadata": {
+                                                        "context": "CXM"
+                                                    },
+                                                    "data_source": "assets",
+                                                    "placeholder": "Please choose a file...",
+                                                    "supported_formats": "audio/mp3,audio/mpeg,audio/wav"
+                                                },
+                                                "type": "object",
+                                                "required": [
+                                                    "type",
+                                                    "id"
+                                                ],
+                                                "properties": {
+                                                    "id": {
+                                                        "pattern": "([a-zA-Z0-9\\-]*){1}",
+                                                        "maxLength": 128,
+                                                        "type": "string"
+                                                    },
+                                                    "type": {
+                                                        "enum": [
+                                                            "asset"
+                                                        ],
+                                                        "default": "asset"
+                                                    }
+                                                },
+                                                "additionalProperties": false
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                ],
+                                "title": "Play audio message",
+                                "description": "Configure the audio message the agent will hear."
+                            }
+                        },
+                        "title": "Enabled",
+                        "additionalProperties": false
+                    }
+                ],
+                "title": "Whisper message",
+                "description": "Set a message to play to agents before they talk with the contact person"
+            },
+            "additionalProperties": false
+        },
+        "additionalProperties": false
+    },
+    "default_exits": [
+        {
+            "name": "ok",
+            "type": "mandatory",
+            "title": "Success",
+            "description": "If the component succeeds"
+        }
+    ],
+    "on_error": "ok",
+    "data": {},
+    "data_sources": {},
+    "pre_conditions": {},
+    "metadata": {},
+    "enabled_accounts": {
+        "stg": {},
+        "qa": {
+            "td-us-1": [
+                "5a5c9595a67fc5000eeb7f29",
+                "6095559cfc6bb0e4ac7459b6",
+                "605b0ba810cab0e46ae28233",
+                "637b9cf30444e05b84e44aac"
+            ],
+            "td-ca-1": []
+        },
+        "prd": {
+            "td-us-1": [
+                "5accca558a97090022242853",
+                "5af4715325cd25001607d273",
+                "6189cb0cf5d6b0e4d1563024",
+                "5ee3ac9714826f000159c418"
+            ]
+        }
+    },
+    "function_mapping": {
+        "function": {
+            "name": "settings",
+            "version": "1.0.0"
+        },
+        "templates": {
+            "input": {
+                "engine": "mustache_json",
+                "template": "{ {{#properties}} \"settings\": {  \"whisper\": { {{#whisper_configurations}}{{#audio_message}}{{#text}}\"type\":\"say_text\", \"value\":\"{{{text}}}\", \"language\":  \"{{{language}}}\"{{/text}}{{#talkdesk_resource}}\"type\":\"prompt\", \"value\":\"{{{id}}}\"{{/talkdesk_resource}}{{/audio_message}}{{/whisper_configurations}} } {{/properties}} } }"
+            },
+            "output": {
+                "engine": "mustache_json",
+                "template": "{ {{#error}} {{{error}}} {{/error}} {{^error}} \"exit\": \"ok\" {{/error}} }"
+            }
+        },
+        "max_execution_time": 2400
+    }
+}

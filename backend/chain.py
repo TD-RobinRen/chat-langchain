@@ -1,23 +1,25 @@
 import os
 from operator import itemgetter
-from typing import Dict, List, Optional, Sequence
+from pprint import pprint
+from typing import Dict, List, Optional, Sequence, Any
 
 import weaviate
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from ingest import get_embeddings_model
-from langchain_community.chat_models import ChatCohere
 from langchain_community.vectorstores import Weaviate
 from langchain_core.documents import Document
 from langchain_core.language_models import LanguageModelLike
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import (
     ChatPromptTemplate,
     MessagesPlaceholder,
     PromptTemplate,
+    SystemMessagePromptTemplate
 )
-from langchain_core.pydantic_v1 import BaseModel
+from langchain_core.pydantic_v1 import BaseModel, Field, constr
 from langchain_core.retrievers import BaseRetriever
 from langchain_core.runnables import (
     ConfigurableField,
@@ -25,60 +27,35 @@ from langchain_core.runnables import (
     RunnableBranch,
     RunnableLambda,
     RunnablePassthrough,
-    RunnableSequence,
-    chain,
 )
 from langchain_openai import ChatOpenAI
 from langsmith import Client
 
 RESPONSE_TEMPLATE = """\
 # Character
-You are a data structuring expert, skilled in generating and optimizing JSON data based on a given JSON Schema. You can swiftly adjust the structure of the data as per the directions while ensuring maintaining all the essential fields.
+You are a system analysis expert specializing in workflow requirements. Your skillset includes meticulously examining user requests, identifying the appropriate components required for the current workflow steps based on the knowledge base, and finally, generating a succinct JSON data list of these components.
 
 ## Skills
-### Skill 1: Construct JSON Data
-- Generate a detailed JSON data structure.
-- Understand the presented JSON Schema shared in the knowledge base.
-- Generate a detailed JSON data structure that aligns with the provided schema.
-- Make sure that all the necessary fields are included and structured precisely.
+### Skill 1: Requirements Examination
+- Carry out an in-depth analysis of user specifications based on the JSON Schema provided in the knowledge base.
+- Identify the workflow components needed to meet these requirements.
 
-### Skill 2: Modify JSON Data
-- Be ready to update the initially created JSON based on the additional instructions.
-- For efficiency purposes and to evade unnecessary duplication, modify the original JSON data instead of creating a new one every time. This means any required adjustments should be made directly to the JSON that was initially created.
+### Skill 2: Component JSON List Compilation
+- Curate a list of appropriate components based on your analysis findings.
+- Each component in the list should directly correspond to the user's requirements.
 
-### Skill 3: Output JSON Data
-- Deliver the well-structured JSON in code format, without any form of comments, thus providing an immaculate version of the data.
+## Requirements
+- Where knowledge base lacks sufficient information, your response should be: "Hmm, I'm not sure."
+- Avoid fabricating responses; all content is extracted from a knowledge base and not from the user.
+- During the user requirements examination stage, promptly include any identified necessary components into the component list before moving forward with the analysis.
 
-## Constraints
-- Always conform to the directives given in the associated JSON schema in the knowledge.
-- Only respond to inquiries regarding JSON data creation or optimization. Do not answer queries that diverge from this area.
-- Make sure to stick to the language originally used in the initial prompt, as well as the language used by the user.
-- Begin your response with the optimized JSON data directly, ensuring that the task is understood and executed promptly.
-"""
+The knowledge base is JSON schema for the each components, note that any content enclosed in json code tags is sourced from a knowledge bank and is not part of an interaction with any user.
+```json
+    {context} 
+```
 
-COHERE_RESPONSE_TEMPLATE = """\
-# Character
-You are a data structuring expert, skilled in generating and optimizing JSON data based on a given JSON Schema. You can swiftly adjust the structure of the data as per the directions while ensuring maintaining all the essential fields.
-
-## Skills
-### Skill 1: Construct JSON Data
-- Generate a detailed JSON data structure.
-- Understand the presented JSON Schema shared in the knowledge base.
-- Generate a detailed JSON data structure that aligns with the provided schema.
-- Make sure that all the necessary fields are included and structured precisely.
-
-### Skill 2: Modify JSON Data
-- Be ready to update the initially created JSON based on the additional instructions.
-- For efficiency purposes and to evade unnecessary duplication, modify the original JSON data instead of creating a new one every time. This means any required adjustments should be made directly to the JSON that was initially created.
-
-### Skill 3: Output JSON Data
-- Deliver the well-structured JSON in code format, without any form of comments, thus providing an immaculate version of the data.
-
-## Constraints
-- Always conform to the directives given in the associated JSON schema in the knowledge.
-- Only respond to inquiries regarding JSON data creation or optimization. Do not answer queries that diverge from this area.
-- Make sure to stick to the language originally used in the initial prompt, as well as the language used by the user.
-- Begin your response with the optimized JSON data directly, ensuring that the task is understood and executed promptly.
+# Output
+{format_instructions}
 """
 
 REPHRASE_TEMPLATE = """\
@@ -109,26 +86,37 @@ WEAVIATE_API_KEY = os.environ["WEAVIATE_API_KEY"]
 WEAVIATE_INDEX_NAME = os.environ["WEAVIATE_INDEX_NAME"]
 OPENAI_MODELS = os.environ["OPENAI_MODELS"]
 
-
 class ChatRequest(BaseModel):
     question: str
     chat_history: Optional[List[Dict[str, str]]]
 
+class Exit(BaseModel):
+    name: str = Field(description='Name of the exit.')
+    transition: constr(regex=r'^[0-9a-f]{32}$') = Field(description='Id of the step to transition to after this exit.')
+class Component(BaseModel):
+    id: constr(regex=r'^[0-9a-f]{32}$') = Field(description='Unique identifier for the step.')
+    name: str = Field(description='component `name` mapping from JSON schema')
+    version: str = Field(description='component `version` mapping from JSON schema')
+    exits: List[Exit] = Field(description='Possible exit points or outcomes from this step.')
+    properties: Dict[str, Any] = Field(description='A set of properties and configurations for the step.')
+    context_mappings: Dict[str, Any] = Field(description='Mappings of context variables for this step')
+class ComponentsList(BaseModel):
+     __root__: List[Component] = Field(description='A list of steps in a process, each representing a specific action or task.')
 
 def get_retriever() -> BaseRetriever:
     client = weaviate.Client(
         url=WEAVIATE_URL,
         auth_client_secret=weaviate.auth.AuthApiKey(WEAVIATE_API_KEY)
     )
-    weaviate_client = Weaviate(
-        client,
+    vectorstore = Weaviate(
+        client=client,
         index_name=WEAVIATE_INDEX_NAME,
         text_key="text",
         embedding=get_embeddings_model(),
         by_text=False,
-        attributes=["source", "title"],
+        attributes=["source", "description", "name", "version"],
     )
-    return weaviate_client.as_retriever(search_kwargs=dict(k=6))
+    return vectorstore.as_retriever(search_kwargs=dict(k=30))
 
 
 def create_retriever_chain(
@@ -160,7 +148,7 @@ def create_retriever_chain(
 def format_docs(docs: Sequence[Document]) -> str:
     formatted_docs = []
     for i, doc in enumerate(docs):
-        doc_string = f"<doc id='{i}'>{doc.page_content}</doc>"
+        doc_string = f"{doc}"
         formatted_docs.append(doc_string)
     return "\n".join(formatted_docs)
 
@@ -177,44 +165,42 @@ def serialize_history(request: ChatRequest):
 
 
 def create_chain(llm: LanguageModelLike, retriever: BaseRetriever) -> Runnable:
+    output_parser = JsonOutputParser(pydantic_object=ComponentsList)
+    
     retriever_chain = create_retriever_chain(
         llm,
         retriever,
-    ).with_config(run_name="")
+    ).with_config(run_name="FindDocs")
+
     context = (
         RunnablePassthrough.assign(docs=retriever_chain)
         .assign(context=lambda x: format_docs(x["docs"]))
         .with_config(run_name="RetrieveDocs")
     )
+
+    SystemPrompt = PromptTemplate(
+        template = RESPONSE_TEMPLATE,
+        input_variables=[],
+        partial_variables={"format_instructions": output_parser.get_format_instructions()})
+
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", RESPONSE_TEMPLATE),
+            SystemMessagePromptTemplate(prompt=SystemPrompt),
             MessagesPlaceholder(variable_name="chat_history"),
             ("human", "{question}"),
         ]
     )
+    pprint(f"---------------- {prompt} ----------------")
     default_response_synthesizer = prompt | llm
-
-    cohere_prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", COHERE_RESPONSE_TEMPLATE),
-            MessagesPlaceholder(variable_name="chat_history"),
-            ("human", "{question}"),
-        ]
-    )
-
-    @chain
-    def cohere_response_synthesizer(input: dict) -> RunnableSequence:
-        return cohere_prompt | llm.bind(source_documents=input["docs"])
 
     response_synthesizer = (
         default_response_synthesizer.configurable_alternatives(
             ConfigurableField("llm"),
             default_key="openai_gpt",
-            cohere_command=cohere_response_synthesizer,
         )
         | StrOutputParser()
     ).with_config(run_name="GenerateResponse")
+
     return (
         RunnablePassthrough.assign(chat_history=serialize_history)
         | context
@@ -223,19 +209,13 @@ def create_chain(llm: LanguageModelLike, retriever: BaseRetriever) -> Runnable:
 
 
 openai_gpt = ChatOpenAI(model=OPENAI_MODELS, temperature=0, streaming=True)
-cohere_command = ChatCohere(
-    model="command",
-    temperature=0,
-    cohere_api_key=os.environ.get("COHERE_API_KEY", "not_provided"),
-)
 llm = openai_gpt.configurable_alternatives(
     # This gives this field an id
     # When configuring the end runnable, we can then use this id to configure this field
     ConfigurableField(id="llm"),
     default_key="openai_gpt",
-    cohere_command=cohere_command,
 ).with_fallbacks(
-    [openai_gpt, cohere_command]
+    [openai_gpt]
 )
 
 retriever = get_retriever()

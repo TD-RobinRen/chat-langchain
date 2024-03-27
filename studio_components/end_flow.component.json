@@ -1,0 +1,63 @@
+{
+  
+  "name": "hangup_call-OTE5ZmM0NW",
+  "title": "End Flow",
+  "version": "1.0.13",
+  "icon": "end_flow",
+  "description": "Terminates the flow",
+  "initial_step": false,
+  "interactive": false,
+  "dynamic": false,
+  "max_execution_time": 300000,
+  "supported_trigger_types": [
+    "api",
+    "livechat_inbound",
+    "message_inbound",
+    "voice_inbound",
+    "module",
+    "voice_outbound"
+  ],
+  "status": "available",
+  "properties": {
+  },
+  "default_exits": [
+    {
+      "name": "ok",
+      "type": "invisible",
+      "title": "Ok",
+      "description": "If the component succeeds"
+    },
+    {
+      "name": "error",
+      "type": "invisible",
+      "title": "Error",
+      "description": "If an error occurs"
+    }
+  ],
+  "data": {
+  },
+  "data_sources": {
+  },
+  "metadata": {
+  },
+  "enabled_accounts": [
+
+  ],
+  "function_mapping": {
+    "function": {
+      "name": "noop_voice",
+      "version": "1.0.0"
+    },
+    "templates": {
+      "input": {
+        "engine": "broken_mustache",
+        "template": "{}"
+      },
+      "output": {
+        "engine": "broken_mustache",
+        "template": "{ \"exit\": {{{output}}}, {{#data}} \"output_data\": {{{data}}} {{/data}} }"
+      }
+    },
+    "max_execution_time": 10
+  }
+}
