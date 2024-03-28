@@ -1,0 +1,27 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "salesforce_data_dip-YmZjYjczMj"
+        },
+        "version": {
+          "const": "3.4.x"
+        }
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": ["query"],
+      "properties": {
+        "query": {
+          "type": "string",
+          "title": "Query",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

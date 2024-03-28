@@ -1,0 +1,46 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "autoanswer-ZjJjOTRkMG"
+        },
+        "version": {
+          "const": "1.4.x"
+        }
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "auto_answer": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "Enabled",
+              "required": ["timeout"],
+              "properties": {
+                "timeout": {
+                  "type": "integer",
+                  "title": "Timeout in seconds",
+                  "default": 1,
+                  "maximum": 40,
+                  "minimum": 0
+                }
+              }
+            },
+            {
+              "type": "boolean",
+              "const": false,
+              "title": "Disabled"
+            }
+          ],
+          "title": "Auto-answering mode",
+          "description": "When enabled, calls assigned to agents will be answered automatically after a brief delay."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

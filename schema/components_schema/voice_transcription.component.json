@@ -1,0 +1,162 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "voice_transcription-NDY1MDcxNj"
+        },
+        "version": {
+          "const": "2.12.x"
+        }
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": ["language_selection", "audio_message", "timeout_selection"],
+      "properties": {
+        "audio_message": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "Text to speech",
+              "required": ["text"],
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "title": "Message to output",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "title": "Audio file upload",
+              "required": ["talkdesk_resource"],
+              "properties": {
+                "talkdesk_resource": {
+                  "type": "object",
+                  "required": ["type", "id"],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "enum": ["asset"],
+                      "default": "asset"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "title": "URL to audio file",
+                  "required": ["file_url"],
+                  "properties": {
+                    "file_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "default": "",
+                      "pattern": "http(s)?://.+",
+                      "minLength": 5
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "title": "Variable in the flow context",
+                  "required": ["file_url_context_variable"],
+                  "properties": {
+                    "file_url_context_variable": {
+                      "type": "string",
+                      "default": ""
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ],
+              "title": "Other sources"
+            }
+          ],
+          "title": "Audio message",
+          "description": "Configure the audio message the user will hear."
+        },
+        "timeout_selection": {
+          "type": "object",
+          "title": "Speech recognition",
+          "properties": {
+            "speech_timeout": {
+              "type": "integer",
+              "title": "Recognition timeout in seconds",
+              "default": 2,
+              "minimum": 1,
+              "description": "Waiting delay for speech before ending the transcription."
+            }
+          },
+          "description": "Settings for speech recognition and transcription."
+        },
+        "language_selection": {
+          "type": "object",
+          "title": "Language",
+          "properties": {
+            "language": {
+              "enum": [
+                "de-DE",
+                "en-US",
+                "en-GB",
+                "es-ES",
+                "fr-FR",
+                "it-IT",
+                "pt-PT",
+                "pt-BR",
+                "ru-RU",
+                "da-DK",
+                "ca-ES",
+                "nl-NL",
+                "en-AU",
+                "en-CA",
+                "en-IN",
+                "fi-FI",
+                "fr-CA",
+                "ja-JP",
+                "ko-KR",
+                "nb-NO",
+                "pl-PL",
+                "es-MX",
+                "sv-SE",
+                "he-IL",
+                "zh-CN",
+                "zh-HK",
+                "zh-TW",
+                "en-NZ",
+                "en-ZA",
+                "hi-IN",
+                "is-IS",
+                "ro-RO",
+                "es-US",
+                "tr-TR"
+              ],
+              "title": "Speech recognition language",
+              "default": "en-US",
+              "description": "(1) Language only available if you have text to Speech powered by Amazon Polly enabled in your account"
+            }
+          },
+          "description": "Configure the language used for speech recognition."
+        }
+      },
+      "additionalProperties": false
+    },
+    "context_mappings": {
+      "type": "object",
+      "description": "Mappings of context variables for this step, including speech.",
+      "default": {}
+    }
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "standard_ivr-M2NlYzMzNz"
+        },
+        "version": {
+          "const": "2.12.x"
+        }
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": ["message"],
+      "properties": {
+        "message": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "Text to speech",
+              "required": ["message_list"],
+              "properties": {
+                "message_list": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "title": "Text to speech",
+                    "required": ["language", "text"],
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "title": "Text to speech",
+                        "minLength": 1
+                      },
+                      "language": {
+                        "enum": [
+                          "de-DE",
+                          "en-US",
+                          "en-GB",
+                          "es-ES",
+                          "fr-FR",
+                          "it-IT",
+                          "pt-PT",
+                          "pt-BR",
+                          "ru-RU",
+                          "da-DK",
+                          "ca-ES",
+                          "nl-NL",
+                          "en-AU",
+                          "en-CA",
+                          "en-IN",
+                          "fi-FI",
+                          "fr-CA",
+                          "ja-JP",
+                          "ko-KR",
+                          "nb-NO",
+                          "pl-PL",
+                          "es-MX",
+                          "sv-SE",
+                          "zh-CN",
+                          "zh-HK",
+                          "zh-TW",
+                          "arb",
+                          "de-AT",
+                          "en-NZ",
+                          "en-ZA",
+                          "en-GB-WLS",
+                          "hi-IN",
+                          "is-IS",
+                          "ro-RO",
+                          "es-US",
+                          "tr-TR",
+                          "cy-GB"
+                        ],
+                        "title": "Language of audio output",
+                        "default": "en-US",
+                        "description": "(1) Language only available if you have text to Speech powered by Amazon Polly enabled in your account"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "title": "Audio file upload",
+              "required": ["talkdesk_resource"],
+              "properties": {
+                "talkdesk_resource": {
+                  "type": "object",
+                  "required": ["type", "id"],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "enum": ["asset"],
+                      "default": "asset"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "title": "URL to audio file",
+                  "required": ["file_url"],
+                  "properties": {
+                    "file_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "default": "",
+                      "pattern": "http(s)?://.+",
+                      "minLength": 5
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "title": "Variable in the flow context",
+                  "required": ["file_url_context_variable"],
+                  "properties": {
+                    "file_url_context_variable": {
+                      "type": "string",
+                      "default": ""
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ],
+              "title": "Other sources"
+            }
+          ],
+          "title": "Play audio message",
+          "description": "Configure the audio message the user will hear."
+        }
+      },
+      "additionalProperties": false
+    },
+    "context_mappings": {
+      "type": "object",
+      "description": "Mappings of context variables for this step, including exit_name, selection.",
+      "default": {}
+    }
+  }
+}

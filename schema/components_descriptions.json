@@ -749,6 +749,8 @@
         "description": ""
     },
     "run_function.component": {
+        "name": "run_function-OWQ5YmIwZj",
+        "version": "0.9.x",
         "description": "In a Studio flow, the Run function component is used to map a task based on custom, preconfigured JavaScript code that will execute a specific action, thus improving both call routing and agents` efficiency."
     }
 }

@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "incoming_api_request-YjRiZDYyZj"
+        },
+        "version": {
+          "const": "0.1.x"
+        }
+      }
+    },
+    "properties": {},
+    "context_mappings": {
+      "type": "object",
+      "description": "Mappings of context variables for this step, including interaction_id, request_parameters.",
+      "default": {}
+    }
+  }
+}

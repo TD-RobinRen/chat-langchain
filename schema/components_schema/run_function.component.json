@@ -1,0 +1,17 @@
+{
+    "properties": {
+      "component": {
+        "properties": {
+          "name": {
+            "const": "run_function-OWQ5YmIwZj"
+          },
+          "version": {
+            "const": "0.9.x"
+          }
+        }
+      },
+      "properties": {},
+      "context_mappings": {}
+    }
+  }
+  

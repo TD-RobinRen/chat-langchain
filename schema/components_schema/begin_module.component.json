@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "begin_module-XchrRXvtG2"
+        },
+        "version": {
+          "const": "1.0.x"
+        }
+      }
+    },
+    "properties": {},
+    "context_mappings": {
+      "type": "object",
+      "description": "Mappings of context variables for this step, including request_parameters.",
+      "default": {}
+    }
+  }
+}

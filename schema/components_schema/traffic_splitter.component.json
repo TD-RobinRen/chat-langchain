@@ -1,0 +1,14 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "traffic_splitter-ZjgwOTU1ZG"
+        },
+        "version": {
+          "const": "1.3.x"
+        }
+      }
+    }
+  }
+}

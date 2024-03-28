@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "inbound_voice-ZjE1ZjM0MG"
+        },
+        "version": {
+          "const": "1.3.x"
+        }
+      }
+    },
+    "properties": {},
+    "context_mappings": {
+      "type": "object",
+      "description": "Mappings of context variables for this step, including source_phone, destination_phone, interaction_id, sip_headers. We also can mapping the properties name, company, address, location, exact_match of the object contact and the properties uui for the object sip_headers.",
+      "default": {}
+    }
+  }
+}

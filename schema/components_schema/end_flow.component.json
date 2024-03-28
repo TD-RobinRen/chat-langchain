@@ -1,0 +1,16 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "hangup_call-OTE5ZmM0NW"
+        },
+        "version": {
+          "const": "0.1.x"
+        }
+      }
+    },
+    "properties": {},
+    "context_mappings": {}
+  }
+}
