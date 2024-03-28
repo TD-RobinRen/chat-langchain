@@ -1,92 +1,751 @@
 {
     "api_callback.component": {
+        "name": "api_callback-Kr916WHKxr",
+        "version": "1.4.1",
+        "default_exits": [
+            {
+                "name": "invalid",
+                "type": "mandatory",
+                "title": "Invalid Caller Id",
+                "description": "If selected contact phone number is invalid"
+            },
+            {
+                "name": "invalid_outbound_caller_id",
+                "type": "optional",
+                "title": "Invalid Outbound Caller Id",
+                "description": "If selected caller id is invalid"
+            },
+            {
+                "name": "no_match",
+                "type": "mandatory",
+                "title": "No match",
+                "description": "If no matching agents are found"
+            },
+            {
+                "name": "time_limit_reached",
+                "type": "mandatory",
+                "title": "Timeout",
+                "description": "If the expiration period is reached"
+            },
+            {
+                "name": "call_finished",
+                "type": "optional",
+                "title": "Call finished",
+                "description": "There was a successful match and a conversation with an agent has finished",
+                "effects": {
+                    "post_call": true,
+                    "voice_participant": true
+                }
+            }
+        ],
         "description": "The Request direct callback component enables callbacks to be requested via Application Programming Interface (API) scenarios. The Request direct callback can be made to:\nA phone number previously defined in the Studio flow.\nAn extension number; this means the callback is going to be performed on the previously defined phone number + extension.When the Request direct callback request comes in, the agent can answer or reject the request the same way they would do with an incoming call. Talkdesk will then automatically call the number specified for the callback request. If the callback is answered, an agent will be joining the call."
     },
     "api_request.component": {
-        "description":""
+        "name": "incoming_api_request-YjRiZDYyZj",
+        "version": "0.1.1",
+        "description": ""
     },
     "assign_agent_pool.component": {
+        "name": "assign_agent_pool-DnZ3fjDa7E",
+        "version": "0.3.4",
         "description": ""
     },
     "assignment_and_dial.component": {
+        "name": "assignment_and_dial-M2JhZTViYT",
+        "version": "3.23.1",
+        "default_exits": [
+            {
+                "name": "call_finished",
+                "type": "optional",
+                "title": "Call finished",
+                "description": "There was a successful match and a conversation with an agent has finished.",
+                "effects": {
+                    "post_call": true
+                }
+            },
+            {
+                "name": "call_no_answer",
+                "type": "mandatory",
+                "title": "No answer",
+                "description": "There was at least one successful dial attempt but no agent was available."
+            },
+            {
+                "name": "time_limit_reached",
+                "type": "mandatory",
+                "title": "Maximum waiting time reached",
+                "description": "There was a match but all agents are busy and the configured time out was reached."
+            },
+            {
+                "name": "no_match",
+                "type": "mandatory",
+                "title": "No match found",
+                "description": "A match could not be found."
+            }
+        ],
+        "custom_exits": {
+            "title": "Alternative Exits",
+            "description": "Offer key press alternatives to callers while they are in waiting queue.",
+            "condition": {
+                "type": "object",
+                "title": "Keypress exits",
+                "$schema": "http://json-schema.org/draft-04/schema#",
+                "required": [
+                    "keypress"
+                ],
+                "properties": {
+                    "keypress": {
+                        "enum": [
+                            "0",
+                            "1",
+                            "2",
+                            "3",
+                            "4",
+                            "5",
+                            "6",
+                            "7",
+                            "8",
+                            "9",
+                            "*",
+                            "#"
+                        ],
+                        "title": "Keypress"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "mandatory": false,
+            "min_custom_exits": 0,
+            "can_be_disabled": false
+        },
         "description": "With the Assignment and dial component, you can decide how to assign a voice interaction to a group of Agents based on selected ring groups, attributes, or individual agent selection. Please note that all assignment types are mutually exclusive and that you can only select one of them per assignment component.Normally, you should use the Assignment and Dial component to route the call to ring groups or agents.Only when you want to route the call to a specific agent, even if the agent is already on a call, should you use the Dial Agent component."
     },
     "auto-answer.component": {
+        "name": "autoanswer-ZjJjOTRkMG",
+        "version": "1.4.1",
+        "default_exits": [
+            {
+                "name": "ok",
+                "type": "mandatory",
+                "title": "Ok",
+                "description": "If the component succeeds"
+            }
+        ],
         "description": "With Studio, you can customize your agents` experience by enabling or disabling Auto-answer at the flow level.When enabled, the calls will be automatically answered within the timeout defined in the \"Timeout in seconds\" field."
     },
     "begin_module.component": {
+        "name": "begin_module-XchrRXvtG2",
+        "version": "1.0.0",
         "description": "The \"Begin module\" component is the first step of the Module definition.This component will be automatically added to the canvas when you select Create Module on the Modules page. From there, you can start configuring your Module."
     },
     "calendar_based_rules.component": {
+        "name": "calendar_based_rules-OTQ1M2UxMG",
+        "version": "1.3.0",
+        "default_exits": [
+            {
+                "name": "no-match",
+                "type": "mandatory",
+                "title": "No match",
+                "description": "If none of the rules match"
+            }
+        ],
         "description": "In the calendar-based rules component you can not only define holidays and route calls accordingly, but also select a specific routing for the days when the expected number of calls differs significantly (e.g., Black Friday).If you want to allow routing according to time rages in a day, you need to use time based rules component."
     },
     "callback.component": {
+        "name": "callback-OTU1MjIyYm",
+        "version": "6.29.1",
+        "default_exits": [
+            {
+                "name": "call_finished",
+                "type": "optional",
+                "title": "Call finished",
+                "description": "There was a successful match and a conversation with an agent has finished",
+                "effects": {
+                    "post_call": true,
+                    "voice_participant": true
+                }
+            },
+            {
+                "name": "invalid",
+                "type": "mandatory",
+                "title": "Invalid Inbound Phone Number",
+                "description": "If contact is calling with anonymous or invalid caller id"
+            },
+            {
+                "name": "invalid_outbound_caller_id",
+                "type": "optional",
+                "title": "Invalid Outbound Caller Id",
+                "description": "If selected caller id is invalid"
+            }
+        ],
         "description": "The Request Callback from queue component enables the callers to be called back later without losing their place in the assignment queue. The callback can be made to:\nThe original number.\nAnother phone number (defined previously in the flow).\nAn extension number; this means the caller is going to be called back on the original number + extension number.\nAccording to the flow definition, the Request Callback from Queue component should be added after defining a message informing the callers they can request the callback (this can be done on the waiting message of the A&D or by using a play message, for example).\nWhen the caller hears the message and presses the key for the callback option, they will listen to the message defined in the “Request successful” field of the “Request Callback from Queue” component, and the call is hung up. If the request was unsuccessful (an error occurred during the request), the caller will hear the “Error in request” message and the call is also hung up.\nCallbacks in Studio will also have a priority level associated, which will make a comparison between it and other waiting calls and decide the place in the queue for the request. Call priority outweighs any queue time, i.e., if a call with priority 10 has been in the queue for 30 minutes when a call with priority 1 comes in, the call with priority 1 will be handled first.\nThe agent is presented with a screen pop with the caller's information: name, phone number, callback request time, which queue the caller was waiting in, and which phone number was dialed.\nCustomers will only remain in the waiting queue up to the limit defined in the component. If the time defined to wait for an available agent is reached, and there are no available agents, the call will exit the waiting queue. By default, customers will not receive a message informing them of the timeout, but it can be set at the component level. This message will be played to the customer in case there`s a timeout, agents don`t pick up, or there`s an error."
     },
     "conditional_statement.component": {
+        "name": "conditional_statement-ZDQ2YzRkZT",
+        "version": "3.3.1",
+        "default_exits": [
+            {
+                "name": "no-match",
+                "type": "mandatory",
+                "title": "No Match",
+                "description": "If no expression evaluates to true"
+            }
+        ],
         "description": "With the Conditional statement component you can direct a call to one of several exits. Each exit has its own condition(s).The exits are evaluated in order, so the call is directed to the first one whose conditions are met. If no condition is met, the \"No Match\" exit is taken."
     },
     "dial_dedicated_agent.component": {
+        "name": "dial_dedicated_agent-odQvjBVvex",
+        "version": "3.2.1",
+        "default_exits": [
+            {
+                "name": "call_no_answer",
+                "type": "mandatory",
+                "title": "No answer",
+                "description": "There was at least one successful dial attempt but no agent was available.",
+                "effects": {
+                    "voice_participant": true
+                }
+            },
+            {
+                "name": "no_match",
+                "type": "mandatory",
+                "title": "No match",
+                "description": "A match could not be found."
+            }
+        ],
         "description": "With the Dial Agent component, you can give your agents the option of managing multiple calls simultaneously, allowing them to accept incoming calls while placing the current call on hold. By enabling the Call Waiting feature, you can deliver direct calls to the agent regardless of whether they are on green, yellow, or red status.\nAlthough the purpose of the Dial Agent component is to assign a call to an agent, its use differs from the Assignment and Dial component.\nThe Assignment and Dial component will queue the call until the defined assignment preferences are met and does not allow for an incoming call to ring an agent when they are already in a call. The Dial Agent allows multiple call handling, since it enables an incoming call to ring the agent, even if the agent is already on a call.\nWith the Dial Agent Talkdesk Studio component, you can deliver direct calls to the agent regardless if it is on green, yellow, or red status, enabling the Call Waiting feature. This will give them the option of managing multiple calls simultaneously, allowing them to accept incoming calls while placing the current call on hold.Normally, you should use the Assignment and Dial component to route the call to ring groups or agents.Only when you want to route the call to a specific agent even if the agent is already on a call, or if the user explicitly mentions the need for the dedicated call, should you use the Dial Agent component."
     },
     "end_flow.component": {
+        "name": "hangup_call-OTE5ZmM0NW",
+        "version": "1.0.13",
+        "default_exits": [],
         "description": "The function of the End flow component is to terminate the flow execution and to disconnect a call if one is in progress. The step editor is unavailable on this component, and it is not possible to define Preferences nor Exits."
     },
     "estimated_waiting_time.component": {
+        "name": "estimated_waiting_time-YTZiMDViNj",
+        "version": "1.1.3",
+        "default_exits": [
+            {
+                "name": "ok",
+                "type": "mandatory",
+                "title": "Successful exit",
+                "description": "General exit to next step"
+            },
+            {
+                "name": "indeterminate",
+                "type": "mandatory",
+                "title": "Indeterminate exit",
+                "description": "You can define an alternate exit in case of was not possible to calculate the EWT"
+            }
+        ],
         "description": "The Estimated waiting time (EWT) component retrieves an estimate of the average time a ring group takes to answer a call. The average time is calculated according to the calls that the ring group answered in the last 10 minutes. If no call is answered during that period, the EWT cannot be calculated.The EWT has the following characteristics:\nIt's retrieved in seconds.\nIt can be used multiple times within the same flow.\n It can be placed on every single point of the flow.\nThe EWT value takes into consideration the time the caller has spent in the waiting queue."
     },
     "forward_to_external_number.component": {
+        "name": "forward_to_external_number-NWI5ZGVmYT",
+        "version": "3.5.0",
+        "default_exits": [
+            {
+                "name": "call_no_answer",
+                "type": "mandatory",
+                "title": "No answer",
+                "description": "There was at least one successful dial but no call pickup (this includes: ringing timeout, busy, rejected)."
+            },
+            {
+                "name": "invalid",
+                "type": "mandatory",
+                "title": "Invalid number",
+                "description": "This exit will be selected if the provided number is invalid."
+            }
+        ],
         "description": "The Forward to external number component enables you to route the call to an external number."
     },
     "hang_up.component": {
+        "name": "hang_up-GC1Usd23ghe627s",
+        "version": "1.0.3",
+        "default_exits": [
+            {
+                "name": "room_finished",
+                "type": "optional",
+                "title": "Call disconnected",
+                "description": "The participant was disconnected from the call with success",
+                "effects": {
+                    "voice_participant": false
+                }
+            }
+        ],
         "description": "The function of the Hangup component is to disconnect the call to both the contact person and the agent.\nIf no optional exit is selected, the Hangup will be a final component, and the flow execution will terminate."
     },
     "incoming_call.component": {
+        "name": "inbound_voice-ZjE1ZjM0MG",
+        "version": "1.3.0",
+        "default_exits": [
+            {
+                "name": "ok",
+                "type": "mandatory",
+                "title": "Ok",
+                "description": "If the component succeeds",
+                "effects": {
+                    "voice_participant": true
+                }
+            }
+        ],
         "description": "This is the initial component for incoming call flow definitions.If a blocklist of phone numbers has been configured at the account level, the component will take it into consideration.In case an incoming call from an unknown phone number reaches the “Incoming call”, a contact will be automatically created in Talkdesk. For more information on contact creation, please visit our Conversations page.Use the variables fields of the “Incoming call” component to expose data points such as the contact’s name, address, and phone details, among others.In this component, you can also make use of the User to User Information (UUI) SIP Header by mapping it into a variable and retrieving information from external systems to manage incoming calls and route them to the appropriate agents. Through UUI SIP Headers agents can get information about the caller, and the call destination, among other attributes."
     },
     "input_ivr.component": {
+        "name": "input_ivr-ZDgxODY4Mz",
+        "version": "2.8.1",
+        "default_exits": [
+            {
+                "name": "ok",
+                "type": "mandatory",
+                "title": "Ok",
+                "description": "If the component succeeds"
+            },
+            {
+                "name": "timeout",
+                "type": "mandatory",
+                "title": "Timeout",
+                "description": "If the component exceeded the parameterized timeout",
+                "condition": {
+                    "type": "object",
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "properties": {
+                        "timeout": {
+                            "type": "integer",
+                            "title": "Time in seconds",
+                            "default": 5,
+                            "minimum": 1,
+                            "description": "Integer indicating in seconds for how long we will wait for the input. It resets as new digits are input"
+                        }
+                    },
+                    "description": "Timeout in seconds",
+                    "additionalProperties": false
+                }
+            }
+        ],
         "description": "The Input IVR component allows a caller to input data via the dial pad. This can be useful if new data is needed to make better routing decisions or to provide a better service, for example.Such as you can get the call number to set callback from the customer"
     },
     "make_outbound_call.component": {
+        "name": "outbound_call-NjI0YzA3MD",
+        "version": "0.34.0",
+        "default_exits": [
+            {
+                "name": "call_answered",
+                "type": "mandatory",
+                "title": "Answered",
+                "description": "This exit will be selected if the call is answered",
+                "effects": {
+                    "outbound_attempt": true,
+                    "voice_participant": true
+                }
+            },
+            {
+                "name": "invalid_number",
+                "type": "mandatory",
+                "title": "Invalid number",
+                "description": "This exit will be selected if the destination number is invalid",
+                "effects": {
+                    "outbound_attempt": true
+                }
+            },
+            {
+                "name": "busy",
+                "type": "mandatory",
+                "title": "Busy",
+                "description": "There was at least one successful dial but the call was rejected",
+                "effects": {
+                    "outbound_attempt": true
+                }
+            },
+            {
+                "name": "call_no_answer",
+                "type": "mandatory",
+                "title": "No answer",
+                "description": "There was at least one successful dial but no call pickup",
+                "effects": {
+                    "outbound_attempt": true
+                }
+            },
+            {
+                "name": "invalid_outbound_number",
+                "type": "optional",
+                "title": "Invalid outbound number",
+                "description": "If the outbound number doesn't belong to this Talkdesk account",
+                "effects": {
+                    "outbound_attempt": true
+                }
+            }
+        ],
         "description": "The Make outbound call component allows you to trigger an outbound call to a contact person in Studio flows, that are triggered by an API request."
     },
     "outgoing_call.component": {
+        "name": "outgoing_call-Ej6cQy2EMW",
+        "version": "0.1.12",
+        "default_exits": [
+            {
+                "name": "ok",
+                "type": "mandatory",
+                "title": "Success",
+                "description": "If the component succeeds",
+                "effects": {
+                    "voice_participant": true
+                }
+            }
+        ],
         "description": "This is the initial component for outgoing call flow definitions.The outgoing call flow will be triggered when a manual outbound call is answered by the contact person. The agent who placed the call will be waiting in line to be connected to the contact person when the flow ends.Use the variables fields of the “Outgoing call” component to expose data points such as the contact’s name, address, and phone details, among others."
     },
     "play_audio.component": {
+        "name": "play_audio-NjFkZDU2MG",
+        "version": "2.16.1",
+        "default_exits": [
+            {
+                "name": "ok",
+                "type": "mandatory",
+                "title": "Ok",
+                "description": "If the component succeeds"
+            }
+        ],
         "description": "The Play audio component allows you to configure an audio message.There are three ways of playing the target message: Text to Speech, Audio File Upload, and Other Sources."
     },
     "play_digits.component": {
+        "name": "play_digits-NzIzNzYyZj",
+        "version": "0.2.0",
         "description": ""
     },
     "record.component": {
+        "name": "record-ZGE1ZDUyOD",
+        "version": "1.4.0",
+        "default_exits": [
+            {
+                "name": "ok",
+                "type": "mandatory",
+                "title": "Ok",
+                "description": "If the component succeeds"
+            }
+        ],
         "description": "In the Record component you can determine whether you want to record a given interaction."
     },
     "reporting.component": {
+        "name": "reporting-ZDMxMTBiZD",
+        "version": "1.3.0",
+        "default_exits": [
+            {
+                "name": "ok",
+                "type": "mandatory",
+                "title": "Ok",
+                "description": "If the component succeeds"
+            }
+        ],
         "description": "The Reporting component enables you to decide how a given interaction or contact is reported through ring groups.You can select the ring group from a list or consider a variable in the flow. For instance, the component allows you to use information collected from a CRM such as Salesforce for your call reporting.At interaction or call level, Talkdesk will surface the ring group(s) encountered in the last assignment and dial step and will include them in the “Tags” column in the calls report.At the contact level, if several contacts take place during an interaction, the “Calls Report” in “Explore” will consequently display several ring groups associated with the interaction, under the “Ring Group” column.With this component, data interpretation can be eased, since the “Calls Report” in Explore will only display the ring group that you decide to use during the assignment process.To configure the Reporting component properly, it is important that at least one Assignment and Dial, Callback or Voicemail component is used in the flow.Furthermore, if you wish to report by ring group, the component only allows the selection of a single ring group in the “Ring Group for reporting” field to make sure your interaction/contacts are reported on a single queue.Depending on the position chosen to place the component in the flow, the component will have an impact when reporting either by interaction or by contacts."
     },
     "salesforce_data_dip.component": {
+        "name": "salesforce_data_dip-YmZjYjczMj",
+        "version": "3.4.1",
+        "default_exits": [
+            {
+                "name": "ok",
+                "type": "mandatory",
+                "title": "Ok",
+                "description": "If query succeeds"
+            },
+            {
+                "name": "no_result",
+                "type": "mandatory",
+                "title": "No result",
+                "description": "If there is no result for the query"
+            },
+            {
+                "name": "timeout",
+                "type": "mandatory",
+                "title": "Timeout",
+                "description": "If the maximum waiting time for a response is exceeded",
+                "condition": {
+                    "type": "object",
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "required": [
+                        "timeout"
+                    ],
+                    "properties": {
+                        "timeout": {
+                            "type": "integer",
+                            "title": "Time in seconds",
+                            "default": 8,
+                            "maximum": 10,
+                            "minimum": 1
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "upstream_error",
+                "type": "mandatory",
+                "title": "Connection error",
+                "description": "If an error occurs"
+            }
+        ],
         "description": "If you are using Talkdesk for Salesforce, you can search for specific information in Salesforce with Salesforce Object Query Language (SOQL).On the other hand, if a SOQL query is defined in a given Salesforce step using a “contact_name” variable in which the name contains an apostrophe and the escape tag is not used, as shown in the example below, there will be an upstream error and your Studio flow might not work properly."
     },
     "standard_ivr.component": {
+        "name": "standard_ivr-M2NlYzMzNz",
+        "version": "2.12.1",
+        "default_exits": [
+            {
+                "name": "timeout",
+                "type": "mandatory",
+                "title": "Timeout",
+                "condition": {
+                    "type": "object",
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "properties": {
+                        "timeout": {
+                            "type": "integer",
+                            "title": "Time in seconds",
+                            "default": 5,
+                            "minimum": 1,
+                            "description": "Integer indicating in seconds for how long we will wait for the input. It resets as new digits are input"
+                        }
+                    },
+                    "description": "Timeout in seconds",
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "invalid",
+                "type": "mandatory",
+                "title": "Invalid",
+                "description": "If an invalid key is pressed"
+            }
+        ],
+        "custom_exits": {
+            "title": "Custom Exits",
+            "description": "Exit that the component will use if the condition is evaluated to true",
+            "condition": {
+                "type": "object",
+                "title": "Keypress exits",
+                "$schema": "http://json-schema.org/draft-04/schema#",
+                "required": [
+                    "keypress"
+                ],
+                "properties": {
+                    "keypress": {
+                        "enum": [
+                            "0",
+                            "1",
+                            "2",
+                            "3",
+                            "4",
+                            "5",
+                            "6",
+                            "7",
+                            "8",
+                            "9",
+                            "*",
+                            "#"
+                        ],
+                        "title": "Keypress"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "mandatory": true,
+            "min_custom_exits": 1,
+            "can_be_disabled": false
+        },
         "description": "The Standard IVR component enables the contact person to select one of multiple options. Based on the selection that is made, the interaction will then follow the most appropriate path and can be routed to the most suited agent or group of agents within a team.you can choose one of the following message types: Text to speech, Audio file upload or Other sources."
     },
     "time_based_rules.component": {
+        "name": "time_based_rules-NDU4NTVlNz",
+        "version": "1.5.1",
+        "default_exits": [
+            {
+                "name": "no-match",
+                "type": "mandatory",
+                "title": "No match",
+                "description": "If none of the rules match"
+            }
+        ],
+        "custom_exits": {
+            "title": "Time based exits",
+            "description": "Define exits based on week days and time ranges",
+            "condition": {
+                "type": "object",
+                "title": "Time based exit",
+                "$schema": "http://json-schema.org/draft-04/schema#",
+                "required": [
+                    "timezone",
+                    "ranges"
+                ],
+                "properties": {
+                    "ranges": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "days",
+                                "time"
+                            ],
+                            "properties": {
+                                "days": {
+                                    "type": "array",
+                                    "items": {
+                                        "enum": [
+                                            "MONDAY",
+                                            "TUESDAY",
+                                            "WEDNESDAY",
+                                            "THURSDAY",
+                                            "FRIDAY",
+                                            "SATURDAY",
+                                            "SUNDAY"
+                                        ],
+                                        "type": "string"
+                                    },
+                                    "default": [
+                                        "MONDAY",
+                                        "TUESDAY",
+                                        "WEDNESDAY",
+                                        "THURSDAY",
+                                        "FRIDAY"
+                                    ],
+                                    "minItems": 1
+                                },
+                                "time": {
+                                    "type": "object",
+                                    "required": [
+                                        "from",
+                                        "to"
+                                    ],
+                                    "properties": {
+                                        "to": {
+                                            "type": "string",
+                                            "title": "To",
+                                            "default": "18:00:00",
+                                            "example": "22:10:00",
+                                            "pattern": "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$",
+                                            "minLength": 1
+                                        },
+                                        "from": {
+                                            "type": "string",
+                                            "title": "From",
+                                            "default": "09:00:00",
+                                            "example": "02:15:00",
+                                            "pattern": "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$",
+                                            "minLength": 1
+                                        }
+                                    },
+                                    "additionalProperties": false
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "minItems": 1
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "title": "Timezone",
+                        "example": "America/Los_Angeles",
+                        "minLength": 1
+                    },
+                    "inside_business_hours": {
+                        "enum": [
+                            true,
+                            false
+                        ],
+                        "title": "Time Range",
+                        "default": true,
+                        "description": "Define criteria for the time rules to apply"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "mandatory": true,
+            "min_custom_exits": 1,
+            "can_be_disabled": false
+        },
         "description": "Define the time-based rules to allow routing according to time ranges or to any day(s) of the week.On the Exits tab, you can configure several exits to allow routing according to time-based rules. These rules will only apply to the phone numbers associated with the flow.Timezone​: Define to which timezone the rule will be applied.Time range​: The options​ allow you to define whether specified times represent business hours or non-business hours in reporting. Note: You must select the option \"Report as: Inside Business Hours\", and configure the respective hours, so that the calls are reported as \"Inside Business Hours\". In case the time ranges you are defining are incompatible, (for example, if the “To” time occurs before the “From” time), a warning message will be displayed. In addition, please be aware that whenever an overnight time range is defined, Studio will consider the following day of the week for the overnight time range, so the calls will be routed through the desired exit from, for example, 9:00 pm of a given day until 2:00 am of the following day. Note: The system doesn't route calls based on this parameter. You must still use the Send to menu to define where calls will be sent.Add time range: ​Add more time ranges to the previously defined ones."
     },
     "traffic_splitter.component": {
+        "name": "traffic_splitter-ZjgwOTU1ZG",
+        "version": "1.3.4",
         "description": "This component enables you to split your incoming calls into routes of your choice."
     },
     "voice_ivr.component": {
+        "name": "voice_ivr-M2JmMTc2YT",
+        "version": "2.10.1",
+        "default_exits": [
+            {
+                "name": "no_match",
+                "type": "mandatory",
+                "title": "No match",
+                "description": "If the voice command doesn't match any keyword."
+            },
+            {
+                "name": "timeout",
+                "type": "mandatory",
+                "title": "Timeout",
+                "description": "If no voice command is detected or the caller doesn't speak until timeout."
+            }
+        ],
+        "custom_exits": {
+            "title": "Voice command exits",
+            "description": "Define the voice keyword the caller needs to speak to select that exit.",
+            "condition": {
+                "type": "object",
+                "title": "Voice command",
+                "$schema": "http://json-schema.org/draft-06/schema#",
+                "properties": {
+                    "routing_conditions": {
+                        "type": "object",
+                        "title": "Keywords",
+                        "required": [
+                            "value",
+                            "operation"
+                        ],
+                        "properties": {
+                            "value": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "required": [
+                                        "value",
+                                        "operation"
+                                    ],
+                                    "properties": {
+                                        "value": {
+                                            "type": "string"
+                                        },
+                                        "operation": {
+                                            "const": "contains"
+                                        }
+                                    }
+                                }
+                            },
+                            "operation": {
+                                "const": "any"
+                            }
+                        }
+                    }
+                }
+            },
+            "mandatory": true,
+            "min_custom_exits": 1,
+            "can_be_disabled": false
+        },
         "description": "The Voice IVR component is a component with voice capabilities. You can use it to let your customers explain, in a few words, why they are calling your contact center.You can configure the keywords that are most likely to be used by callers and make routing decisions based on this."
     },
     "voice_transcription.component": {
+        "name": "voice_transcription-NDY1MDcxNj",
+        "version": "2.12.1",
         "description": "The Voice transcription component enables you to:\nTurn voice into text and send the information to Conversations.\nUse a Conditional Statement to make routing decisions based on the words uttered by the caller."
     },
     "voicemail.component": {
+        "name": "voicemail-NGQ0ZDE5Nj",
+        "version": "2.4.3",
+        "default_exits": [],
         "description": "This component routes the call to the voicemail of agents or ring groups you select. No context is given before the beep, so we recommend configuring an audio message (Play Audio component) right before the flow reaches Voicemail.Voicemail is a final component, therefore, no Exits are available.Here you can assign voicemails to specific agents or ring groups. Alternatively, you can use your preconfigured variables which will assign voicemail to agents/ring groups according to the previous events of your call flow. If your selection falls under the “Agents” assignment category, the variable to use will have to correspond to the agent`s email."
     },
     "whisper.component": {
+        "name": "whisper-bnfc7Nftys",
+        "version": "0.0.4",
         "description": ""
     },
     "run_function.component": {
