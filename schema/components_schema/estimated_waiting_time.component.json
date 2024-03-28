@@ -1,0 +1,56 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "estimated_waiting_time-YTZiMDViNj"
+        },
+        "version": {
+          "const": "1.1.x"
+        }
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": ["estimated_waiting_time_parameters"],
+      "properties": {
+        "estimated_waiting_time_parameters": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "List of ring groups in your account",
+              "required": ["ring_group"],
+              "properties": {
+                "ring_group": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "title": "Variable in flow context",
+              "required": ["ring_group_context"],
+              "properties": {
+                "ring_group_context": {
+                  "type": "string",
+                  "default": ""
+                }
+              },
+              "additionalProperties": false
+            }
+          ],
+          "title": "Assignment Parameters",
+          "description": "Select which attributes will be used for estimated waiting time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "context_mappings": {
+      "type": "object",
+      "description": "Mappings of context variables for this step, including estimated_waiting_time_in_seconds.",
+      "default": {}
+    }
+  }
+}

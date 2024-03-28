@@ -1,0 +1,15 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "hang_up-GC1Usd23ghe627s"
+        },
+        "version": {
+          "const": "1.0.x"
+        }
+      }
+    },
+    "properties": {}
+  }
+}

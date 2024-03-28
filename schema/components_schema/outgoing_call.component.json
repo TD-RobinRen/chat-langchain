@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "outgoing_call-Ej6cQy2EMW"
+        },
+        "version": {
+          "const": "0.1.x"
+        }
+      }
+    },
+    "properties": {},
+    "context_mappings": {
+      "type": "object",
+      "description": "Mappings of context variables for this step, including interaction_id, outbound_caller_id, ring_groups, destination_number. We also can map the property id of the object agent and the properties id, name, address, company, location, exact_match of the object contact",
+      "default": {}
+    }
+  }
+}

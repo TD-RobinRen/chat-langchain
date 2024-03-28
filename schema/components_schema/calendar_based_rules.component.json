@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "calendar_based_rules-OTQ1M2UxMG"
+        },
+        "version": {
+          "const": "1.3.x"
+        }
+      }
+    },
+    "properties": {},
+    "context_mappings": {
+      "type": "object",
+      "description": "Mappings of context variables for this step, including match.",
+      "default": {}
+    }
+  }
+}

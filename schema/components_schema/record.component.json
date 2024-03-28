@@ -1,0 +1,28 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "record-ZGE1ZDUyOD"
+        },
+        "version": {
+          "const": "1.4.x"
+        }
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": ["record_call"],
+      "properties": {
+        "record_call": {
+          "type": "boolean",
+          "title": "Enable Recording",
+          "default": true,
+          "description": "When enabled, the calls routed through this step will be recorded."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

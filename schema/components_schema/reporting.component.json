@@ -1,0 +1,53 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "reporting-ZDMxMTBiZD"
+        },
+        "version": {
+          "const": "1.3.x"
+        }
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": ["reporting_queue_name"],
+      "properties": {
+        "reporting_queue_name": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "List of Ring Groups in your account",
+              "required": ["ring_group"],
+              "properties": {
+                "ring_group": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "title": "Variables in the flow context",
+              "required": ["variable"],
+              "properties": {
+                "variable": {
+                  "type": "string"
+                }
+              }
+            }
+          ],
+          "title": "Ring group for reporting",
+          "description": "Select on which ring group the next assignments will be reported on."
+        }
+      },
+      "additionalProperties": false
+    },
+    "context_mappings": {
+      "type": "object",
+      "description": "Mappings of context variables for this step, including interaction_id, request_parameters.",
+      "default": {}
+    }
+  }
+}

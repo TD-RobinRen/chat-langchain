@@ -1,0 +1,26 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "play_digits-NzIzNzYyZj"
+        },
+        "version": {
+          "const": "0.2.x"
+        }
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": ["digits"],
+      "properties": {
+        "digits": {
+          "type": "string",
+          "title": "Digits"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

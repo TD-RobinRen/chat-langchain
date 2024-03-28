@@ -1,0 +1,65 @@
+{
+  "properties": {
+    "component": {
+      "properties": {
+        "name": {
+          "const": "dial_dedicated_agent-odQvjBVvex"
+        },
+        "version": {
+          "const": "3.2.x"
+        }
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": ["assignment_parameters", "ringing_parameters"],
+      "properties": {
+        "assignment_parameters": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "An agent in your account",
+              "required": ["agent_id"],
+              "properties": {
+                "agent_id": {
+                  "type": "string",
+                  "data_source": "agents"
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "title": "Variable in the flow context",
+              "required": ["agent_context"],
+              "properties": {
+                "agent_context": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          ],
+          "title": "Assignment Parameters",
+          "description": "Select and configure which attributes will be used for matching a call with an agent"
+        },
+        "ringing_parameters": {
+          "type": "object",
+          "title": "Maximum ringing time",
+          "description": "Maximum time to ring the selected agent",
+          "required": ["timeout"],
+          "properties": {
+            "timeout": {
+              "type": "integer",
+              "title": "Time in seconds",
+              "maximum": 600,
+              "minimum": 30
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
