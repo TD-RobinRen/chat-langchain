@@ -2,8 +2,6 @@
 import logging
 import os
 from dotenv import load_dotenv
-import json
-from pathlib import Path
 
 import weaviate
 from langchain_text_splitters import RecursiveJsonSplitter
@@ -22,8 +20,8 @@ logger = logging.getLogger(__name__)
 while_list = ['name', 'version', 'default_exits']
 
 def metadata_func(record: dict, metadata: dict) -> dict:
-    metadata["name"] = record.get("name")
-    metadata["version"] = record.get("version")
+    metadata["component_name"] = record.get("name")
+    metadata["component_version"] = record.get("version")
     return metadata
 
 def load_components_folder():
@@ -37,7 +35,13 @@ def load_components_folder():
 
 def load_components_description():
     file_path='./schema/components_descriptions.json'
-    return json.loads(Path(file_path).read_text())
+    loader = JSONLoader(
+        file_path=file_path,
+        jq_schema='.[]',
+        metadata_func= metadata_func,
+        text_content=False)
+
+    return loader.load()
 
 def get_embeddings_model() -> Embeddings:
     return OpenAIEmbeddings(model="text-embedding-3-small", chunk_size=200)
@@ -53,7 +57,7 @@ def ingest_docs():
     DATABASE_NAME = os.environ["DATABASE_NAME"]
     RECORD_MANAGER_DB_URL = f"postgresql://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
 
-    components_docs = load_components_folder()
+    # components_docs = load_components_folder()
     components_description = load_components_description()
 
     embedding = get_embeddings_model()
@@ -80,23 +84,18 @@ def ingest_docs():
     # We try to return 'source' and 'description' metadata when querying vector store and
     # Weaviate will error at query time if one of the attributes is missing from a
     # retrieved document.
-    for idx, doc in enumerate(components_docs):
-        if "source" not in doc.metadata:
-            doc.metadata["source"] = ""
-        component_name = os.path.basename(doc.metadata['source']).replace('.json', '')
-        description = components_description.get(component_name, {}).get('description', '')
-        doc.metadata["description"] = description
-        doc.metadata["seq_num"] = idx
-        doc.page_content = ""
+    for idx, doc in enumerate(components_description):
+        doc.metadata["source"] = os.path.basename(doc.metadata['source'])
+
       
-    logger.info(f"Loaded {len(components_docs)} docs from schema")
+    logger.info(f"Loaded {len(components_description)} docs from schema")
 
     indexing_stats = index(
-        components_docs,
+        components_description,
         record_manager,
         vectorstore,
         cleanup="full",
-        source_id_key="source",
+        source_id_key="component_name",
         force_update=(os.environ.get("FORCE_UPDATE") or "false").lower() == "true",
     )
 

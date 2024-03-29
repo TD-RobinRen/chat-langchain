@@ -48,7 +48,7 @@ def clear():
         record_manager,
         vectorstore,
         cleanup="full",
-        source_id_key="source",
+        source_id_key="component_name",
     )
 
     logger.info("Indexing stats: ", indexing_stats)
