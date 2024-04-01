@@ -14,9 +14,10 @@ from langchain_core.prompts import (
     ChatPromptTemplate,
     MessagesPlaceholder,
     PromptTemplate,
-    SystemMessagePromptTemplate
+    SystemMessagePromptTemplate,
+    FewShotChatMessagePromptTemplate
 )
-from langchain_core.pydantic_v1 import BaseModel, Field
+from langchain_core.pydantic_v1 import BaseModel, Field, constr
 from langchain_core.retrievers import BaseRetriever
 from langchain_core.runnables import (
     ConfigurableField,
@@ -45,7 +46,7 @@ You are a requirements analysis expert specializing in workflow requirements. Yo
 
 The knowledge base is description for the each components, note that any content enclosed in json code tags is sourced from a knowledge base and is not part of an interaction with any user.
 ```json
-    {context} 
+    {context}
 ```
 """
 
@@ -60,15 +61,16 @@ class ChatRequest(BaseModel):
 
 class Exit(BaseModel):
     name: str = Field(description='Name of the exit')
-    transition: str = Field(..., description='Id of the step to transition to after this exit')
+    transition: constr(regex=r'^[0-9a-f]{32}$') = Field(..., description='Id of the step to transition to after this exit')
 class Component(BaseModel):
-    id: str = Field(..., description='Generate a unique identifier for the step')
+    id: constr(regex=r'^[0-9a-f]{32}$') = Field(..., description='Generate a unique identifier for the step')
     name: str = Field(..., description='Component name')
     version: str = Field(..., description='Component version')
     exits: List[Exit] = Field(..., description='Possible exit points or outcomes from this step')
     properties: Dict[str, Any] = Field(..., description='A set of properties and configurations for the step')
     context_mappings: Optional[Dict[str, Any]] = Field(..., description='Mappings of context variables for this step')
     description: str = Field(..., description='Explain why you choose this component, and attach any relevant information.')
+    source: str = Field(..., description='Component source')
 class ComponentsList(BaseModel):
      """A list of steps in a process, each representing a specific action or task."""
      __root__: List[Component] = Field(description='A list of steps in a process, each representing a specific action or task.')
@@ -84,7 +86,7 @@ def get_retriever() -> BaseRetriever:
         text_key="text",
         embedding=get_embeddings_model(),
         by_text=False,
-        attributes=["source", "description", "name", "version"],
+        attributes=["source", "component_name", "component_version"],
     )
     return vectorstore.as_retriever(search_kwargs=dict(k=30))
 
@@ -103,8 +105,27 @@ def format_docs(docs: Sequence[Document]) -> str:
         formatted_docs.append(doc_string)
     return "\n".join(formatted_docs)
 
+def build_example() -> PromptTemplate:
+    examples = [
+        {
+            "input": "Create a initialize flow with inbound voice call, the name is chatter box demo. Afterward I want to create a workflow using the following steps: after the voice call incoming, it should be Request an assignment and dial the agents return for this interaction and assign to a ring group, the ring groups name is test.",
+            "output": '[ { "id": "994aaf1e94a54043878add8502d518a4", "name": "inbound_voice-ZjE1ZjM0MG", "version": "1.3.0", "exits": [ { "name": "ok", "transition": "c819e33e451b4ca99e53c959a5c8322c" } ], "properties": {}, "context_mappings": {}, "description": "Initial component for incoming call flow definitions for the `chatter box demo`.", "source": "incoming_call.component" }, { "id": "c819e33e451b4ca99e53c959a5c8322c", "name": "assignment_and_dial-M2JhZTViYT", "version": "3.23.1", "exits": [ { "name": "call_finished", "transition": "f8994967f57440bea18b095a14879172" }, { "name": "call_no_answer", "transition": "69e6a43f0d50484f8c4fd6ece395a64f" } ], "properties": { "ring_group": "test" }, "context_mappings": {}, "description": "Request an assignment and dial the agents return for this interaction and assign to a ring group named `test`.", "source": "assignment_and_dial.component" } ]'
+        }
+    ]
+    example_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("human", "{input}"),
+            ("ai", "{output}"),
+        ]
+    )
+    return FewShotChatMessagePromptTemplate(
+        example_prompt=example_prompt,
+        examples=examples,
+    )
+
 def create_extract_chain(llm: LanguageModelLike, retriever: BaseRetriever) -> Runnable:
     output_parser = JsonOutputParser(pydantic_object=ComponentsList)
+    few_shot_prompt = build_example()
     
     retriever_chain = create_retriever_chain(
         retriever,
@@ -124,10 +145,12 @@ def create_extract_chain(llm: LanguageModelLike, retriever: BaseRetriever) -> Ru
     prompt = ChatPromptTemplate.from_messages(
         [
             SystemMessagePromptTemplate(prompt=SystemPrompt),
+            few_shot_prompt,
             MessagesPlaceholder(variable_name="chat_history"),
             ("human", "{question}"),
         ]
     )
+
     default_response_synthesizer = prompt | llm
 
     response_synthesizer = (
@@ -144,7 +167,7 @@ def create_extract_chain(llm: LanguageModelLike, retriever: BaseRetriever) -> Ru
     )
 
 
-openai_gpt = ChatOpenAI(model=OPENAI_MODELS, temperature=0, streaming=True)
+openai_gpt = ChatOpenAI(model=OPENAI_MODELS, temperature=0)
 llm = openai_gpt.configurable_alternatives(
     # This gives this field an id
     # When configuring the end runnable, we can then use this id to configure this field
