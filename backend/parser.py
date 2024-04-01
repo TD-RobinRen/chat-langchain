@@ -1,110 +1,144 @@
 import re
-from typing import Generator
+from typing import Any, Callable
+import json
 
-from bs4 import BeautifulSoup, Doctype, NavigableString, Tag
+def _replace_new_line(match: re.Match[str]) -> str:
+    value = match.group(2)
+    value = re.sub(r"\n", r"\\n", value)
+    value = re.sub(r"\r", r"\\r", value)
+    value = re.sub(r"\t", r"\\t", value)
+    value = re.sub(r'(?<!\\)"', r"\"", value)
 
+    return match.group(1) + value + match.group(3)
 
-def langchain_docs_extractor(soup: BeautifulSoup) -> str:
-    # Remove all the tags that are not meaningful for the extraction.
-    SCAPE_TAGS = ["nav", "footer", "aside", "script", "style"]
-    [tag.decompose() for tag in soup.find_all(SCAPE_TAGS)]
+def _custom_parser(multiline_string: str) -> str:
+    """
+    The LLM response for `action_input` may be a multiline
+    string containing unescaped newlines, tabs or quotes. This function
+    replaces those characters with their escaped counterparts.
+    (newlines in JSON must be double-escaped: `\\n`)
+    """
+    if isinstance(multiline_string, (bytes, bytearray)):
+        multiline_string = multiline_string.decode()
 
-    def get_text(tag: Tag) -> Generator[str, None, None]:
-        for child in tag.children:
-            if isinstance(child, Doctype):
-                continue
+    multiline_string = re.sub(
+        r'("action_input"\:\s*")(.*?)(")',
+        _replace_new_line,
+        multiline_string,
+        flags=re.DOTALL,
+    )
 
-            if isinstance(child, NavigableString):
-                yield child
-            elif isinstance(child, Tag):
-                if child.name in ["h1", "h2", "h3", "h4", "h5", "h6"]:
-                    yield f"{'#' * int(child.name[1:])} {child.get_text()}\n\n"
-                elif child.name == "a":
-                    yield f"[{child.get_text(strip=False)}]({child.get('href')})"
-                elif child.name == "img":
-                    yield f"![{child.get('alt', '')}]({child.get('src')})"
-                elif child.name in ["strong", "b"]:
-                    yield f"**{child.get_text(strip=False)}**"
-                elif child.name in ["em", "i"]:
-                    yield f"_{child.get_text(strip=False)}_"
-                elif child.name == "br":
-                    yield "\n"
-                elif child.name == "code":
-                    parent = child.find_parent()
-                    if parent is not None and parent.name == "pre":
-                        classes = parent.attrs.get("class", "")
+    return multiline_string
 
-                        language = next(
-                            filter(lambda x: re.match(r"language-\w+", x), classes),
-                            None,
-                        )
-                        if language is None:
-                            language = ""
-                        else:
-                            language = language.split("-")[1]
+# Adapted from https://github.com/KillianLucas/open-interpreter/blob/5b6080fae1f8c68938a1e4fa8667e3744084ee21/interpreter/utils/parse_partial_json.py
+# MIT License
+def parse_partial_json(s: str, *, strict: bool = False) -> Any:
+    """Parse a JSON string that may be missing closing braces.
 
-                        lines: list[str] = []
-                        for span in child.find_all("span", class_="token-line"):
-                            line_content = "".join(
-                                token.get_text() for token in span.find_all("span")
-                            )
-                            lines.append(line_content)
+    Args:
+        s: The JSON string to parse.
+        strict: Whether to use strict parsing. Defaults to False.
 
-                        code_content = "\n".join(lines)
-                        yield f"```{language}\n{code_content}\n```\n\n"
-                    else:
-                        yield f"`{child.get_text(strip=False)}`"
+    Returns:
+        The parsed JSON object as a Python dictionary.
+    """
+    # Attempt to parse the string as-is.
+    try:
+        return json.loads(s, strict=strict)
+    except json.JSONDecodeError:
+        pass
 
-                elif child.name == "p":
-                    yield from get_text(child)
-                    yield "\n\n"
-                elif child.name == "ul":
-                    for li in child.find_all("li", recursive=False):
-                        yield "- "
-                        yield from get_text(li)
-                        yield "\n\n"
-                elif child.name == "ol":
-                    for i, li in enumerate(child.find_all("li", recursive=False)):
-                        yield f"{i + 1}. "
-                        yield from get_text(li)
-                        yield "\n\n"
-                elif child.name == "div" and "tabs-container" in child.attrs.get(
-                    "class", [""]
-                ):
-                    tabs = child.find_all("li", {"role": "tab"})
-                    tab_panels = child.find_all("div", {"role": "tabpanel"})
-                    for tab, tab_panel in zip(tabs, tab_panels):
-                        tab_name = tab.get_text(strip=True)
-                        yield f"{tab_name}\n"
-                        yield from get_text(tab_panel)
-                elif child.name == "table":
-                    thead = child.find("thead")
-                    header_exists = isinstance(thead, Tag)
-                    if header_exists:
-                        headers = thead.find_all("th")
-                        if headers:
-                            yield "| "
-                            yield " | ".join(header.get_text() for header in headers)
-                            yield " |\n"
-                            yield "| "
-                            yield " | ".join("----" for _ in headers)
-                            yield " |\n"
+    # Initialize variables.
+    new_s = ""
+    stack = []
+    is_inside_string = False
+    escaped = False
 
-                    tbody = child.find("tbody")
-                    tbody_exists = isinstance(tbody, Tag)
-                    if tbody_exists:
-                        for row in tbody.find_all("tr"):
-                            yield "| "
-                            yield " | ".join(
-                                cell.get_text(strip=True) for cell in row.find_all("td")
-                            )
-                            yield " |\n"
-
-                    yield "\n\n"
-                elif child.name in ["button"]:
-                    continue
+    # Process each character in the string one at a time.
+    for char in s:
+        if is_inside_string:
+            if char == '"' and not escaped:
+                is_inside_string = False
+            elif char == "\n" and not escaped:
+                char = "\\n"  # Replace the newline character with the escape sequence.
+            elif char == "\\":
+                escaped = not escaped
+            else:
+                escaped = False
+        else:
+            if char == '"':
+                is_inside_string = True
+                escaped = False
+            elif char == "{":
+                stack.append("}")
+            elif char == "[":
+                stack.append("]")
+            elif char == "}" or char == "]":
+                if stack and stack[-1] == char:
+                    stack.pop()
                 else:
-                    yield from get_text(child)
+                    # Mismatched closing character; the input is malformed.
+                    return None
 
-    joined = "".join(get_text(soup))
-    return re.sub(r"\n\n+", "\n\n", joined).strip()
+        # Append the processed character to the new string.
+        new_s += char
+
+    # If we're still inside a string at the end of processing,
+    # we need to close the string.
+    if is_inside_string:
+        new_s += '"'
+
+    # Try to parse mods of string until we succeed or run out of characters.
+    while new_s:
+        final_s = new_s
+
+        # Close any remaining open structures in the reverse
+        # order that they were opened.
+        for closing_char in reversed(stack):
+            final_s += closing_char
+
+        # Attempt to parse the modified string as JSON.
+        try:
+            return json.loads(final_s, strict=strict)
+        except json.JSONDecodeError:
+            # If we still can't parse the string as JSON,
+            # try removing the last character
+            new_s = new_s[:-1]
+
+    # If we got here, we ran out of characters to remove
+    # and still couldn't parse the string as JSON, so return the parse error
+    # for the original string.
+    return json.loads(s, strict=strict)
+
+def parse_json_markdown(
+    json_string: str, *, parser: Callable[[str], Any] = parse_partial_json
+) -> dict:
+    """
+    Parse a JSON string from a Markdown string.
+
+    Args:
+        json_string: The Markdown string.
+
+    Returns:
+        The parsed JSON object as a Python dictionary.
+    """
+    # Try to find JSON string within triple backticks
+    match = re.search(r"```(json)?(.*)", json_string, re.DOTALL)
+
+    # If no match found, assume the entire string is a JSON string
+    if match is None:
+        json_str = json_string
+    else:
+        # If match found, use the content within the backticks
+        json_str = match.group(2)
+
+    # Strip whitespace and newlines from the start and end
+    json_str = json_str.strip().strip("`")
+
+    # handle newlines and other special characters inside the returned value
+    json_str = _custom_parser(json_str)
+
+    # Parse the JSON string into a Python dictionary
+    parsed = parser(json_str)
+
+    return parsed

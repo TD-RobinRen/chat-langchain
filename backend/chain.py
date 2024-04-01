@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from chains.extract_chain import extract_chain
+from chains.generate_chain import generate_chain
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.pydantic_v1 import BaseModel
 from langchain_core.runnables import (
@@ -50,7 +51,12 @@ def serialize_history(request: ChatRequest):
 def create_chain() -> Runnable:
     result = (
         RunnablePassthrough.assign(chat_history=serialize_history)
-        | extract_chain
+        | 
+        {
+            "extracted_data": extract_chain
+        }
+        |
+        generate_chain
     )
     return result
 

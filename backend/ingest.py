@@ -4,7 +4,6 @@ import os
 from dotenv import load_dotenv
 
 import weaviate
-from langchain_text_splitters import RecursiveJsonSplitter
 from langchain.indexes import SQLRecordManager, index
 from langchain_community.vectorstores import Weaviate
 from langchain_core.embeddings import Embeddings
@@ -22,6 +21,7 @@ while_list = ['name', 'version', 'default_exits']
 def metadata_func(record: dict, metadata: dict) -> dict:
     metadata["component_name"] = record.get("name")
     metadata["component_version"] = record.get("version")
+    metadata["source"] = record.get("source")
     return metadata
 
 def load_components_folder():
@@ -73,7 +73,7 @@ def ingest_docs():
         text_key="text",
         embedding=embedding,
         by_text=False,
-        attributes=["source", "description", "name", "version"],
+        attributes=["source", "component_name", "component_version"],
     )
 
     record_manager = SQLRecordManager(
@@ -81,13 +81,6 @@ def ingest_docs():
     )
     record_manager.create_schema()
 
-    # We try to return 'source' and 'description' metadata when querying vector store and
-    # Weaviate will error at query time if one of the attributes is missing from a
-    # retrieved document.
-    for idx, doc in enumerate(components_description):
-        doc.metadata["source"] = os.path.basename(doc.metadata['source'])
-
-      
     logger.info(f"Loaded {len(components_description)} docs from schema")
 
     indexing_stats = index(
