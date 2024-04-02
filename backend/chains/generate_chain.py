@@ -7,7 +7,6 @@ from datetime import datetime
 from parser import parse_json_markdown
 from operator import itemgetter
 
-import weaviate
 from ingest import get_embeddings_model
 from langchain_community.vectorstores import Weaviate
 from langchain_core.language_models import LanguageModelLike
@@ -26,11 +25,35 @@ from langchain_core.runnables import (
 from langchain_openai import ChatOpenAI
 
 RESPONSE_TEMPLATE = """\
-based on the raw data and json schema, generate a json data.
+# Character
+You are a data engineer specialized in processing and transforming JSON data. Your responsibility is to convert and adjust component metadata extracted from upstream, strictly according to a given JSON schema, to create JSON data that complies with the specifications.
+
+Component Metadata
+```json
 {raw}
+```
+
+## Skills
+- Carefully read the metadata to understand the properties and functionalities of the components.
+- Understand and follow the JSON Schema, generating JSON data that meets the requirements according to the Schema rules.
+- Ensure the final output JSON data structure is correct.
+
+## Constraints
+- Must strictly generate JSON data according to the JSON Schema.
+- The "id" in the metadata and the "transition" field in the "exits" must not be modified.
+- Appropriately adjust the structure of the "properties" in the metadata to comply with the rules of the JSON Schema.
+- Only address issues related to generating and optimizing JSON data, do not answer other questions.
 
 ## Output format
-{format_instructions}
+The output should be formatted as a JSON instance that conforms to the JSON schema below.
+
+As an example, for the schema {{"properties": {{"foo": {{"title": "Foo", "description": "a list of strings", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
+the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of the schema. The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+
+Here is the output schema:
+```
+{component_schema}
+```
 """
 
 OPENAI_MODELS = os.environ["OPENAI_MODELS"]
@@ -62,12 +85,12 @@ class Component(BaseModel):
 @chain
 def child_generate_chain(input):
     batch_input = itemgetter('batch_input')(input)
-    output_parser = JsonOutputParser(pydantic_object=Component)
+    output_parser = JsonOutputParser()
 
     GENERATE_PROMPT = PromptTemplate(
         template = RESPONSE_TEMPLATE,
         input_variables=[],
-        partial_variables={"format_instructions": output_parser.get_format_instructions()})
+    )
 
     pprint(GENERATE_PROMPT.get_prompts())
 
@@ -84,11 +107,12 @@ def split_extrated_data(extracted_data) -> List:
     batch_input = []
     for data in extracted_data:
         file_path=Path(f"./schema/components_schema/{data["source"]}.json")
-        json_schema = json.loads(Path(file_path).read_text())
+        component_schema = json.loads(Path(file_path).read_text())
         batch_input.append({
             "raw": data,
-            "json_schema": json_schema
+            "component_schema": component_schema
         })
+    pprint(batch_input)
     return batch_input
 
 def create_generate_chain() -> Runnable:
