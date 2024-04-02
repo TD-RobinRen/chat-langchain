@@ -155,6 +155,130 @@
                 "description": "If none of the rules match"
             }
         ],
+        "custom_exits": {
+            "title": "Calendar based exits",
+            "description": "Define exits based on calendar rules",
+            "condition": {
+              "type": "object",
+              "title": "Calendar Based Exit",
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "required": ["timezone", "repeats_annually", "dates"],
+              "properties": {
+                "dates": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "title": "Add day",
+                        "required": ["day"],
+                        "properties": {
+                          "day": {
+                            "type": "object",
+                            "default": null,
+                            "required": ["day", "month", "year"],
+                            "properties": {
+                              "day": {
+                                "type": "integer",
+                                "maximum": 31,
+                                "minimum": 1
+                              },
+                              "year": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "month": {
+                                "type": "integer",
+                                "maximum": 12,
+                                "minimum": 1
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "title": "Add range",
+                        "required": ["range"],
+                        "properties": {
+                          "range": {
+                            "type": "object",
+                            "default": null,
+                            "required": ["from", "to"],
+                            "properties": {
+                              "to": {
+                                "type": "object",
+                                "required": ["day", "month", "year"],
+                                "properties": {
+                                  "day": {
+                                    "type": "integer",
+                                    "maximum": 31,
+                                    "minimum": 1
+                                  },
+                                  "year": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  },
+                                  "month": {
+                                    "type": "integer",
+                                    "maximum": 12,
+                                    "minimum": 1
+                                  }
+                                },
+                                "additionalProperties": false
+                              },
+                              "from": {
+                                "type": "object",
+                                "required": ["day", "month", "year"],
+                                "properties": {
+                                  "day": {
+                                    "type": "integer",
+                                    "maximum": 31,
+                                    "minimum": 1
+                                  },
+                                  "year": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  },
+                                  "month": {
+                                    "type": "integer",
+                                    "maximum": 12,
+                                    "minimum": 1
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "minItems": 1,
+                  "description": "Ordered set of calendar ranges to test against"
+                },
+                "timezone": {
+                  "type": "string",
+                  "title": "Timezone",
+                  "example": "America/Los_Angeles",
+                  "minLength": 1
+                },
+                "repeats_annually": {
+                  "type": "boolean",
+                  "title": "Dates",
+                  "default": false
+                }
+              },
+              "additionalProperties": false
+            },
+            "mandatory": true,
+            "min_custom_exits": 1,
+            "can_be_disabled": false
+          },
         "description": "In the calendar-based rules component you can not only define holidays and route calls accordingly, but also select a specific routing for the days when the expected number of calls differs significantly (e.g., Black Friday).If you want to allow routing according to time rages in a day, you need to use time based rules component."
     },
     "callback.component": {
@@ -199,6 +323,370 @@
                 "description": "If no expression evaluates to true"
             }
         ],
+        "custom_exits": {
+            "title": "Custom Exits",
+            "description": "Configure the conditions that will be used to direct the interaction to specific exits",
+            "condition": {
+              "type": "object",
+              "title": "Condition",
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "required": [
+                "operation",
+                "conditions"
+              ],
+              "properties": {
+                "operation": {
+                  "enum": [
+                    "AND",
+                    "OR"
+                  ],
+                  "type": "string",
+                  "title": "Matching",
+                  "default": "AND"
+                },
+                "conditions": {
+                  "type": "object",
+                  "required": [
+                    "expressions"
+                  ],
+                  "properties": {
+                    "expressions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "required": [
+                              "equal"
+                            ],
+                            "properties": {
+                              "equal": {
+                                "type": "object",
+                                "required": [
+                                  "left_operand"
+                                ],
+                                "properties": {
+                                  "left_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "boolean"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "right_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "boolean"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "not_equal"
+                            ],
+                            "properties": {
+                              "not_equal": {
+                                "type": "object",
+                                "required": [
+                                  "left_operand"
+                                ],
+                                "properties": {
+                                  "left_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "boolean"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "right_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "boolean"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "less_than"
+                            ],
+                            "properties": {
+                              "less_than": {
+                                "type": "object",
+                                "required": [
+                                  "left_operand",
+                                  "right_operand"
+                                ],
+                                "properties": {
+                                  "left_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "right_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "less_or_equal_than"
+                            ],
+                            "properties": {
+                              "less_or_equal_than": {
+                                "type": "object",
+                                "required": [
+                                  "left_operand",
+                                  "right_operand"
+                                ],
+                                "properties": {
+                                  "left_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "right_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "greater_than"
+                            ],
+                            "properties": {
+                              "greater_than": {
+                                "type": "object",
+                                "required": [
+                                  "left_operand",
+                                  "right_operand"
+                                ],
+                                "properties": {
+                                  "left_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "right_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "greater_or_equal_than"
+                            ],
+                            "properties": {
+                              "greater_or_equal_than": {
+                                "type": "object",
+                                "required": [
+                                  "left_operand",
+                                  "right_operand"
+                                ],
+                                "properties": {
+                                  "left_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "right_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "number"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "required": [
+                              "contains"
+                            ],
+                            "properties": {
+                              "contains": {
+                                "type": "object",
+                                "required": [
+                                  "left_operand",
+                                  "right_operand"
+                                ],
+                                "properties": {
+                                  "left_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  },
+                                  "right_operand": {
+                                    "oneOf": [
+                                      {
+                                        "type": "null"
+                                      },
+                                      {
+                                        "type": "string"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        ]
+                      },
+                      "title": "Conditions",
+                      "minItems": 1
+                    }
+                  }
+                }
+              }
+            },
+            "mandatory": true,
+            "min_custom_exits": 1,
+            "can_be_disabled": false
+          },
         "description": "With the Conditional statement component you can direct a call to one of several exits. Each exit has its own condition(s).The exits are evaluated in order, so the call is directed to the first one whose conditions are met. If no condition is met, the \"No Match\" exit is taken."
     },
     "dial_dedicated_agent.component": {
