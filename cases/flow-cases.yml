@@ -1,0 +1,61 @@
+1:
+Incoming call is directed to the "sales 1" ring group.
+If all agents in the group are busy, customer hears: "Our sales team is currently assisting other customers. Please hold for the next available representative." 
+Then assign call to "sales 2" ring group. 
+If no one in the group answered the call within 2 minutes:
+Customer hears: "Sorry for the delay. You can choose to continue holding or leave a message."
+Option 1: Press 1 to continue holding.
+Option 2: Press 2 to leave a voicemail message.
+If customer chooses to continue holding, Assign the call to "sales 1" ring group.
+If customer chooses to leave a voicemail, they are prompted to record their message after the beep, followed by a confirmation message.
+
+2:
+Incoming call is routed to the "support" ring group.
+If no agents are available, the system checks if it is during office hours:
+If within office hours(9am-5pm):
+Customer hears: "Our support team is currently busy. Please hold the line for the next available representative."
+If no response after 3 minute, the system asks the customer to choose:
+Option 1: Press 1 to continue holding.
+Option 2: Press 2 to leave a voicemail.
+If customer chooses to continue holding, the call is redirected to the "support" ring group.
+
+If outside office hours or during holidays(Christmas, New Year, Thanksgiving):
+Customer is informed: "Our office is currently closed. Please leave a message, and we will get back to you during our next business day."
+Call is redirected to the after-hours voicemail.
+
+
+3:
+For normal customers:
+Incoming call routed to 'customer service' or 'sales' ring groups.
+If no agents available, time and holiday schedules are checked:
+During office hours:
+Customer hears: "Our team is busy assisting others. Please hold for the next available representative."
+After hours or holidays:
+Message: "Press 1 to leave a callback request or "2" for voicemail."
+Choose Voicemail:
+Customer hears:"Please leave your message after the beep, followed by the \# key."
+Choose Callback:
+Customer hears: "Press 1 to use current inbound call number for callback or 2 to enter a different number."
+If customer press 1, the system uses the current inbound call number for callback.
+If customer press 2, Customer hears:"Please enter the callback number followed by the \# key.", Then set callback for the entered number.
+For VIP customers:
+If the contact's company is "ABC compony", dial dedicated to agent 'vip ABC support'.
+Call Recording and Reporting:
+All calls recorded for quality assurance.
+Call data sent to reporting for analytics and performance tracking.
+
+4:
+When we receive a call,
+We will assign it to the " agent " ring group.
+If no one is available in the group, it will tell the customer the reason "There is no answer at this time, please leave your name and message" and leave a busy message in the “agent" ring group for a maximum duration of 300 seconds.
+If no one matched in the ring group, ask the customer to choose to leave a voicemail message by pressing 1. Press 2 to set a callback with inbound call number.
+If the callback number is invalid, it also tells the customer to "Please leave your message and we will call you back as soon as possible" and leaves a message in the 'qa-test' ring group with a maximum duration of 120 seconds.
+
+5:
+Create a initialize flow with inbound voice call, the name is chatter box demo 
+Afterward I want to create a workflow using the following steps: 
+after the voice call incoming,
+it should be Request an assignment and dial the agents return for this interaction and assign to a ring group,
+the ring groups name is test. if the agent in the ring group don`t answer the call,
+it should be go to voicemail and assign to the same ring groups,
+if the agent in the ring group answered and finish the call, the call flow should be terminate.

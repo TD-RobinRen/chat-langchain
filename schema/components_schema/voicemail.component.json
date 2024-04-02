@@ -1,5 +1,14 @@
 {
   "properties": {
+    "id": {
+      "type": "string",
+      "description": "Generate a unique identifier for the step",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for the step."
+    },
     "component": {
       "properties": {
         "name": {
@@ -143,6 +152,35 @@
         }
       },
       "additionalProperties": false
+    },
+    "exits": {
+      "type": "array",
+      "description": "Possible exit points or outcomes from this step",
+      "items": {
+        "type": "object",
+        "required": ["name", "_key", "transition"],
+        "properties": {
+          "_key": {
+            "type": "string",
+            "description": "A UUID identifying the exit, following the UUID format.",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the exit."
+          },
+          "transition": {
+            "type": "string",
+            "description": "Id of the step to transition to after this exit",
+            "pattern": "^[0-9a-f]{32}$"
+          }
+        }
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date and time when the step was created"
     }
   }
 }
