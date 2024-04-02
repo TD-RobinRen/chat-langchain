@@ -195,6 +195,51 @@
       "type": "string",
       "format": "date-time",
       "description": "Date and time when the step was created"
+    },
+    "custom_exits": {
+      "title": "Voice command exits",
+      "description": "Define the voice keyword the caller needs to speak to select that exit.",
+      "condition": {
+        "type": "object",
+        "title": "Voice command",
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "properties": {
+          "routing_conditions": {
+            "type": "object",
+            "title": "Keywords",
+            "required": [
+              "value",
+              "operation"
+            ],
+            "properties": {
+              "value": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "value",
+                    "operation"
+                  ],
+                  "properties": {
+                    "value": {
+                      "type": "string"
+                    },
+                    "operation": {
+                      "const": "contains"
+                    }
+                  }
+                }
+              },
+              "operation": {
+                "const": "any"
+              }
+            }
+          }
+        }
+      },
+      "mandatory": true,
+      "min_custom_exits": 1,
+      "can_be_disabled": false
     }
   }
 }

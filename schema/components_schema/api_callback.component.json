@@ -332,6 +332,41 @@
       "type": "string",
       "format": "date-time",
       "description": "Date and time when the step was created"
+    },
+    "custom_exits": {
+      "title": "Alternative Exits",
+      "description": "Offer key press alternatives to callers while they are in waiting queue.",
+      "condition": {
+        "type": "object",
+        "title": "Keypress exits",
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "required": [
+          "keypress"
+        ],
+        "properties": {
+          "keypress": {
+            "enum": [
+              "0",
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8",
+              "9",
+              "*",
+              "#"
+            ],
+            "title": "Keypress"
+          }
+        },
+        "additionalProperties": false
+      },
+      "mandatory": false,
+      "min_custom_exits": 0,
+      "can_be_disabled": false
     }
   }
 }

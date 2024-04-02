@@ -188,6 +188,26 @@
       "type": "string",
       "format": "date-time",
       "description": "Date and time when the step was created"
+    },
+    "custom_exits": {
+      "title": "Custom Exits",
+      "description": "Exit that the component will use if the condition is evaluated to true",
+      "condition": {
+        "type": "object",
+        "title": "Keypress exits",
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "required": ["keypress"],
+        "properties": {
+          "keypress": {
+            "enum": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "*", "#"],
+            "title": "Keypress"
+          }
+        },
+        "additionalProperties": false
+      },
+      "mandatory": true,
+      "min_custom_exits": 1,
+      "can_be_disabled": false
     }
   }
 }
