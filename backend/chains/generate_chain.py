@@ -1,5 +1,6 @@
 import os
 from pprint import pprint
+import json
 from typing import Dict, List, Optional, Any
 import json
 from pathlib import Path
@@ -23,6 +24,9 @@ from langchain_core.runnables import (
     chain
 )
 from langchain_openai import ChatOpenAI
+from chains.generate_wrap_chain import generate_wrap_chain
+from json_template import JsonTemplates
+
 
 RESPONSE_TEMPLATE = """\
 # Character
@@ -83,7 +87,7 @@ class Component(BaseModel):
     )
 
 @chain
-def child_generate_chain(input):
+def generate_step_chain(input):
     batch_input = itemgetter('batch_input')(input)
     output_parser = JsonOutputParser()
 
@@ -92,13 +96,11 @@ def child_generate_chain(input):
         input_variables=[],
     )
 
-    pprint(GENERATE_PROMPT.get_prompts())
-
     chain = (
         GENERATE_PROMPT
         |
         llm
-        | StrOutputParser()
+        | output_parser
     )
     return chain.batch(batch_input)
 
@@ -112,15 +114,32 @@ def split_extrated_data(extracted_data) -> List:
             "raw": data,
             "component_schema": component_schema
         })
-    pprint(batch_input)
     return batch_input
 
+@chain
+def merge_json(input):
+    wrap_json = itemgetter('wrap_json')(input)
+    step_json = itemgetter('step_json')(input)
+    json_tmp = JsonTemplates()
+    result = json_tmp.loads(json.dumps(wrap_json))
+    new_dict = {}
+
+    if result[0]:
+        new_dict = json_tmp.generate({"steps": step_json })
+    pprint(new_dict)
+    return new_dict
+
 def create_generate_chain() -> Runnable:
+    child_chain = {
+            "batch_input": itemgetter("extracted_data") | RunnableLambda(split_extrated_data)
+        } | generate_step_chain
+
     return (
         {
-            "batch_input": itemgetter("extracted_data") | RunnableLambda(split_extrated_data)
-        }
-       | child_generate_chain
+            "step_json": child_chain,
+            "wrap_json": generate_wrap_chain
+        } |
+        merge_json
     )
 
 openai_gpt = ChatOpenAI(model=OPENAI_MODELS, temperature=0)
