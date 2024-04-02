@@ -43,10 +43,36 @@
         }
       }
     },
+    "context_mappings": {},
     "created_at": {
       "type": "string",
       "format": "date-time",
       "description": "Date and time when the step was created"
+    },
+    "custom_exits": {
+      "title": "Splitting distribution",
+      "description": "Traffic splitter enables the flow to distribute the interactions homogeneously according to specified weights.",
+      "condition": {
+        "type": "object",
+        "title": "Exit",
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "required": [
+          "weight"
+        ],
+        "properties": {
+          "weight": {
+            "type": "integer",
+            "title": "Weight ratio",
+            "default": 50,
+            "maximum": 1000000,
+            "minimum": 1
+          }
+        },
+        "additionalProperties": false
+      },
+      "mandatory": true,
+      "min_custom_exits": 1,
+      "can_be_disabled": true
     }
   }
 }

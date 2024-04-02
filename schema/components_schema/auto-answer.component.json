@@ -75,6 +75,7 @@
         }
       }
     },
+    "context_mappings": {},
     "created_at": {
       "type": "string",
       "format": "date-time",
