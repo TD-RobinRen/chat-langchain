@@ -59,3 +59,40 @@ it should be Request an assignment and dial the agents return for this interacti
 the ring groups name is test. if the agent in the ring group don`t answer the call,
 it should be go to voicemail and assign to the same ring groups,
 if the agent in the ring group answered and finish the call, the call flow should be terminate.
+
+6.
+For an incoming call, check if the date is a holiday:
+If it's a holiday, play the message "happy holiday, thank you for calling us, please leave your message after the beep, we'll call you back soon." And leave the voicemail to ring group "customer service on holiday" in 5 mins.
+If it's not a holiday, start to record the call and play the message "Welcome, thank you for calling us." Then provide 5 options to the caller:"Main menu.  Please choose from one of the following options.\n\nTo check your outstanding Account Balance press one\nFor Billing Support press two\nFor Customer Service or to book or reschedule an appointment press three\nFor Sales press four\nFor Preferred Plan Support press 5".
+Main Option 1: Press 1 to Loan balance.
+  Then provide 2 options to caller: "To hear your outstanding loan balance please press 1\nTo speak to a customer service representative please press 2", in language English and Canada.
+  - If the caller press 1, get the balance from the action Retrieve Account Balance".
+  If meet errors in the action, assign the call to the ring group "billing".
+  If the action execute ok, then play the message "The outstanding balance on your account is %{current_flow.balance}".
+  Then provide to options to the caller, "To speak with a customer service representative please press 1\nTo return to the main menu please press 2" 
+  Only when the caller select to return to the main menu, the call will lead to Main menu, otherwise, the call will be assigned to the ring group "billing".
+  - If the caller press 2, or the press is invalid or timeout, the call will be assigned to the ring group "billing".
+  If the call assign to the ring group "billing", if the call is not answered any other reasons, play the message "All of our banking support agents are currently busy. Please leave a message after the tone and we will call you back." and leave the voicemail to ring group "customer service nm" in 5 mins.
+Main Option 2: Press 2 to billing support.
+Enable auto answer in 5 seconds and assign the call to ring group "credit card", max wait time is 6 minutes.
+if the call is not answered any other reasons, play the message "All of our credit card specialists are currently busy. Please leave a message after the tone and we will call you back." and leave the voicemail to ring group 'credit card' in 5 mins.
+
+Main Option 3: Press 3 to customer support.
+After press 3, provide 2 options to the caller: "To book a new appointment or for questions on your upcoming appointment please say appointments\nTo reschedule an appointment please say reschedule\n" with max waiting time to 4 mins.
+If the caller say "reschedule" or "appointments", check the caller's company ,if the company is "Talkdesk", assign the call to the ring group "vip support", otherwise assign the call to the ring group "customer support".
+For other cases check the caller's company ,assign the call to ring group "customer support".
+The call assign to "customer support" has max waiting time 90s, play waiting message "All of our financing specialists are currently busy.  If you would prefer to have one of our financing specialists call you back please press 1 now.". If the call is not answered any other reasons, play the message "All of our agents are currently busy. Please leave a message after the tone and we will call you back." and leave the voicemail to ring group "customer support" in 5 mins.
+If the caller choose to set callback, set the callback with the inbound phone number to the ring group "customer support". If the callback number is invalid, play the message "All of our agents are currently busy. Please leave a message after the tone and we will call you back."
+ and leave the voicemail to ring group "customer support" in 5 mins.
+
+Main Option 4: Press 4 to sales.
+Get field "Assigned_Agent_Email_c" matched the phone is current phone number from the table Contact in salesforce.
+If the field is existed, assign the call to the ring group "preferred agents".
+If the field is not existed, assign the call to the ring group "inside sales".
+If the calls are not answered for any reason, play the message "All of our sales agents are currently busy. Please leave a message after the tone and we will call you back." and leave the voicemail to ring group "ak sales" in 5 mins.
+
+Main Option 5: Press 5 to preferred Plans.
+Check the area code of inbound number of the call, if the area code is '415', assign the call to the ring group 'sf_area'.'503' to 'portland_area','206' to 'seattle_area'.
+Assign the call to the ring group "preferred plans" if meet any error. And assign the call to ring group "preferred plans".
+Otherwise assign the call to the ring group "ring_group_ac". If the call is not answered for any reason, assign the call to ring group "preferred plans".
+If the call to ring_group_ac is not answered for any reason, play the message "Hello, you have reached the preferred plan service department. Please leave a message after the tone with you name and phone number and one of our agents will call you back." and leave the voicemail to ring group "preferred plans" in 5 mins.
