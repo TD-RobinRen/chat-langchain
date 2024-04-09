@@ -35,7 +35,7 @@ def clear():
         text_key="text",
         embedding=OpenAIEmbeddings(),
         by_text=False,
-        attributes=["source", "component_name", "component_version"],
+        attributes=["source", "name", "version"],
     )
 
     record_manager = SQLRecordManager(
@@ -48,7 +48,7 @@ def clear():
         record_manager,
         vectorstore,
         cleanup="full",
-        source_id_key="component_name",
+        source_id_key="source",
     )
 
     logger.info("Indexing stats: ", indexing_stats)

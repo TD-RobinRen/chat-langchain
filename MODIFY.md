@@ -34,7 +34,7 @@ vectorstore = Weaviate(
     text_key="text",
     embedding=embedding,
     by_text=False,
-    attributes=["source", "component_name", "component_version"],
+    attributes=["source", "name", "version"],
 )
 ```
 

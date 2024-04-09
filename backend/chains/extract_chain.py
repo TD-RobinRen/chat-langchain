@@ -62,6 +62,7 @@ class ChatRequest(BaseModel):
 class Exit(BaseModel):
     name: str = Field(description='Name of the exit')
     transition: constr(regex=r'^[0-9a-f]{32}$') = Field(..., description='Id of the step to transition to after this exit')
+    description: str = Field(..., description='Summarize the conditions for this exit points, and attach any relevant information.')
 class Component(BaseModel):
     id: constr(regex=r'^[0-9a-f]{32}$') = Field(..., description='Generate a unique identifier for the step')
     name: str = Field(..., description='Component name')
@@ -69,7 +70,7 @@ class Component(BaseModel):
     exits: List[Exit] = Field(..., description='Possible exit points or outcomes from this step')
     properties: Dict[str, Any] = Field(..., description='A set of properties and configurations for the step')
     context_mappings: Optional[Dict[str, Any]] = Field(..., description='Mappings of context variables for this step')
-    description: str = Field(..., description='Explain why you choose this component, and attach any relevant information.')
+    description: str = Field(..., description='Summarize why you choose this component, and attach any relevant information.')
     source: str = Field(..., description='Component source')
 class ComponentsList(BaseModel):
      """A list of steps in a process, each representing a specific action or task."""
@@ -86,7 +87,7 @@ def get_retriever() -> BaseRetriever:
         text_key="text",
         embedding=get_embeddings_model(),
         by_text=False,
-        attributes=["source", "component_name", "component_version"],
+        attributes=["source", "name", "version"],
     )
     return vectorstore.as_retriever(search_kwargs=dict(k=30))
 
@@ -109,7 +110,11 @@ def build_example() -> PromptTemplate:
     examples = [
         {
             "input": "Create a initialize flow with inbound voice call, the name is chatter box demo. Afterward I want to create a workflow using the following steps: after the voice call incoming, it should be Request an assignment and dial the agents return for this interaction and assign to a ring group, the ring groups name is test.",
-            "output": '[ { "id": "994aaf1e94a54043878add8502d518a4", "name": "inbound_voice-ZjE1ZjM0MG", "version": "1.3.0", "exits": [ { "name": "ok", "transition": "c819e33e451b4ca99e53c959a5c8322c" } ], "properties": {}, "context_mappings": {}, "description": "Initial component for incoming call flow definitions for the `chatter box demo`.", "source": "incoming_call.component" }, { "id": "c819e33e451b4ca99e53c959a5c8322c", "name": "assignment_and_dial-M2JhZTViYT", "version": "3.23.1", "exits": [ { "name": "call_finished", "transition": "f8994967f57440bea18b095a14879172" }, { "name": "call_no_answer", "transition": "69e6a43f0d50484f8c4fd6ece395a64f" } ], "properties": { "ring_group": "test" }, "context_mappings": {}, "description": "Request an assignment and dial the agents return for this interaction and assign to a ring group named `test`.", "source": "assignment_and_dial.component" } ]'
+            "output": '[ { "id": "994aaf1e94a54043878add8502d518a4", "name": "inbound_voice-ZjE1ZjM0MG", "version": "1.3.0", "exits": [ { "name": "ok", "transition": "c819e33e451b4ca99e53c959a5c8322c", "description": "If the component succeeds" } ], "properties": {}, "context_mappings": {}, "description": "Initial component for incoming call flow definitions for the `chatter box demo`.", "source": "incoming_call.component" }, { "id": "c819e33e451b4ca99e53c959a5c8322c", "name": "assignment_and_dial-M2JhZTViYT", "version": "3.23.1", "exits": [ { "name": "call_finished", "transition": "f8994967f57440bea18b095a14879172", "description": "There was a successful match and a conversation with an agent has finished." }, { "name": "call_no_answer", "transition": "69e6a43f0d50484f8c4fd6ece395a64f", "description": "There was at least one successful dial attempt but no agent was available." } ], "properties": { "ring_group": "test" }, "context_mappings": {}, "description": "Request an assignment and dial the agents return for this interaction and assign to a ring group named `test`.", "source": "assignment_and_dial.component" } ]'
+        },
+        {
+            "input": "Create a initialize flow with inbound voice call, the name is chatter box demo. Afterward I want to create a workflow using the following steps: after the voice call incoming, it should be Request an assignment and dial the agents return for this interaction and assign to a ring group, the ring groups name is test.",
+            "output": '[ { "id": "994aaf1e94a54043878add8502d518a4", "name": "inbound_voice-ZjE1ZjM0MG", "version": "1.3.0", "exits": [ { "name": "ok", "transition": "c819e33e451b4ca99e53c959a5c8322c", "description": "If the component succeeds" } ], "properties": {}, "context_mappings": {}, "description": "Initial component for incoming call flow definitions for the `chatter box demo`.", "source": "incoming_call.component" }, { "id": "c819e33e451b4ca99e53c959a5c8322c", "name": "assignment_and_dial-M2JhZTViYT", "version": "3.23.1", "exits": [ { "name": "call_finished", "transition": "f8994967f57440bea18b095a14879172", "description": "There was a successful match and a conversation with an agent has finished." }, { "name": "call_no_answer", "transition": "69e6a43f0d50484f8c4fd6ece395a64f", "description": "There was at least one successful dial attempt but no agent was available." } ], "properties": { "ring_group": "test" }, "context_mappings": {}, "description": "Request an assignment and dial the agents return for this interaction and assign to a ring group named `test`.", "source": "assignment_and_dial.component" } ]'
         }
     ]
     example_prompt = ChatPromptTemplate.from_messages(

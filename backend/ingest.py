@@ -16,11 +16,9 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-while_list = ['name', 'version', 'default_exits']
-
 def metadata_func(record: dict, metadata: dict) -> dict:
-    metadata["component_name"] = record.get("name")
-    metadata["component_version"] = record.get("version")
+    metadata["name"] = record.get("name")
+    metadata["version"] = record.get("version")
     metadata["source"] = record.get("source")
     return metadata
 
@@ -59,6 +57,7 @@ def ingest_docs():
 
     # components_docs = load_components_folder()
     components_description = load_components_description()
+    pprint(components_description)
 
     embedding = get_embeddings_model()
 
@@ -73,7 +72,7 @@ def ingest_docs():
         text_key="text",
         embedding=embedding,
         by_text=False,
-        attributes=["source", "component_name", "component_version"],
+        attributes=["source", "name", "version"],
     )
 
     record_manager = SQLRecordManager(
@@ -88,7 +87,7 @@ def ingest_docs():
         record_manager,
         vectorstore,
         cleanup="full",
-        source_id_key="component_name",
+        source_id_key="source",
         force_update=(os.environ.get("FORCE_UPDATE") or "false").lower() == "true",
     )
 
