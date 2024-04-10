@@ -121,7 +121,7 @@
           "type": "string"
         },
         "version": {
-          "const": "0.3.4",
+          "const": "0.3.x",
           "type": "string"
         }
       },

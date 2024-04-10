@@ -70,7 +70,7 @@
           "type": "string"
         },
         "version": {
-          "const": "3.4.1",
+          "const": "3.4.x",
           "type": "string"
         }
       },

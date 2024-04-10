@@ -120,7 +120,7 @@
           "type": "string"
         },
         "version": {
-          "const": "0.34.0",
+          "const": "0.34.x",
           "type": "string"
         }
       },

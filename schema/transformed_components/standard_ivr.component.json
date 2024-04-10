@@ -209,7 +209,7 @@
           "type": "string"
         },
         "version": {
-          "const": "2.12.1",
+          "const": "2.12.x",
           "type": "string"
         }
       },
@@ -303,7 +303,6 @@
               "type": "string"
             },
             "name": {
-              "const": "custom",
               "type": "string"
             },
             "transition": {

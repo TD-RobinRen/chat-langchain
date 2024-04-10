@@ -649,7 +649,7 @@
           "type": "string"
         },
         "version": {
-          "const": "3.23.1",
+          "const": "3.23.x",
           "type": "string"
         }
       },
@@ -781,7 +781,6 @@
               "type": "string"
             },
             "name": {
-              "const": "custom",
               "type": "string"
             },
             "transition": {

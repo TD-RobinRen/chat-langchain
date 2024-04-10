@@ -231,7 +231,7 @@
           "type": "string"
         },
         "version": {
-          "const": "2.8.1",
+          "const": "2.8.x",
           "type": "string"
         }
       },

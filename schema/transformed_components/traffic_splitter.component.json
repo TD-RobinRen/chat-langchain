@@ -56,7 +56,7 @@
           "type": "string"
         },
         "version": {
-          "const": "1.3.4",
+          "const": "1.3.x",
           "type": "string"
         }
       },
@@ -80,7 +80,6 @@
               "type": "string"
             },
             "name": {
-              "const": "custom",
               "type": "string"
             },
             "transition": {

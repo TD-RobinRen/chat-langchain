@@ -46,10 +46,13 @@ def generate_schema():
         exit_schema = generate_exit_schema(default_exits, custom_exits)
 
         if loader[0]:
+            version = source_file['version']
+            major_minor_version = '.'.join(version.split('.')[:2])
+
             result = json_tmp.generate({
                 "properties": source_file['properties'],
                 "name": source_file['name'],
-                "version": source_file['version'],
+                "version": f"{major_minor_version}.x",
                 "exits": exit_schema
             })
         with open(output_path.joinpath(js[1]), 'w+', encoding='utf-8') as file:
@@ -83,20 +86,18 @@ def generate_exit_schema(default_exits, custom_exits):
     if custom_exits:
         json_tmp = JsonTemplates()
         if 'condition' in custom_exits:
-            json_tmp.loads(json.dumps(json.loads(Path(f"./template/exit_with_condition_schema.json").read_text())))
+            json_tmp.loads(json.dumps(json.loads(Path(f"./template/custom_exit_with_condition_schema.json").read_text())))
             exit_schema.append(
                 json_tmp.generate({
-                    "exit_name": "custom",
                     "condition": custom_exits['condition'],
                     "title": custom_exits["title"] if 'title' in custom_exits else "",
                     "description": custom_exits["description"] if 'description' in custom_exits else ""
                 })[1]
             )
         else:
-            json_tmp.loads(json.dumps(json.loads(Path(f"./template/exit_schema.json").read_text())))
+            json_tmp.loads(json.dumps(json.loads(Path(f"./template/custom_exit_schema.json").read_text())))
             exit_schema.append(
                 json_tmp.generate({
-                    "exit_name": "custom",
                     "title": custom_exits["title"],
                     "description": custom_exits["description"]
                 })[1]
