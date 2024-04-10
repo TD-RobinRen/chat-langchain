@@ -196,7 +196,7 @@
           "type": "string"
         },
         "version": {
-          "const": "2.16.1",
+          "const": "2.16.x",
           "type": "string"
         }
       },

@@ -71,7 +71,7 @@
           "type": "string"
         },
         "version": {
-          "const": "1.4.0",
+          "const": "1.4.x",
           "type": "string"
         }
       },

@@ -204,7 +204,7 @@
           "type": "string"
         },
         "version": {
-          "const": "2.4.3",
+          "const": "2.4.x",
           "type": "string"
         }
       },

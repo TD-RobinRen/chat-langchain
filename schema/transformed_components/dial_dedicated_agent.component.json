@@ -115,7 +115,7 @@
           "type": "string"
         },
         "version": {
-          "const": "3.2.1",
+          "const": "3.2.x",
           "type": "string"
         }
       },

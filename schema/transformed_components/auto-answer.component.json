@@ -89,7 +89,7 @@
           "type": "string"
         },
         "version": {
-          "const": "1.4.1",
+          "const": "1.4.x",
           "type": "string"
         }
       },
