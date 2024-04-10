@@ -1,0 +1,222 @@
+{
+  "title": "Component",
+  "type": "object",
+  "properties": {
+    "id": {
+      "title": "Id",
+      "description": "Generate a unique identifier for the step",
+      "pattern": "^[0-9a-f]{32}$",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "description": "Summarize the step in few words",
+      "type": "string"
+    },
+    "component": {
+      "$ref": "#/definitions/ComponentInfo"
+    },
+    "exits": {
+      "title": "Exits",
+      "description": "Possible exit points or outcomes from this step",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Exit"
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": [
+        "assignment_parameters",
+        "record_parameters"
+      ],
+      "properties": {
+        "record_parameters": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "Do not transcribe",
+              "required": [
+                "without_transcription_max_duration"
+              ],
+              "properties": {
+                "without_transcription_max_duration": {
+                  "type": "integer",
+                  "title": "Max duration in seconds",
+                  "default": 300,
+                  "maximum": 3600,
+                  "minimum": 60
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "title": "Transcribe to English",
+              "required": [
+                "with_transcription_max_duration"
+              ],
+              "properties": {
+                "with_transcription_max_duration": {
+                  "type": "integer",
+                  "title": "Max duration in seconds",
+                  "default": 120,
+                  "maximum": 120,
+                  "minimum": 60
+                }
+              },
+              "additionalProperties": false
+            }
+          ],
+          "title": "Recording",
+          "description": "Configure the voicemail recording."
+        },
+        "assignment_parameters": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "Ring Groups",
+              "properties": {
+                "ring_groups": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "title": "List of Ring Groups in your account",
+                      "required": [
+                        "ring_groups_list"
+                      ],
+                      "properties": {
+                        "ring_groups_list": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "minItems": 1
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "title": "Variables in the flow context",
+                      "required": [
+                        "ring_groups_context"
+                      ],
+                      "properties": {
+                        "ring_groups_context": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "minItems": 1
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "title": "Agents",
+              "properties": {
+                "agents": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "title": "List of agents in your account",
+                      "required": [
+                        "agents_list"
+                      ],
+                      "properties": {
+                        "agents_list": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "minItems": 1,
+                          "data_source": "agents"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "title": "Variables in the flow context",
+                      "required": [
+                        "agents_context"
+                      ],
+                      "properties": {
+                        "agents_context": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "minItems": 1
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          ],
+          "title": "Assignment Parameters",
+          "description": "Select and configure which attributes will be used for redirecting voicemail to agents"
+        }
+      },
+      "additionalProperties": false
+    },
+    "context_mappings": {
+      "title": "Context Mappings",
+      "description": "Mappings of context variables for this step",
+      "type": "object"
+    },
+    "created_at": {
+      "title": "Created At",
+      "description": "The date and time when the step was created.",
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "component",
+    "exits",
+    "properties",
+    "context_mappings",
+    "created_at"
+  ],
+  "definitions": {
+    "ComponentInfo": {
+      "title": "ComponentInfo",
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "voicemail-NGQ0ZDE5Nj",
+          "type": "string"
+        },
+        "version": {
+          "const": "2.4.3",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ]
+    },
+    "Exit": {
+      "title": "Exit",
+      "type": "object",
+      "anyOf": []
+    }
+  }
+}

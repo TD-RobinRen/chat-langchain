@@ -1,0 +1,354 @@
+{
+  "title": "Component",
+  "type": "object",
+  "properties": {
+    "id": {
+      "title": "Id",
+      "description": "Generate a unique identifier for the step",
+      "pattern": "^[0-9a-f]{32}$",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "description": "Summarize the step in few words",
+      "type": "string"
+    },
+    "component": {
+      "$ref": "#/definitions/ComponentInfo"
+    },
+    "exits": {
+      "title": "Exits",
+      "description": "Possible exit points or outcomes from this step",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Exit"
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "message": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "Text to speech",
+              "required": [
+                "message_list"
+              ],
+              "properties": {
+                "message_list": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "title": "Text to speech",
+                    "required": [
+                      "language",
+                      "text"
+                    ],
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "title": "Text to speech",
+                        "minLength": 1
+                      },
+                      "language": {
+                        "enum": [
+                          "de-DE",
+                          "en-US",
+                          "en-GB",
+                          "es-ES",
+                          "fr-FR",
+                          "it-IT",
+                          "pt-PT",
+                          "pt-BR",
+                          "ru-RU",
+                          "da-DK",
+                          "ca-ES",
+                          "nl-NL",
+                          "en-AU",
+                          "en-CA",
+                          "en-IN",
+                          "fi-FI",
+                          "fr-CA",
+                          "ja-JP",
+                          "ko-KR",
+                          "nb-NO",
+                          "pl-PL",
+                          "es-MX",
+                          "sv-SE",
+                          "zh-CN",
+                          "zh-HK",
+                          "zh-TW",
+                          "arb",
+                          "de-AT",
+                          "en-NZ",
+                          "en-ZA",
+                          "en-GB-WLS",
+                          "hi-IN",
+                          "is-IS",
+                          "ro-RO",
+                          "es-US",
+                          "tr-TR",
+                          "cy-GB"
+                        ],
+                        "title": "Language of audio output",
+                        "default": "en-US",
+                        "description": "(1) Language only available if you have text to Speech powered by Amazon Polly enabled in your account"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "title": "Audio file upload",
+              "required": [
+                "talkdesk_resource"
+              ],
+              "properties": {
+                "talkdesk_resource": {
+                  "type": "object",
+                  "required": [
+                    "type",
+                    "id"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "enum": [
+                        "asset"
+                      ],
+                      "default": "asset"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "title": "URL to audio file",
+                  "required": [
+                    "file_url"
+                  ],
+                  "properties": {
+                    "file_url": {
+                      "type": "string",
+                      "format": "uri",
+                      "default": "",
+                      "pattern": "http(s)?://.+",
+                      "minLength": 5
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "title": "Variable in the flow context",
+                  "required": [
+                    "file_url_context_variable"
+                  ],
+                  "properties": {
+                    "file_url_context_variable": {
+                      "type": "string",
+                      "default": ""
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ],
+              "title": "Other sources"
+            }
+          ],
+          "title": "Play audio message",
+          "description": "Configure the audio message the user will hear."
+        }
+      },
+      "additionalProperties": false
+    },
+    "context_mappings": {
+      "title": "Context Mappings",
+      "description": "Mappings of context variables for this step",
+      "type": "object"
+    },
+    "created_at": {
+      "title": "Created At",
+      "description": "The date and time when the step was created.",
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "component",
+    "exits",
+    "properties",
+    "context_mappings",
+    "created_at"
+  ],
+  "definitions": {
+    "ComponentInfo": {
+      "title": "ComponentInfo",
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "standard_ivr-M2NlYzMzNz",
+          "type": "string"
+        },
+        "version": {
+          "const": "2.12.1",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ]
+    },
+    "Exit": {
+      "title": "Exit",
+      "type": "object",
+      "anyOf": [
+        {
+          "title": "Timeout",
+          "description": "",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "timeout",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            },
+            "condition": {
+              "type": "object",
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "properties": {
+                "timeout": {
+                  "type": "integer",
+                  "title": "Time in seconds",
+                  "default": 5,
+                  "minimum": 1,
+                  "description": "Integer indicating in seconds for how long we will wait for the input. It resets as new digits are input"
+                }
+              },
+              "description": "Timeout in seconds",
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition",
+            "condition"
+          ]
+        },
+        {
+          "title": "Invalid",
+          "description": "If an invalid key is pressed",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "invalid",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition"
+          ]
+        },
+        {
+          "title": "Custom Exits",
+          "description": "Exit that the component will use if the condition is evaluated to true",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "custom",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            },
+            "condition": {
+              "type": "object",
+              "title": "Keypress exits",
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "required": [
+                "keypress"
+              ],
+              "properties": {
+                "keypress": {
+                  "enum": [
+                    "0",
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7",
+                    "8",
+                    "9",
+                    "*",
+                    "#"
+                  ],
+                  "title": "Keypress"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition",
+            "condition"
+          ]
+        }
+      ]
+    }
+  }
+}

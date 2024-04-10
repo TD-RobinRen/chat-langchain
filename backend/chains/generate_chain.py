@@ -2,7 +2,6 @@ import os
 from pprint import pprint
 import json
 from typing import Dict, List, Optional, Any
-import json
 from pathlib import Path
 from datetime import datetime
 from parser import parse_json_markdown
@@ -12,6 +11,11 @@ import copy
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import (
     PromptTemplate,
+    ChatPromptTemplate,
+    FewShotChatMessagePromptTemplate,
+    SystemMessagePromptTemplate,
+    FewShotChatMessagePromptTemplate,
+    MessagesPlaceholder
 )
 from langchain_core.pydantic_v1 import BaseModel, Field, constr, create_model
 from langchain_core.runnables import (
@@ -27,28 +31,7 @@ from json_template import JsonTemplates
 
 RESPONSE_TEMPLATE = """\
 # Character
-You are a data engineer specialized in processing and transforming JSON data. Your responsibility is to convert and adjust component metadata extracted from upstream, strictly according to a given JSON schema, to create JSON data that complies with the specifications.
-
-The extracted data from upstream is a list of components, the sole purpose of which is to provide specific id information for each component.
-Upstream component list as follows:
-```json
-{source}
-```
-
-Component Metadata:
-```json
-{raw}
-```
-
-Component "default_exits":
-```json
-{default_exits}
-```
-
-Component "custom_exits":
-```json
-{custom_exits}
-```
+As a data engineer specialized in processing and transforming JSON data. You meticulously analyze and transform user-provided component metadata into JSON outputs. Ensuring strict compliance with the provided JSON schema is fundamentally essential in all your tasks.
 
 ## Skills
 - Carefully read the metadata to understand the properties and functionalities of the components.
@@ -60,8 +43,19 @@ Component "custom_exits":
 - The "id" in the metadata must not be modified.
 - Appropriately adjust the structure of the "properties" and "exits" in the metadata to comply with the rules of the JSON Schema.
 - Only address issues related to generating and optimizing JSON data, do not answer other questions.
-- Fetch the "exits" item exclusively from the "default_exits" or "custom_exits". 
-- The 'condition' within "default_exits" or "custom_exits" is JSON schema. While mapping the exit point, if it contains a 'condition', ensure the generated JSON data strictly conforms to the JSON Schema.
+- Generate the "exits" JSON data must from from the "default_exits" or "custom_exits".
+- The 'condition' within "default_exits" or "custom_exits" is JSON schema. If the current exit point includes a 'condition', the resultant JSON data must strictly conform to the JSON Schema.
+
+## Knowledge
+- Current Component "default_exits":
+```json
+{default_exits}
+```
+
+- Current Component "custom_exits":
+```json
+{custom_exits}
+```
 
 ## Output format
 The output should be formatted as a JSON instance that conforms to the JSON schema below.
@@ -84,6 +78,24 @@ def deep_delete_key(obj, key_to_delete):
 
 def delete_unused_key(data, key_to_delete):
     return list(filter(lambda x: x['type'] not in key_to_delete, data))
+
+def build_example() -> PromptTemplate:
+    examples = [
+        {
+            "input": '{ "id": "d4e5f678901234567890abcdefa1b2c3", "name": "standard_ivr-M2NlYzMzNz", "version": "2.12.1", "exits": [ { "name": "keypress_1", "transition": "b2c3d4e5f678901234567890abcdefa1", "description": "If customer presses 1 to continue holding." }, { "name": "keypress_2", "transition": "e5f678901234567890abcdefa1b2c3d4", "description": "If customer presses 2 to leave a voicemail." } ], "properties": { "message": "Sorry for the delay. You can choose to continue holding or leave a message.", "options": { "1": "Continue holding", "2": "Leave a voicemail" } }, "context_mappings": {}, "description": "Offer options to continue holding or leave a voicemail.", "source": "standard_ivr.component" }',
+            "output": '{ "id": "d4e5f678901234567890abcdefa1b2c3", "name": "Holding or Voicemail", "component": { "name": "standard_ivr-M2NlYzMzNz", "version": "2.12.x" }, "properties": { "message": { "message_list": [ { "text": "Sorry for the delay. You can press 1 to continue holding or press 2 to leave a message.", "language": "en-US" } ] } }, "exits": [ { "name": "timeout", "condition": { "timeout": 5 }, "_key": "009855bf-4f14-4452-89d0-62c5b0b9ac1d", "transition": "e5f678901234567890abcdefa1b2c3d4" }, { "name": "invalid", "_key": "e9f20d4083a54d878096569332232f3d", "transition": "e5f678901234567890abcdefa1b2c3d4" }, { "name": "Continue holding", "_key": "d4571467a07c4687bc89e438212f8a7b", "condition": { "keypress": "1" }, "transition": "b2c3d4e5f678901234567890abcdefa1" }, { "name": "Leave a voicemail", "_key": "c14ed4b10c9e42a5b63d0fbe6d6f5e00", "condition": { "keypress": "2" }, "transition": "e5f678901234567890abcdefa1b2c3d4" } ], "context_mappings": {}, "created_at": "2024-04-09T07:58:35.486000Z" }'
+        }
+    ]
+    example_prompt = ChatPromptTemplate.from_messages(
+        [
+            ("human", "{input}"),
+            ("ai", "{output}"),
+        ]
+    )
+    return FewShotChatMessagePromptTemplate(
+        example_prompt=example_prompt,
+        examples=examples,
+    )
 
 class ComponentInfo(BaseModel):
     name: str = Field(..., description='Component name, map the name from Component Metadata')
@@ -114,14 +126,23 @@ class Component(BaseModel):
 def generate_step_chain(input):
     batch_input = itemgetter('batch_input')(input)
     output_parser = JsonOutputParser()
+    few_shot_prompt = build_example()
 
-    GENERATE_PROMPT = PromptTemplate(
+    SystemPrompt = PromptTemplate(
         template = RESPONSE_TEMPLATE,
-        input_variables=[],
+        input_variables=[]
+    )
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            SystemMessagePromptTemplate(prompt=SystemPrompt),
+            few_shot_prompt,
+            ("human", "{raw}"),
+        ]
     )
 
     chain = (
-        GENERATE_PROMPT
+        prompt
         |
         llm
         | output_parser

@@ -1,0 +1,220 @@
+{
+  "title": "Component",
+  "type": "object",
+  "properties": {
+    "id": {
+      "title": "Id",
+      "description": "Generate a unique identifier for the step",
+      "pattern": "^[0-9a-f]{32}$",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "description": "Summarize the step in few words",
+      "type": "string"
+    },
+    "component": {
+      "$ref": "#/definitions/ComponentInfo"
+    },
+    "exits": {
+      "title": "Exits",
+      "description": "Possible exit points or outcomes from this step",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Exit"
+      }
+    },
+    "properties": {},
+    "context_mappings": {
+      "title": "Context Mappings",
+      "description": "Mappings of context variables for this step",
+      "type": "object"
+    },
+    "created_at": {
+      "title": "Created At",
+      "description": "The date and time when the step was created.",
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "component",
+    "exits",
+    "properties",
+    "context_mappings",
+    "created_at"
+  ],
+  "definitions": {
+    "ComponentInfo": {
+      "title": "ComponentInfo",
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "time_based_rules-NDU4NTVlNz",
+          "type": "string"
+        },
+        "version": {
+          "const": "1.5.1",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ]
+    },
+    "Exit": {
+      "title": "Exit",
+      "type": "object",
+      "anyOf": [
+        {
+          "title": "No match",
+          "description": "If none of the rules match",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "no-match",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition"
+          ]
+        },
+        {
+          "title": "Time based exits",
+          "description": "Define exits based on week days and time ranges",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "custom",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            },
+            "condition": {
+              "type": "object",
+              "title": "Time based exit",
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "required": [
+                "timezone",
+                "ranges"
+              ],
+              "properties": {
+                "ranges": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "days",
+                      "time"
+                    ],
+                    "properties": {
+                      "days": {
+                        "type": "array",
+                        "items": {
+                          "enum": [
+                            "MONDAY",
+                            "TUESDAY",
+                            "WEDNESDAY",
+                            "THURSDAY",
+                            "FRIDAY",
+                            "SATURDAY",
+                            "SUNDAY"
+                          ],
+                          "type": "string"
+                        },
+                        "default": [
+                          "MONDAY",
+                          "TUESDAY",
+                          "WEDNESDAY",
+                          "THURSDAY",
+                          "FRIDAY"
+                        ],
+                        "minItems": 1
+                      },
+                      "time": {
+                        "type": "object",
+                        "required": [
+                          "from",
+                          "to"
+                        ],
+                        "properties": {
+                          "to": {
+                            "type": "string",
+                            "title": "To",
+                            "default": "18:00:00",
+                            "example": "22:10:00",
+                            "pattern": "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$",
+                            "minLength": 1
+                          },
+                          "from": {
+                            "type": "string",
+                            "title": "From",
+                            "default": "09:00:00",
+                            "example": "02:15:00",
+                            "pattern": "^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$",
+                            "minLength": 1
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "minItems": 1
+                },
+                "timezone": {
+                  "type": "string",
+                  "title": "Timezone",
+                  "example": "America/Los_Angeles",
+                  "minLength": 1
+                },
+                "inside_business_hours": {
+                  "enum": [
+                    true,
+                    false
+                  ],
+                  "title": "Time Range",
+                  "default": true,
+                  "description": "Define criteria for the time rules to apply"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition",
+            "condition"
+          ]
+        }
+      ]
+    }
+  }
+}

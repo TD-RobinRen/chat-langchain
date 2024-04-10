@@ -1,0 +1,215 @@
+{
+  "title": "Component",
+  "type": "object",
+  "properties": {
+    "id": {
+      "title": "Id",
+      "description": "Generate a unique identifier for the step",
+      "pattern": "^[0-9a-f]{32}$",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "description": "Summarize the step in few words",
+      "type": "string"
+    },
+    "component": {
+      "$ref": "#/definitions/ComponentInfo"
+    },
+    "exits": {
+      "title": "Exits",
+      "description": "Possible exit points or outcomes from this step",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Exit"
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": [
+        "query"
+      ],
+      "properties": {
+        "query": {
+          "type": "string",
+          "title": "Query",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "context_mappings": {
+      "title": "Context Mappings",
+      "description": "Mappings of context variables for this step",
+      "type": "object"
+    },
+    "created_at": {
+      "title": "Created At",
+      "description": "The date and time when the step was created.",
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "component",
+    "exits",
+    "properties",
+    "context_mappings",
+    "created_at"
+  ],
+  "definitions": {
+    "ComponentInfo": {
+      "title": "ComponentInfo",
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "salesforce_data_dip-YmZjYjczMj",
+          "type": "string"
+        },
+        "version": {
+          "const": "3.4.1",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ]
+    },
+    "Exit": {
+      "title": "Exit",
+      "type": "object",
+      "anyOf": [
+        {
+          "title": "Ok",
+          "description": "If query succeeds",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "ok",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition"
+          ]
+        },
+        {
+          "title": "No result",
+          "description": "If there is no result for the query",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "no_result",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition"
+          ]
+        },
+        {
+          "title": "Timeout",
+          "description": "If the maximum waiting time for a response is exceeded",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "timeout",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            },
+            "condition": {
+              "type": "object",
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "required": [
+                "timeout"
+              ],
+              "properties": {
+                "timeout": {
+                  "type": "integer",
+                  "title": "Time in seconds",
+                  "default": 8,
+                  "maximum": 10,
+                  "minimum": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition",
+            "condition"
+          ]
+        },
+        {
+          "title": "Connection error",
+          "description": "If an error occurs",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "upstream_error",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition"
+          ]
+        }
+      ]
+    }
+  }
+}

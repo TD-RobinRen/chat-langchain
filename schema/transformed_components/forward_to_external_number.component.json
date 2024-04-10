@@ -1,0 +1,210 @@
+{
+  "title": "Component",
+  "type": "object",
+  "properties": {
+    "id": {
+      "title": "Id",
+      "description": "Generate a unique identifier for the step",
+      "pattern": "^[0-9a-f]{32}$",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "description": "Summarize the step in few words",
+      "type": "string"
+    },
+    "component": {
+      "$ref": "#/definitions/ComponentInfo"
+    },
+    "exits": {
+      "title": "Exits",
+      "description": "Possible exit points or outcomes from this step",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Exit"
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": [
+        "external_number"
+      ],
+      "properties": {
+        "external_number": {
+          "type": "object",
+          "title": "External number",
+          "required": [
+            "forward_address",
+            "ringing_timeout_seconds"
+          ],
+          "properties": {
+            "forward_address": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "title": "Manual configuration...",
+                  "required": [
+                    "prefix",
+                    "number"
+                  ],
+                  "properties": {
+                    "number": {
+                      "type": "string",
+                      "pattern": "^[0-9]{3,15}$"
+                    },
+                    "prefix": {
+                      "type": "string",
+                      "default": "+1",
+                      "pattern": "^\\+[0-9]{1,4}$"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "title": "From variable in the flow context...",
+                  "required": [
+                    "number_from_context"
+                  ],
+                  "properties": {
+                    "number_from_context": {
+                      "type": "string",
+                      "default": ""
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "ringing_timeout_seconds": {
+              "type": "integer",
+              "title": "Max ringing time in seconds",
+              "default": 35,
+              "maximum": 600,
+              "minimum": 1
+            }
+          },
+          "description": "Configure the external number settings."
+        },
+        "caller_configuration": {
+          "type": "object",
+          "title": "Caller configuration",
+          "required": [
+            "source_address_type"
+          ],
+          "properties": {
+            "source_address_type": {
+              "enum": [
+                "contact",
+                "talkdesk_inbound_number"
+              ],
+              "type": "string",
+              "default": "contact"
+            }
+          },
+          "description": "Configure the details of caller side of the call being forwarded."
+        }
+      }
+    },
+    "context_mappings": {
+      "title": "Context Mappings",
+      "description": "Mappings of context variables for this step",
+      "type": "object"
+    },
+    "created_at": {
+      "title": "Created At",
+      "description": "The date and time when the step was created.",
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "component",
+    "exits",
+    "properties",
+    "context_mappings",
+    "created_at"
+  ],
+  "definitions": {
+    "ComponentInfo": {
+      "title": "ComponentInfo",
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "forward_to_external_number-NWI5ZGVmYT",
+          "type": "string"
+        },
+        "version": {
+          "const": "3.5.0",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ]
+    },
+    "Exit": {
+      "title": "Exit",
+      "type": "object",
+      "anyOf": [
+        {
+          "title": "No answer",
+          "description": "There was at least one successful dial but no call pickup (this includes: ringing timeout, busy, rejected).",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "call_no_answer",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition"
+          ]
+        },
+        {
+          "title": "Invalid number",
+          "description": "This exit will be selected if the provided number is invalid.",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "invalid",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition"
+          ]
+        }
+      ]
+    }
+  }
+}

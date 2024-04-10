@@ -1,0 +1,832 @@
+{
+  "title": "Component",
+  "type": "object",
+  "properties": {
+    "id": {
+      "title": "Id",
+      "description": "Generate a unique identifier for the step",
+      "pattern": "^[0-9a-f]{32}$",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "description": "Summarize the step in few words",
+      "type": "string"
+    },
+    "component": {
+      "$ref": "#/definitions/ComponentInfo"
+    },
+    "exits": {
+      "title": "Exits",
+      "description": "Possible exit points or outcomes from this step",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Exit"
+      }
+    },
+    "properties": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "required": [
+        "assignment_parameters",
+        "priority",
+        "time_limit"
+      ],
+      "properties": {
+        "priority": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "List of priorities",
+              "required": [
+                "priorities_list"
+              ],
+              "properties": {
+                "priorities_list": {
+                  "enum": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10
+                  ],
+                  "default": 10
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "title": "Variable in the flow context",
+              "required": [
+                "priorities_context"
+              ],
+              "properties": {
+                "priorities_context": {
+                  "type": "number",
+                  "default": 10
+                }
+              },
+              "additionalProperties": false
+            }
+          ],
+          "title": "Priority",
+          "description": "Define the priority for this assignment request"
+        },
+        "time_limit": {
+          "type": "object",
+          "title": "Maximum waiting time",
+          "required": [
+            "time"
+          ],
+          "properties": {
+            "time": {
+              "type": "integer",
+              "title": "Time in seconds",
+              "maximum": 10800,
+              "minimum": 1
+            },
+            "waiting_music": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "title": "Default Music",
+                  "properties": {},
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "title": "Audio file upload",
+                  "required": [
+                    "talkdesk_resource"
+                  ],
+                  "properties": {
+                    "talkdesk_resource": {
+                      "type": "object",
+                      "required": [
+                        "type",
+                        "id"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "enum": [
+                            "asset"
+                          ],
+                          "default": "asset"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "title": "URL to audio file",
+                      "required": [
+                        "file_url"
+                      ],
+                      "properties": {
+                        "file_url": {
+                          "type": "string",
+                          "format": "uri",
+                          "default": "",
+                          "pattern": "http(s)?://.+",
+                          "minLength": 5
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "title": "Variable in the flow context",
+                      "required": [
+                        "file_url_context_variable"
+                      ],
+                      "properties": {
+                        "file_url_context_variable": {
+                          "type": "string",
+                          "default": ""
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ],
+                  "title": "Other sources"
+                }
+              ]
+            }
+          },
+          "description": "Maximum time to find the configured assignment",
+          "additionalProperties": false
+        },
+        "users_to_ring": {
+          "type": "object",
+          "title": "Agents to ring",
+          "required": [
+            "number_of_users"
+          ],
+          "properties": {
+            "exhaust": {
+              "enum": [
+                true,
+                false
+              ],
+              "title": "Assignment strategy",
+              "default": true,
+              "description": "Exhaust \u2014 The agents will be rung until we exhaust all possibilities or a timeout is reached. Single Attempt \u2014 Ringing will be done a single time (the setting for the number of agents to ring in parallel will be respected)."
+            },
+            "forced_queueing": {
+              "enum": [
+                false,
+                true
+              ],
+              "title": "Status of agents",
+              "default": false,
+              "description": "Specify which agent statuses are eligible for assignment."
+            },
+            "number_of_users": {
+              "type": "integer",
+              "title": "Number of agents",
+              "default": 1,
+              "maximum": 10,
+              "minimum": 1
+            }
+          },
+          "description": "Maximum number of agents that will be rang in parallel",
+          "additionalProperties": false
+        },
+        "waiting_message": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "No message",
+              "properties": {},
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "title": "Play waiting message...",
+              "required": [
+                "audio_message",
+                "delay"
+              ],
+              "properties": {
+                "delay": {
+                  "type": "integer",
+                  "title": "Delay in seconds",
+                  "default": 60,
+                  "maximum": 10800,
+                  "minimum": 1,
+                  "description": "Time before playing the instructions for the first time."
+                },
+                "audio_message": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "title": "Text to speech",
+                      "required": [
+                        "text",
+                        "language"
+                      ],
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "title": "Message to play",
+                          "minLength": 1
+                        },
+                        "language": {
+                          "enum": [
+                            "de-DE",
+                            "en-US",
+                            "en-GB",
+                            "es-ES",
+                            "fr-FR",
+                            "it-IT",
+                            "pt-PT",
+                            "pt-BR",
+                            "ru-RU",
+                            "da-DK",
+                            "ca-ES",
+                            "nl-NL",
+                            "en-AU",
+                            "en-CA",
+                            "en-IN",
+                            "fi-FI",
+                            "fr-CA",
+                            "ja-JP",
+                            "ko-KR",
+                            "nb-NO",
+                            "pl-PL",
+                            "es-MX",
+                            "sv-SE",
+                            "zh-CN",
+                            "zh-HK",
+                            "zh-TW",
+                            "arb",
+                            "de-AT",
+                            "en-NZ",
+                            "en-ZA",
+                            "en-GB-WLS",
+                            "hi-IN",
+                            "is-IS",
+                            "ro-RO",
+                            "es-US",
+                            "tr-TR",
+                            "cy-GB"
+                          ],
+                          "title": "Language of audio output",
+                          "default": "en-US",
+                          "description": "(1) Language only available if you have text to Speech powered by Amazon Polly enabled in your account"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "title": "Audio file upload",
+                      "required": [
+                        "talkdesk_resource"
+                      ],
+                      "properties": {
+                        "talkdesk_resource": {
+                          "type": "object",
+                          "required": [
+                            "type",
+                            "id"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "enum": [
+                                "asset"
+                              ]
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "title": "URL to audio file",
+                          "required": [
+                            "file_url"
+                          ],
+                          "properties": {
+                            "file_url": {
+                              "type": "string",
+                              "format": "uri",
+                              "default": "",
+                              "pattern": "http(s)?://.+",
+                              "minLength": 5
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "title": "Variable in the flow context",
+                          "required": [
+                            "file_url_context_variable"
+                          ],
+                          "properties": {
+                            "file_url_context_variable": {
+                              "type": "string",
+                              "default": ""
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      ],
+                      "title": "Other sources"
+                    }
+                  ]
+                },
+                "recurrence_delay": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "title": "Do not repeat",
+                      "required": [
+                        "play_only_once"
+                      ],
+                      "properties": {
+                        "play_only_once": {
+                          "type": "boolean",
+                          "default": true
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "title": "Repeat every...",
+                      "required": [
+                        "time_in_seconds"
+                      ],
+                      "properties": {
+                        "time_in_seconds": {
+                          "type": "integer",
+                          "default": 60,
+                          "maximum": 10800,
+                          "minimum": 1
+                        }
+                      },
+                      "description": "Time between each playback of the instructions message",
+                      "additionalProperties": false
+                    }
+                  ],
+                  "title": "Repetition in seconds",
+                  "description": "Specify if the message should be repeated and the time interval between repetitions."
+                }
+              },
+              "additionalProperties": false
+            }
+          ],
+          "title": "Waiting message",
+          "description": "Message to explain keypress alternatives offered to contacts while they are in the waiting queue"
+        },
+        "assignment_parameters": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "Ring Groups",
+              "properties": {
+                "ring_groups": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "title": "List of Ring Groups in your account",
+                      "required": [
+                        "ring_groups_list"
+                      ],
+                      "properties": {
+                        "ring_groups_list": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "minItems": 1
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "title": "Variables in the flow context",
+                      "required": [
+                        "ring_groups_context"
+                      ],
+                      "properties": {
+                        "ring_groups_context": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "minItems": 1
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "title": "Agents",
+              "properties": {
+                "agents": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "title": "List of agents in your account",
+                      "required": [
+                        "agents_list"
+                      ],
+                      "properties": {
+                        "agents_list": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "minItems": 1,
+                          "data_source": "agents"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "title": "Variables in the flow context",
+                      "required": [
+                        "agents_context"
+                      ],
+                      "properties": {
+                        "agents_context": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "minItems": 1
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "title": "Attributes",
+              "required": [
+                "attributes"
+              ],
+              "properties": {
+                "attributes": {
+                  "type": "object",
+                  "required": [
+                    "attributes_rule",
+                    "attributes_list",
+                    "sort_agents_by"
+                  ],
+                  "properties": {
+                    "sort_agents_by": {
+                      "enum": [
+                        "most-idle",
+                        "most-proficient"
+                      ],
+                      "type": "string",
+                      "title": "Sort agents by",
+                      "default": "most-idle"
+                    },
+                    "attributes_list": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "title": "Attribute",
+                            "required": [
+                              "attribute"
+                            ],
+                            "properties": {
+                              "attribute": {
+                                "type": "object",
+                                "required": [
+                                  "attribute_id",
+                                  "proficiency"
+                                ],
+                                "properties": {
+                                  "proficiency": {
+                                    "enum": [
+                                      0,
+                                      20,
+                                      40,
+                                      60,
+                                      80,
+                                      100
+                                    ],
+                                    "type": "number"
+                                  },
+                                  "attribute_id": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "title": "Variable",
+                            "required": [
+                              "variable"
+                            ],
+                            "properties": {
+                              "variable": {
+                                "type": "object",
+                                "required": [
+                                  "attribute_variable_name",
+                                  "proficiency"
+                                ],
+                                "properties": {
+                                  "proficiency": {
+                                    "enum": [
+                                      0,
+                                      20,
+                                      40,
+                                      60,
+                                      80,
+                                      100
+                                    ],
+                                    "type": "number"
+                                  },
+                                  "attribute_variable_name": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "additionalProperties": false
+                          }
+                        ]
+                      },
+                      "title": "Attributes",
+                      "maxItems": 10,
+                      "minItems": 1
+                    },
+                    "attributes_rule": {
+                      "enum": [
+                        "or",
+                        "and"
+                      ],
+                      "type": "string",
+                      "title": "Attributes rule",
+                      "default": "or"
+                    }
+                  }
+                },
+                "icon_with_text_and_link": {}
+              },
+              "additionalProperties": false
+            }
+          ],
+          "title": "Assignment Parameters",
+          "description": "Select and configure which attributes will be used for matching a call with an agent"
+        }
+      },
+      "additionalProperties": false
+    },
+    "context_mappings": {
+      "title": "Context Mappings",
+      "description": "Mappings of context variables for this step",
+      "type": "object"
+    },
+    "created_at": {
+      "title": "Created At",
+      "description": "The date and time when the step was created.",
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "component",
+    "exits",
+    "properties",
+    "context_mappings",
+    "created_at"
+  ],
+  "definitions": {
+    "ComponentInfo": {
+      "title": "ComponentInfo",
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "assignment_and_dial-M2JhZTViYT",
+          "type": "string"
+        },
+        "version": {
+          "const": "3.23.1",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ]
+    },
+    "Exit": {
+      "title": "Exit",
+      "type": "object",
+      "anyOf": [
+        {
+          "title": "Call finished",
+          "description": "There was a successful match and a conversation with an agent has finished.",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "call_finished",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition"
+          ]
+        },
+        {
+          "title": "No answer",
+          "description": "There was at least one successful dial attempt but no agent was available.",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "call_no_answer",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition"
+          ]
+        },
+        {
+          "title": "Maximum waiting time reached",
+          "description": "There was a match but all agents are busy and the configured time out was reached.",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "time_limit_reached",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition"
+          ]
+        },
+        {
+          "title": "No match found",
+          "description": "A match could not be found.",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "no_match",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition"
+          ]
+        },
+        {
+          "title": "Alternative Exits",
+          "description": "Offer key press alternatives to callers while they are in waiting queue.",
+          "properties": {
+            "_key": {
+              "title": " Key",
+              "description": "A UUID identifying the exit, following the UUID format.",
+              "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+              "type": "string"
+            },
+            "name": {
+              "const": "custom",
+              "type": "string"
+            },
+            "transition": {
+              "title": "Transition",
+              "description": "Id of the step to transition to after this exit",
+              "pattern": "^[0-9a-f]{32}$",
+              "type": "string"
+            },
+            "condition": {
+              "type": "object",
+              "title": "Keypress exits",
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "required": [
+                "keypress"
+              ],
+              "properties": {
+                "keypress": {
+                  "enum": [
+                    "0",
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7",
+                    "8",
+                    "9",
+                    "*",
+                    "#"
+                  ],
+                  "title": "Keypress"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "_key",
+            "name",
+            "transition",
+            "condition"
+          ]
+        }
+      ]
+    }
+  }
+}
