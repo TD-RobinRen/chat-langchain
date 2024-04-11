@@ -47,12 +47,6 @@
         "version": "0.1.1",
         "description": ""
     },
-    "assign_agent_pool.component": {
-        "source": "assign_agent_pool.component",
-        "name": "assign_agent_pool-DnZ3fjDa7E",
-        "version": "0.3.4",
-        "description": ""
-    },
     "assignment_and_dial.component": {
         "source": "assignment_and_dial.component",
         "name": "assignment_and_dial-M2JhZTViYT",
@@ -1259,12 +1253,6 @@
         "version": "2.4.3",
         "default_exits": [],
         "description": "This component routes the call to the voicemail of agents or ring groups you select. No context is given before the beep, so we recommend configuring an audio message (Play Audio component) right before the flow reaches Voicemail.Voicemail is a final component, therefore, no Exits are available.Here you can assign voicemails to specific agents or ring groups. Alternatively, you can use your preconfigured variables which will assign voicemail to agents/ring groups according to the previous events of your call flow. If your selection falls under the “Agents” assignment category, the variable to use will have to correspond to the agent`s email."
-    },
-    "whisper.component": {
-        "source": "whisper.component",
-        "name": "whisper-bnfc7Nftys",
-        "version": "0.0.4",
-        "description": ""
     },
     "run_function.component": {
         "source": "run_function.component",
