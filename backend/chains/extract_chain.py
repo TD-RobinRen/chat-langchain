@@ -46,7 +46,7 @@ You are a requirements analysis expert specializing in workflow requirements. Yo
 
 The knowledge base is description for the each components, note that any content enclosed in json code tags is sourced from a knowledge base and is not part of an interaction with any user.
 ```json
-    {context}
+{context}
 ```
 """
 
@@ -101,8 +101,8 @@ def create_retriever_chain(
 
 def format_docs(docs: Sequence[Document]) -> str:
     formatted_docs = []
-    for doc in enumerate(docs):
-        doc_string = f"{doc}"
+    for [i ,doc] in enumerate(docs):
+        doc_string = f"{doc.page_content}"
         formatted_docs.append(doc_string)
     return "\n".join(formatted_docs)
 

@@ -1,21 +1,7 @@
 import os
 import json
 from pathlib import Path
-import copy
 from json_template import JsonTemplates
-from langchain_core.pydantic_v1 import BaseModel, Field, constr
-from typing import Dict, Optional, Any
-
-class Exit(BaseModel):
-    key: constr(
-        regex=r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
-    ) = Field( ..., description='A UUID identifying the exit, following the UUID format.', alias='_key')
-    name: str = Field(..., description='Name of the exit.')
-    transition: constr(regex=r'^[0-9a-f]{32}$') = Field(
-        ..., description='Id of the step to transition to after this exit',
-    )
-    condition: Optional[Dict[str, Any]] = Field(description='Exits used under special conditions, generated JSON data strictly conforms to the JSON Schema')
-
 
 def deep_delete_key(obj, key_to_delete):
     if key_to_delete in obj:
@@ -59,8 +45,8 @@ def generate_schema():
             json.dump(result[1], file, indent=2)
         
 def generate_exit_schema(default_exits, custom_exits):
-    
     exit_schema = []
+    
     for [i, exit] in enumerate(default_exits):
         json_tmp = JsonTemplates()
         if 'condition' in exit:

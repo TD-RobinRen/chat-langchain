@@ -18,9 +18,7 @@ from langchain_openai import ChatOpenAI
 OPENAI_MODELS = os.environ["OPENAI_MODELS"]
 
 WRAP_TEMPLATE = """\
-```
 {format_instructions}
-```
 """
 
 class TriggerType(Enum):
@@ -120,7 +118,7 @@ class StudioWorkFlowMetaSchema(BaseModel):
         description='Pre-conditions, defining conditions that must be met for this record to be valid.',
     )
     steps: str = Field('{% steps %}', const=True)
-    model: Optional[Model] = Field(
+    model: Optional[Dict[str, Any]] = Field(
         None, description='The context variables for this flow'
     )
 

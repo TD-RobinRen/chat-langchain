@@ -7,7 +7,6 @@ import {
   VStack,
   Flex,
   Heading,
-  Text,
   HStack,
   Box,
   Button,
@@ -181,29 +180,21 @@ export function ChatMessageBubble(props: {
   };
 
   return (
-    <VStack align="start"
-      spacing={5} 
-      px={5} 
-      py={2}
-      scrollPaddingY={14} 
-      backgroundColor={ isUser ? "gray.50" : "purple.50" }
-      borderRadius={8}
-      mb={4}
-      maxW="85%"
-      ml={ isUser ? "auto" : undefined }
-    >
+    <VStack align="start" spacing={5} pb={5}>
       {!isUser && (
-        <Text fontWeight="medium" color="blue.300">
-          Answer
-        </Text>
+        <>
+          <Heading size="lg" fontWeight="medium" color="blue.300">
+            Answer
+          </Heading>
+        </>
       )}
 
       {isUser ? (
-        <Text fontWeight="medium">
+        <Heading size="lg" fontWeight="medium" color="white">
           {content}
-        </Text>
+        </Heading>
       ) : (
-        <Box className="whitespace-pre-wrap">
+        <Box className="whitespace-pre-wrap" color="white">
           {answerElements}
         </Box>
       )}
@@ -257,7 +248,7 @@ export function ChatMessageBubble(props: {
               }}
               isLoading={traceIsLoading}
               loadingText="🔄"
-              color="gray"
+              color="white"
             >
               🦜🛠️ View trace
             </Button>
