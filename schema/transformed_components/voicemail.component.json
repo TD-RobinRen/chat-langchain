@@ -5,7 +5,7 @@
     "id": {
       "title": "Id",
       "description": "Generate a unique identifier for the step",
-      "pattern": "^[0-9a-f]{32}$",
+      "pattern": "^[0-9a-z]{32}$",
       "type": "string"
     },
     "name": {

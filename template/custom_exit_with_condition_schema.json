@@ -5,7 +5,7 @@
     "_key": {
       "title": " Key",
       "description": "A UUID identifying the exit, following the UUID format.",
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+      "pattern": "^[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}$",
       "type": "string"
     },
     "name": {
@@ -14,7 +14,7 @@
     "transition": {
       "title": "Transition",
       "description": "Id of the step to transition to after this exit",
-      "pattern": "^[0-9a-f]{32}$",
+      "pattern": "^[0-9a-z]{32}$",
       "type": "string"
     },
     "condition": "{% condition %}"
