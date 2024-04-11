@@ -131,7 +131,13 @@ export function ChatWindow(props: { conversationId: string }) {
           runId = streamedResponse.id;
         }
         if (Array.isArray(streamedResponse?.streamed_output)) {
-          accumulatedMessage = streamedResponse.streamed_output.join("");
+          accumulatedMessage = streamedResponse?.streamed_output.map(output => {
+            if (typeof output === 'object' && output !== null) {
+              return '\n\n```json\n' + JSON.stringify(output, null, 2) + '\n````\n\n';
+            } else {
+              return output;
+            }
+          }).join('');
         }
         const parsedResult = marked.parse(accumulatedMessage);
 
@@ -189,39 +195,6 @@ export function ChatWindow(props: { conversationId: string }) {
 
   return (
     <div className="flex flex-col items-center p-8 rounded grow max-h-full">
-      <Flex
-        direction={"column"}
-        alignItems={"center"}
-        marginTop={messages.length > 0 ? "" : "64px"}
-      >
-        <Heading
-          fontSize={messages.length > 0 ? "2xl" : "3xl"}
-          fontWeight={"medium"}
-          mb={1}
-          color={"white"}
-        >
-          Chat LangChain 🦜🔗
-        </Heading>
-        <div className="text-white flex flex-wrap items-center mt-4">
-          <div className="flex items-center mb-2">
-            <span className="shrink-0 mr-2">Powered by</span>
-            {llmIsLoading ? (
-              <Spinner className="my-2"></Spinner>
-            ) : (
-              <Select
-                value={llm}
-                onChange={(e) => {
-                  insertUrlParam("llm", e.target.value);
-                  setLlm(e.target.value);
-                }}
-                width={"240px"}
-              >
-                <option value="openai_gpt">GPT-4.0</option>
-              </Select>
-            )}
-          </div>
-        </div>
-      </Flex>
       <div
         className="flex flex-col-reverse w-full mb-2 overflow-auto flex-1"
         ref={messageContainerRef}
@@ -248,7 +221,6 @@ export function ChatWindow(props: { conversationId: string }) {
           maxRows={5}
           marginRight={"56px"}
           placeholder="Input something..."
-          textColor={"white"}
           borderColor={"rgb(58, 58, 61)"}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
