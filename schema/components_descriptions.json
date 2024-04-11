@@ -115,7 +115,7 @@
             "min_custom_exits": 0,
             "can_be_disabled": false
         },
-        "description": "With the Assignment and dial component, you can decide how to assign a voice interaction to a group of Agents based on selected ring groups, attributes, or individual agent selection. Please note that all assignment types are mutually exclusive and that you can only select one of them per assignment component.Normally, you should use the Assignment and Dial component to route the call to ring groups or agents.Only when you want to route the call to a specific agent, even if the agent is already on a call, should you use the Dial Agent component."
+        "description": "With the Assignment and dial component, you can decide how to assign a voice interaction to a group of Agents based on selected ring groups, attributes, or individual agent selection. Please note that all assignment types are mutually exclusive and that you can only select one of them per assignment component.Normally, you should use the Assignment and Dial component to route the call to ring groups or agents.Only when you want to route the call to a specific agent, even if the agent is already on a call, should you use the Dial Agent component. When the contact is waiting, the component can play waiting messages to provide options to the contact. According to the keypress of the contact,it can add exits as the schema in the custom_exits. "
     },
     "auto-answer.component": {
         "source": "auto-answer.component",
