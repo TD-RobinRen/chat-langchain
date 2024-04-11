@@ -15,15 +15,12 @@ import "highlight.js/styles/gradient-dark.css";
 
 import "react-toastify/dist/ReactToastify.css";
 import {
-  Heading,
-  Flex,
   IconButton,
   InputGroup,
   InputRightElement,
   Spinner,
 } from "@chakra-ui/react";
 import { ArrowUpIcon } from "@chakra-ui/icons";
-import { Select, Link } from "@chakra-ui/react";
 import { apiBaseUrl } from "../utils/constants";
 
 const MODEL_TYPES = [
@@ -170,21 +167,6 @@ export function ChatWindow(props: { conversationId: string }) {
 
   const sendInitialQuestion = async (question: string) => {
     await sendMessage(question);
-  };
-
-  const insertUrlParam = (key: string, value?: string) => {
-    if (window.history.pushState) {
-      const searchParams = new URLSearchParams(window.location.search);
-      searchParams.set(key, value ?? "");
-      const newurl =
-        window.location.protocol +
-        "//" +
-        window.location.host +
-        window.location.pathname +
-        "?" +
-        searchParams.toString();
-      window.history.pushState({ path: newurl }, "", newurl);
-    }
   };
 
   return (

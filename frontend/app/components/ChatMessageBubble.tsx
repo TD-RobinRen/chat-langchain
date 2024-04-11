@@ -1,7 +1,6 @@
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { emojisplosion } from "emojisplosion";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import * as DOMPurify from "dompurify";
 import {
   VStack,
@@ -11,9 +10,7 @@ import {
   Box,
   Button,
   Divider,
-  Spacer,
 } from "@chakra-ui/react";
-import { sendFeedback } from "../utils/sendFeedback";
 import { apiBaseUrl } from "../utils/constants";
 
 export type Message = {
@@ -57,60 +54,8 @@ export function ChatMessageBubble(props: {
 }) {
   const { role, content, runId } = props.message;
   const isUser = role === "user";
-  const [isLoading, setIsLoading] = useState(false);
   const [traceIsLoading, setTraceIsLoading] = useState(false);
-  const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [comment, setComment] = useState("");
-  const [feedbackColor, setFeedbackColor] = useState("");
-  const upButtonRef = useRef(null);
-  const downButtonRef = useRef(null);
 
-  const cumulativeOffset = function (element: HTMLElement | null) {
-    var top = 0,
-      left = 0;
-    do {
-      top += element?.offsetTop || 0;
-      left += element?.offsetLeft || 0;
-      element = (element?.offsetParent as HTMLElement) || null;
-    } while (element);
-
-    return {
-      top: top,
-      left: left,
-    };
-  };
-
-  const sendUserFeedback = async (score: number, key: string) => {
-    let run_id = runId;
-    if (run_id === undefined) {
-      return;
-    }
-    if (isLoading) {
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const data = await sendFeedback({
-        score,
-        runId: run_id,
-        key,
-        feedbackId: feedback?.feedback_id,
-        comment,
-        isExplicit: true,
-      });
-      if (data.code === 200) {
-        setFeedback({ run_id, score, key, feedback_id: data.feedbackId });
-        score == 1 ? animateButton("upButton") : animateButton("downButton");
-        if (comment) {
-          setComment("");
-        }
-      }
-    } catch (e: any) {
-      console.error("Error:", e);
-      toast.error(e.message);
-    }
-    setIsLoading(false);
-  };
   const viewTrace = async () => {
     try {
       setTraceIsLoading(true);
@@ -148,37 +93,6 @@ export function ChatMessageBubble(props: {
         )
       : [];
 
-  const animateButton = (buttonId: string) => {
-    let button: HTMLButtonElement | null;
-    if (buttonId === "upButton") {
-      button = upButtonRef.current;
-    } else if (buttonId === "downButton") {
-      button = downButtonRef.current;
-    } else {
-      return;
-    }
-    if (!button) return;
-    let resolvedButton = button as HTMLButtonElement;
-    resolvedButton.classList.add("animate-ping");
-    setTimeout(() => {
-      resolvedButton.classList.remove("animate-ping");
-    }, 500);
-
-    emojisplosion({
-      emojiCount: 10,
-      uniqueness: 1,
-      position() {
-        const offset = cumulativeOffset(button);
-
-        return {
-          x: offset.left + resolvedButton.clientWidth / 2,
-          y: offset.top + resolvedButton.clientHeight / 2,
-        };
-      },
-      emojis: buttonId === "upButton" ? ["👍"] : ["👎"],
-    });
-  };
-
   return (
     <VStack align="start" spacing={5} pb={5}>
       {!isUser && (
@@ -204,53 +118,17 @@ export function ChatMessageBubble(props: {
         props.messageCompleted && (
           <HStack spacing={2}>
             <Button
-              ref={upButtonRef}
-              size="sm"
-              variant="outline"
-              colorScheme={feedback === null ? "green" : "gray"}
-              onClick={() => {
-                if (feedback === null && props.message.runId) {
-                  sendUserFeedback(1, "user_score");
-                  animateButton("upButton");
-                  setFeedbackColor("border-4 border-green-300");
-                } else {
-                  toast.error("You have already provided your feedback.");
-                }
-              }}
-            >
-              👍
-            </Button>
-            <Button
-              ref={downButtonRef}
-              size="sm"
-              variant="outline"
-              colorScheme={feedback === null ? "red" : "gray"}
-              onClick={() => {
-                if (feedback === null && props.message.runId) {
-                  sendUserFeedback(0, "user_score");
-                  animateButton("downButton");
-                  setFeedbackColor("border-4 border-red-300");
-                } else {
-                  toast.error("You have already provided your feedback.");
-                }
-              }}
-            >
-              👎
-            </Button>
-            <Spacer />
-            <Button
               size="sm"
               variant="outline"
               colorScheme={runId === null ? "blue" : "gray"}
               onClick={(e) => {
                 e.preventDefault();
-                viewTrace();
               }}
               isLoading={traceIsLoading}
               loadingText="🔄"
               color="white"
             >
-              🦜🛠️ View trace
+              🛠️ Apply
             </Button>
           </HStack>
         )}
