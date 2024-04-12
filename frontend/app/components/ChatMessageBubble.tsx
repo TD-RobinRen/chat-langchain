@@ -4,15 +4,11 @@ import { useState } from "react";
 import * as DOMPurify from "dompurify";
 import {
   VStack,
-  Flex,
-  Heading,
   Text,
   HStack,
   Box,
   Button,
-  Divider,
 } from "@chakra-ui/react";
-import { apiBaseUrl } from "../utils/constants";
 
 export type Message = {
   id: string;
@@ -22,6 +18,9 @@ export type Message = {
   runId?: string;
   name?: string;
   function_call?: { name: string };
+  rawContent?: {
+    steps: Array<any>;
+  };
 };
 export type Feedback = {
   feedback_id: string;
@@ -53,39 +52,35 @@ export function ChatMessageBubble(props: {
   isMostRecent: boolean;
   messageCompleted: boolean;
 }) {
-  const { role, content, runId } = props.message;
+  const { role, content, runId, rawContent } = props.message;
   const isUser = role === "user";
-  const [traceIsLoading, setTraceIsLoading] = useState(false);
+  const [applyIsLoading, setApplyIsLoading] = useState(false);
 
-  const viewTrace = async () => {
-    try {
-      setTraceIsLoading(true);
-      const response = await fetch(apiBaseUrl + "/get_trace", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          run_id: runId,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.code === 400) {
-        toast.error("Unable to view trace");
-        throw new Error("Unable to view trace");
-      } else {
-        const url = data.replace(/['"]+/g, "");
-        window.open(url, "_blank");
-        setTraceIsLoading(false);
-      }
-    } catch (e: any) {
-      console.error("Error:", e);
-      setTraceIsLoading(false);
-      toast.error(e.message);
+  const createSteps = async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const flowId = urlParams.get('flow_id');
+  const auth_token = { ...JSON.parse(urlParams.get('auth_token')??'').headers, 'Content-Type': 'application/json' };
+  const apiHost = "api.talkdeskstg.com";
+    
+  setApplyIsLoading(true);
+  try {
+    const response = await fetch(`https://${apiHost}/flow_definitions/${flowId}/steps`, {
+      method: 'PUT',
+      headers: auth_token,
+      body: JSON.stringify(rawContent?.steps)
+    });
+  
+    if (response.status === 200) {
+      window.parent.postMessage('refresh', 'http://localhost:8000/');
+      setApplyIsLoading(false);
+      return await response.json();
     }
-  };
+    return {};
+  } catch (e: any) {
+    setApplyIsLoading(false);
+    throw new Error(`Error occurs: ${e}`);
+  }
+};
 
   const answerElements =
     role === "assistant"
@@ -132,8 +127,9 @@ export function ChatMessageBubble(props: {
               colorScheme={runId === null ? "blue" : "gray"}
               onClick={(e) => {
                 e.preventDefault();
+                createSteps();
               }}
-              isLoading={traceIsLoading}
+              isLoading={applyIsLoading}
               loadingText="🔄"
               color="gray"
             >
