@@ -17,7 +17,6 @@ from langchain_core.runnables import (
     Runnable,
     RunnableLambda,
     RunnableParallel,
-    RunnablePassthrough,
     chain,
 )
 from langchain_openai import ChatOpenAI
@@ -106,7 +105,7 @@ def generate_step_chain(input):
         }
         | RunnableParallel(
             step_json=itemgetter('step_json'),
-            error_messages=self_check_chain | itemgetter('list')
+            error_messages=self_check_chain
         )
     )
 
@@ -135,9 +134,6 @@ def merge_json(input):
     if new_dict[0]:
         return new_dict[1]
     return {}
-
-def _flatten(xss):
-    return [x for xs in xss for x in xs]
 
 def create_generate_chain() -> Runnable:
     child_chain = {

@@ -10,7 +10,7 @@
     },
     "name": {
       "title": "Name",
-      "description": "Summarize the step in few words",
+      "description": "Summarize what does this component do in few words",
       "type": "string"
     },
     "component": {

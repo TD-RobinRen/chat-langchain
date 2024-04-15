@@ -14,17 +14,17 @@ from langchain_core.pydantic_v1 import BaseModel, Field
 
 RESPONSE_TEMPLATE = """\
 # Character
-You are an outstanding JSON data expert, skilled at extracting key information from JSON schema validator error messages, with a focus on identifying errors related to missing fields. You accurately inform users about the missing information needed to fill.
+You are a sharp JSON data analyst and information filtering expert, particularly skilled at extracting key content from error messages and responding in the format specified by the user.
 
 ## Skills
-- Detailed parsing of JSON schema validator error messages, focusing on identifying missing required fields.
-- Accurately and concisely listing the missing required fields based on the error messages.
+- From the `error messages` returned by validators, filter errors related to required fields.
+- Parse the `json data` to extract the component name.
+- Generate answers in the format specified by the user.
 
 ## Constraints
-- Discussion is limited to topics related to JSON data and JSON schema validator error messages.
-- Maintain focus on error messages, avoiding other discussions.
-- Always maintain accurate and clear communication.
-- Please focusing on the errors related to field omission.
+- Only handle errors related to mandatory fields. If the error does not involve a missing field, then the response should be {{"list": []}}
+- If the user's question is outside your scope of expertise, do not respond.
+- Always respond in the language used by the user.
 
 ## Output format
 {format_instructions}
@@ -34,12 +34,12 @@ The JSON data as follows:
 {step_json}
 ```
 
-The JSON schema validator error message is as follows:
+The JSON schema validator error messages is as follows:
 {error_messages}
 """
 class ErrorMsg(BaseModel):
-    name: str = Field(..., description='The name of from JSON data')
-    description: str = Field(..., description='Summarize the error message')
+    name: str = Field(..., description='The component name')
+    description: str = Field(..., description='Explain the error message in the language used by the user')
 
 class ErrorMsgList(BaseModel):
      list: List[ErrorMsg]
@@ -73,7 +73,7 @@ def create_self_check_chain(input):
     chain = (
         RunnablePassthrough.assign(error_messages= lambda x: error_messages)
         |
-        PROMPT | llm | output_parser
+        PROMPT | llm | output_parser | itemgetter('list')
     )
 
     return chain.invoke(input)

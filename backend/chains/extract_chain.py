@@ -1,5 +1,6 @@
 import os
 from typing import Dict, List, Optional, Sequence, Any
+from operator import itemgetter
 
 import weaviate
 from chains.condense_question_chain import condense_question_chain
@@ -73,7 +74,7 @@ class Component(BaseModel):
     source: str = Field(..., description='Component source')
 class ComponentsList(BaseModel):
      """A list of steps in a process, each representing a specific action or task."""
-     __root__: List[Component] = Field(description='A list of steps in a process, each representing a specific action or task.')
+     list: List[Component] = Field(description='A list of steps in a process, each representing a specific action or task.')
 
 def get_retriever() -> BaseRetriever:
     client = weaviate.Client(
@@ -161,6 +162,7 @@ def _create_extract_chain(llm: LanguageModelLike) -> Runnable:
     return (
         context
         | response_synthesizer
+        | itemgetter('list')
     )
 
 @chain

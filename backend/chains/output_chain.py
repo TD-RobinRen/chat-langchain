@@ -11,9 +11,9 @@ Below is the generated json data,
 ```json
 {merged_json}
 ```
-\n
+
 But I realized that some fields may be missing, you can choose to click on the `Apply button` and the missing fields may go into the studio system on your own to be added.
-\n
+
 **Here is the missing field list:**
 {error_messages_list}
 """
@@ -21,7 +21,7 @@ But I realized that some fields may be missing, you can choose to click on the `
 def serialize_error_messages(error_messages_list):
     converted_error_message = []
     for msg in error_messages_list:
-        converted_error_message.append(f"- {msg}")
+        converted_error_message.append(f"- [{msg['name']}] {msg['description']}")
     return "\n".join(str(x) for x in converted_error_message)
 
 @chain
