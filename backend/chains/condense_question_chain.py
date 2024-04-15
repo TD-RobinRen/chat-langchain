@@ -10,7 +10,6 @@ from langchain_core.runnables import (
     RunnableLambda
 )
 
-
 REPHRASE_TEMPLATE = """\
 Given the following conversation and a follow up question, rephrase the follow up \
 question to be a standalone question.
@@ -41,7 +40,7 @@ def create_condense_question_chain (llm: LanguageModelLike) -> Runnable:
             )
         ).with_config(run_name="ChainWithNoHistory"),
     ).with_config(run_name="RouteDependingOnChatHistory")
- 
+
 openai_gpt = ChatOpenAI(model="gpt-4-0125-preview", streaming=False)
 llm = openai_gpt.configurable_alternatives(
     ConfigurableField(id="llm"),

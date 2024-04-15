@@ -1,9 +1,6 @@
-from typing import Dict, List, Optional
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from chains.extract_chain import extract_chain
-from chains.generate_chain import generate_chain
+
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.pydantic_v1 import BaseModel
 from langchain_core.runnables import (
@@ -12,15 +9,11 @@ from langchain_core.runnables import (
 )
 from langsmith import Client
 
-REPHRASE_TEMPLATE = """\
-Given the following conversation and a follow up question, rephrase the follow up \
-question to be a standalone question.
+from typing import Dict, List, Optional
 
-Chat History:
-{chat_history}
-Follow Up Input: {question}
-Standalone Question:"""
-
+from chains.extract_chain import extract_chain
+from chains.generate_chain import generate_chain
+from chains.output_chain import output_chain
 
 client = Client()
 
@@ -48,16 +41,18 @@ def serialize_history(request: ChatRequest):
             converted_chat_history.append(AIMessage(content=message["ai"]))
     return converted_chat_history
 
-def create_chain() -> Runnable:
+def create_main_chain() -> Runnable:
     result = (
         RunnablePassthrough.assign(chat_history=serialize_history)
-        | 
+        |
         {
             "extracted_data": extract_chain
         }
         |
         generate_chain
+        |
+        output_chain
     )
     return result
 
-answer_chain = create_chain()
+main_chain = create_main_chain()

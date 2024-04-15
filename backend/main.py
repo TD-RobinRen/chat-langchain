@@ -4,7 +4,7 @@ from typing import Optional, Union, Any
 from uuid import UUID
 
 import langsmith
-from chain import ChatRequest, answer_chain
+from chain import ChatRequest, main_chain
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from langserve import add_routes
@@ -26,7 +26,7 @@ app.add_middleware(
 
 add_routes(
     app,
-    answer_chain,
+    main_chain,
     path="/chat",
     input_type=ChatRequest,
     config_keys=["metadata", "configurable", "tags"],

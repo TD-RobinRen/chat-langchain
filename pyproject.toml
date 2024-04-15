@@ -21,6 +21,7 @@ tiktoken = "^0.5.2"
 cohere = "4.45"
 pydantic = "^2.6.4"
 weaviate-client = "^4.5.4"
+jsonschema = "^4.21.1"
 
 
 [tool.poetry.group.lint.dependencies]

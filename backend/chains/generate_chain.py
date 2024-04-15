@@ -1,9 +1,7 @@
 import os
-from pprint import pprint
 import json
 from typing import List
 from pathlib import Path
-from parser import parse_json_markdown
 from operator import itemgetter
 
 from langchain_core.output_parsers import JsonOutputParser
@@ -18,12 +16,14 @@ from langchain_core.runnables import (
     ConfigurableField,
     Runnable,
     RunnableLambda,
-    chain
+    RunnableParallel,
+    RunnablePassthrough,
+    chain,
 )
 from langchain_openai import ChatOpenAI
 from chains.generate_wrap_chain import generate_wrap_chain
+from chains.self_check_chain import self_check_chain
 from json_template import JsonTemplates
-
 
 RESPONSE_TEMPLATE = """\
 # Character
@@ -88,29 +88,39 @@ def generate_step_chain(input):
         [
             SystemMessagePromptTemplate(prompt=SystemPrompt),
             few_shot_prompt,
-            ("human", "{raw}"),
+            ("human", "{extracted_component}"),
         ]
     )
 
-    chain = (
+    step_chain = (
         prompt
         |
         llm
         | output_parser
     )
+
+    chain = (
+        {
+            "component_schema": itemgetter('component_schema'),
+            "step_json": step_chain
+        }
+        | RunnableParallel(
+            step_json=itemgetter('step_json'),
+            error_messages=self_check_chain | itemgetter('list')
+        )
+    )
+
     return chain.batch(batch_input)
 
 def split_extrated_data(extracted_data) -> List:
-    extracted_data = parse_json_markdown(extracted_data)
     batch_input = []
-
     for data in extracted_data:
         file_path = Path(f"./schema/transformed_components/{data['source']}.json")
         source_file = json.loads(file_path.read_text())
 
         batch_input.append({
             "source": json.dumps(extracted_data),
-            "raw": json.dumps(data),
+            "extracted_component": json.dumps(data),
             "component_schema": json.dumps(source_file)
         })
     return batch_input
@@ -118,28 +128,32 @@ def split_extrated_data(extracted_data) -> List:
 @chain
 def merge_json(input):
     wrap_json = itemgetter('wrap_json')(input)
-    step_json = itemgetter('step_json')(input)
+    step_json = itemgetter('step_json_list')(input)
     json_tmp = JsonTemplates()
-    result = json_tmp.loads(json.dumps(wrap_json))
-    new_dict = {}
-
-    if result[0]:
-        new_dict = json_tmp.generate({"steps": step_json })
+    json_tmp.loads(json.dumps(wrap_json))
+    new_dict = json_tmp.generate({"steps": step_json })
     if new_dict[0]:
         return new_dict[1]
-    return new_dict
+    return {}
+
+def _flatten(xss):
+    return [x for xs in xss for x in xs]
 
 def create_generate_chain() -> Runnable:
     child_chain = {
-            "batch_input": itemgetter("extracted_data") | RunnableLambda(split_extrated_data)
-        } | generate_step_chain
+        "batch_input": itemgetter("extracted_data") | RunnableLambda(split_extrated_data)
+    } | generate_step_chain
 
     return (
+        child_chain |
         {
-            "step_json": child_chain,
-            "wrap_json": generate_wrap_chain
-        } |
-        merge_json
+            "step_json_list": RunnableLambda(lambda x: [data['step_json'] for data in x]),
+            "wrap_json": generate_wrap_chain,
+            "error_messages_list": RunnableLambda(lambda x: [data['error_messages'] for data in x]) | RunnableLambda(lambda x: [item for row in x for item in row]),
+        } | RunnableParallel(
+            merged_json=merge_json,
+            error_messages_list=itemgetter('error_messages_list')
+        )
     )
 
 openai_gpt = ChatOpenAI(model=OPENAI_MODELS, temperature=0, response_format={"type": "json_object"})

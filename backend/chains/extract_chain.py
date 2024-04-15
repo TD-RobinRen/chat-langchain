@@ -1,5 +1,4 @@
 import os
-from pprint import pprint
 from typing import Dict, List, Optional, Sequence, Any
 
 import weaviate
@@ -8,7 +7,6 @@ from ingest import get_embeddings_model
 from langchain_community.vectorstores import Weaviate
 from langchain_core.documents import Document
 from langchain_core.language_models import LanguageModelLike
-from langchain_core.output_parsers import StrOutputParser
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import (
     ChatPromptTemplate,
@@ -23,6 +21,7 @@ from langchain_core.runnables import (
     ConfigurableField,
     Runnable,
     RunnablePassthrough,
+    chain
 )
 from langchain_openai import ChatOpenAI
 
@@ -91,9 +90,8 @@ def get_retriever() -> BaseRetriever:
     )
     return vectorstore.as_retriever(search_kwargs=dict(k=30))
 
-def create_retriever_chain(
-    retriever: BaseRetriever
-) -> Runnable:
+def create_retriever_chain() -> Runnable:
+    retriever = get_retriever()
     return  (
         condense_question_chain
         | retriever
@@ -124,13 +122,11 @@ def build_example() -> PromptTemplate:
         examples=examples,
     )
 
-def create_extract_chain(llm: LanguageModelLike, retriever: BaseRetriever) -> Runnable:
+def _create_extract_chain(llm: LanguageModelLike) -> Runnable:
     output_parser = JsonOutputParser(pydantic_object=ComponentsList)
     few_shot_prompt = build_example()
-    
-    retriever_chain = create_retriever_chain(
-        retriever,
-    ).with_config(run_name="FindDocs")
+
+    retriever_chain = create_retriever_chain().with_config(run_name="FindDocs")
 
     context = (
         RunnablePassthrough.assign(docs=retriever_chain)
@@ -159,7 +155,7 @@ def create_extract_chain(llm: LanguageModelLike, retriever: BaseRetriever) -> Ru
             ConfigurableField("llm"),
             default_key="openai_gpt",
         )
-        | StrOutputParser()
+        | output_parser
     ).with_config(run_name="GenerateResponse")
 
     return (
@@ -167,16 +163,17 @@ def create_extract_chain(llm: LanguageModelLike, retriever: BaseRetriever) -> Ru
         | response_synthesizer
     )
 
+@chain
+def create_extract_chain(input) -> Runnable:
+    final_responder = _create_extract_chain(llm)
+    return final_responder.invoke(input)
 
 openai_gpt = ChatOpenAI(model=OPENAI_MODELS, temperature=0)
 llm = openai_gpt.configurable_alternatives(
-    # This gives this field an id
-    # When configuring the end runnable, we can then use this id to configure this field
     ConfigurableField(id="llm"),
     default_key="openai_gpt",
 ).with_fallbacks(
     [openai_gpt]
 )
 
-retriever = get_retriever()
-extract_chain = create_extract_chain(llm, retriever)
+extract_chain = create_extract_chain

@@ -12,6 +12,8 @@ from enum import Enum
 from pydantic.v1 import BaseModel, Field, constr
 from langchain_core.runnables import (
     ConfigurableField,
+    Runnable,
+    chain
 )
 from langchain_openai import ChatOpenAI
 
@@ -123,7 +125,7 @@ class StudioWorkFlowMetaSchema(BaseModel):
     )
 
 
-def create_generate_wrap_chain(llm: LanguageModelLike):
+def _create_generate_wrap_chain(llm: LanguageModelLike):
     output_parser = JsonOutputParser(pydantic_object=StudioWorkFlowMetaSchema)
 
     PROMPT = PromptTemplate(
@@ -138,6 +140,10 @@ def create_generate_wrap_chain(llm: LanguageModelLike):
         | output_parser
     )
 
+@chain
+def create_generate_wrap_chain(input) -> Runnable:
+    final_responder = _create_generate_wrap_chain(llm)
+    return final_responder.invoke({})
 
 openai_gpt = ChatOpenAI(model=OPENAI_MODELS, temperature=0)
 llm = openai_gpt.configurable_alternatives(
@@ -147,4 +153,4 @@ llm = openai_gpt.configurable_alternatives(
     [openai_gpt]
 )
 
-generate_wrap_chain = create_generate_wrap_chain(llm)
+generate_wrap_chain = create_generate_wrap_chain
