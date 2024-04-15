@@ -1,4 +1,3 @@
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
 import * as DOMPurify from "dompurify";
@@ -19,7 +18,7 @@ export type Message = {
   name?: string;
   function_call?: { name: string };
   rawContent?: {
-    steps: Array<any>;
+    steps: any;
   };
 };
 export type Feedback = {
@@ -52,22 +51,23 @@ export function ChatMessageBubble(props: {
   isMostRecent: boolean;
   messageCompleted: boolean;
 }) {
-  const { role, content, runId, rawContent } = props.message;
+  const { role, content, runId } = props.message;
   const isUser = role === "user";
   const [applyIsLoading, setApplyIsLoading] = useState(false);
 
   const createSteps = async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const flowId = urlParams.get('flow_id');
-  const auth_token = { ...JSON.parse(urlParams.get('auth_token')??'').headers, 'Content-Type': 'application/json' };
+  const auth_token = { authorization: urlParams.get('auth_token')??'', 'Content-Type': 'application/json' };
   const apiHost = "api.talkdeskstg.com";
     
   setApplyIsLoading(true);
   try {
+    console.log('3     body', JSON.stringify(window.rawContent?.steps))
     const response = await fetch(`https://${apiHost}/flow_definitions/${flowId}/steps`, {
       method: 'PUT',
       headers: auth_token,
-      body: JSON.stringify(rawContent?.steps)
+      body: JSON.stringify(window.rawContent?.steps)
     });
   
     if (response.status === 200) {
@@ -109,7 +109,12 @@ export function ChatMessageBubble(props: {
 
       {isUser ? (
         <Text fontWeight="medium">
-          {content}
+          {content.split('\n').map((line, index) => (
+            <div key={index}>
+              {line}
+              <br />
+            </div>
+          ))}
         </Text>
       ) : (
         <Box className="whitespace-pre-wrap">
