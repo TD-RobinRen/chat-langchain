@@ -264,6 +264,7 @@ export function ChatWindow(props: { conversationId: string }) {
       const initialStepId = urlParams.get('initial_step_id');
       output.initial_step_id = initialStepId ?? "";
       output.steps[0].id = initialStepId ?? "";
+      window.rawContent = output;
       accumulatedMessage = marked.parse('\n\n```json\n' + JSON.stringify(output, null, 2) + '\n````\n\n')
 
       setMessages((prevMessages) => {
