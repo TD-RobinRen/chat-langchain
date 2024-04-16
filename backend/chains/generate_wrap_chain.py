@@ -61,7 +61,7 @@ class Model(BaseModel):
 
 
 class StudioWorkFlowMetaSchema(BaseModel):
-    id: constr(regex=r'^[0-9a-z]{32}$') = Field(..., description='A unique identifier')
+    id: constr(regex=r'^[0-9a-zA-Z]{32}$') = Field(..., description='A unique identifier')
     account_id: Optional[constr(regex=r'^[0-9a-fA-F]{24}$')] = Field(
         None,
         description='Account identifier, the identifier of the account to which this record belongs.',
@@ -107,7 +107,7 @@ class StudioWorkFlowMetaSchema(BaseModel):
         ...,
         description="Validation status, showing the validation status of this record, such as 'valid'.",
     )
-    initial_step_id: constr(regex=r'^[0-9a-z]{32}$') = Field(
+    initial_step_id: constr(regex=r'^[0-9a-zA-Z]{32}$') = Field(
         ...,
         description='Initial step identifier, pointing to the initial step in the process.',
     )

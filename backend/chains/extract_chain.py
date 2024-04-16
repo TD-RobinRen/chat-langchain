@@ -61,10 +61,10 @@ class ChatRequest(BaseModel):
 
 class Exit(BaseModel):
     name: str = Field(description='Name of the exit')
-    transition: constr(regex=r'^[0-9a-z]{32}$') = Field(..., description='Id of the step to transition to after this exit')
+    transition: constr(regex=r'^[0-9a-zA-Z]{32}$') = Field(..., description='Id of the step to transition to after this exit')
     description: str = Field(..., description='Summarize the conditions for this exit points, and attach any relevant information.')
 class Component(BaseModel):
-    id: constr(regex=r'^[0-9a-z]{32}$') = Field(..., description='Generate a unique identifier for the step')
+    id: constr(regex=r'^[0-9a-zA-Z]{32}$') = Field(..., description='Generate a unique identifier for the step')
     name: str = Field(..., description='Component name')
     version: str = Field(..., description='Component version')
     exits: List[Exit] = Field(..., description='Possible exit points or outcomes from this step')
