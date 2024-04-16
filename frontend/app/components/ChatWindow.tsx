@@ -21,7 +21,6 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import { ArrowUpIcon } from "@chakra-ui/icons";
-import { Select, Link } from "@chakra-ui/react";
 import { apiBaseUrl } from "../utils/constants";
 
 const MODEL_TYPES = [
@@ -133,24 +132,24 @@ export function ChatWindow(props: { conversationId: string }) {
         }
         if (Array.isArray(streamedResponse?.streamed_output)) {
           accumulatedMessage = streamedResponse?.streamed_output.map(output => {
-            if (typeof output === 'object' && output !== null) {
-              let rawContent: any = null;
+            const regex = /```json\n([\s\S]*?)\n```/g;
+            const match = regex.exec(output);
 
-              rawContent = output;
+            if (match) {
+              let rawContent: any = null;
+              rawContent = JSON.parse(match[1]);
+
               if (initialStepId) {
                 rawContent.initial_step_id = initialStepId;
                 rawContent.steps[0].id = initialStepId;
               }
               window.rawContent = rawContent;
-              
-              return '\n\n```json\n' + JSON.stringify(rawContent, null, 2) + '\n````\n\n';
-            } else {
-              return output;
-            }
+            } 
+            return output;
           }).join('');
         }
         const parsedResult = marked.parse(accumulatedMessage);
-
+        // assign inbound calls to "agent" ring group
         setMessages((prevMessages) => {
           let newMessages = [...prevMessages];
           if (
@@ -158,7 +157,7 @@ export function ChatWindow(props: { conversationId: string }) {
             newMessages[messageIndex] === undefined
           ) {
             messageIndex = newMessages.length;
-            // console.log('rawContent', rawContent)
+            
             newMessages.push({
               id: Math.random().toString(),
               content: parsedResult,
