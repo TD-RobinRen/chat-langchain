@@ -79,6 +79,8 @@ export function ChatMessageBubble(props: {
   } catch (e: any) {
     setApplyIsLoading(false);
     throw new Error(`Error occurs: ${e}`);
+  } finally {
+    setApplyIsLoading(false);
   }
 };
 
