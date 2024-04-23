@@ -1,6 +1,7 @@
 import os
 from typing import Dict, List, Optional, Sequence, Any
 from operator import itemgetter
+import bson
 
 import weaviate
 from chains.condense_question_chain import condense_question_chain
@@ -22,7 +23,8 @@ from langchain_core.runnables import (
     ConfigurableField,
     Runnable,
     RunnablePassthrough,
-    chain
+    chain,
+    RunnableLambda
 )
 from langchain_openai import ChatOpenAI
 
@@ -55,16 +57,12 @@ WEAVIATE_API_KEY = os.environ["WEAVIATE_API_KEY"]
 WEAVIATE_INDEX_NAME = os.environ["WEAVIATE_INDEX_NAME"]
 OPENAI_MODELS = os.environ["OPENAI_MODELS"]
 
-class ChatRequest(BaseModel):
-    question: str
-    chat_history: Optional[List[Dict[str, str]]]
-
 class Exit(BaseModel):
     name: str = Field(description='Name of the exit')
-    transition: constr(regex=r'^[0-9a-zA-Z]{30}$') = Field(..., description='Id of the step to transition to after this exit')
+    transition: constr(regex=r'^[0-9a-zA-Z]{24}$') = Field(..., description='Id of the step to transition to after this exit')
     description: str = Field(..., description='Summarize the conditions for this exit points, and attach any relevant information.')
 class Component(BaseModel):
-    id: constr(regex=r'^[0-9a-zA-Z]{30}$') = Field(..., description='Generate a unique identifier for the step')
+    id: constr(regex=r'^[0-9a-zA-Z]{24}$') = Field(..., description='Generate a unique identifier for the step')
     name: str = Field(..., description='Component name')
     version: str = Field(..., description='Component version')
     exits: List[Exit] = Field(..., description='Possible exit points or outcomes from this step')
@@ -74,7 +72,7 @@ class Component(BaseModel):
     source: str = Field(..., description='Component source')
 class ComponentsList(BaseModel):
      """A list of steps in a process, each representing a specific action or task."""
-     list: List[Component] = Field(description='A list of steps in a process, each representing a specific action or task.')
+     items: List[Component] = Field(description='A list of steps in a process, each representing a specific action or task.')
 
 def get_retriever() -> BaseRetriever:
     client = weaviate.Client(
@@ -109,7 +107,7 @@ def build_example() -> PromptTemplate:
     examples = [
         {
             "input": "Create a initialize flow with inbound voice call, the name is chatter box demo. Afterward I want to create a workflow using the following steps: after the voice call incoming, it should be Request an assignment and dial the agents return for this interaction and assign to a ring group, the ring groups name is test.",
-            "output": '[ { "id": "994aaf1e94a54043878add8502D8A4", "name": "inbound_voice-ZjE1ZjM0MG", "version": "1.3.0", "exits": [ { "name": "ok", "transition": "c819e33e451b4ca99e53C959a5c83c", "description": "If the component succeeds" } ], "properties": {}, "context_mappings": {}, "description": "Initial component for incoming call flow definitions for the `chatter box demo`.", "source": "incoming_call.component" }, { "id": "c819e33e451b4ca99e53C959a5c83c", "name": "assignment_and_dial-M2JhZTViYT", "version": "3.23.1", "exits": [ { "name": "call_finished", "transition": "f84967f57440bEA18b095a14879172", "description": "There was a successful match and a conversation with an agent has finished." }, { "name": "call_no_answer", "transition": "69e6af0d50484f8c4DF6ece395a64f", "description": "There was at least one successful dial attempt but no agent was available." } ], "properties": { "ring_group": "test" }, "context_mappings": {}, "description": "Request an assignment and dial the agents return for this interaction and assign to a ring group named `test`.", "source": "assignment_and_dial.component" } ]'
+            "output": '{ "items": [ { "id": "ac994aaf1e94a54043878add8502D8A4", "name": "inbound_voice-ZjE1ZjM0MG", "version": "1.3.0", "exits": [ { "name": "ok", "transition": "c819e33e451b4ca99e53C959a5c83cac", "description": "If the component succeeds" } ], "properties": {}, "context_mappings": {}, "description": "Initial component for incoming call flow definitions for the `chatter box demo`.", "source": "incoming_call.component" }, { "id": "c819e33e451b4ca99e53C959a5c83cac", "name": "assignment_and_dial-M2JhZTViYT", "version": "3.23.1", "exits": [ { "name": "call_finished", "transition": "f84967f57440bEA18b095a1487917254", "description": "There was a successful match and a conversation with an agent has finished." }, { "name": "call_no_answer", "transition": "69e6af0d50484f8c4DF6ece395a64f36", "description": "There was at least one successful dial attempt but no agent was available." } ], "properties": { "ring_group": "test" }, "context_mappings": {}, "description": "Request an assignment and dial the agents return for this interaction and assign to a ring group named `test`.", "source": "assignment_and_dial.component" } ] }'
         }
     ]
     example_prompt = ChatPromptTemplate.from_messages(
@@ -122,6 +120,23 @@ def build_example() -> PromptTemplate:
         example_prompt=example_prompt,
         examples=examples,
     )
+
+def replace_id(json: Dict[str, Any]) -> Dict[str, Any]:
+    result = json
+    id_to_uuid = {}
+    for component in json:
+        orig_id = component["id"]
+        if orig_id not in id_to_uuid:
+            id_to_uuid[orig_id] = str(bson.objectid.ObjectId())
+        component["id"] = id_to_uuid[orig_id]
+        for exit in component["exits"]:
+            if exit["transition"] in id_to_uuid:
+                exit["transition"] = id_to_uuid[exit["transition"]]
+            else:
+                new_uuid = str(bson.objectid.ObjectId())
+                id_to_uuid[exit["transition"]] = new_uuid
+                exit["transition"] = new_uuid
+    return result
 
 def _create_extract_chain(llm: LanguageModelLike) -> Runnable:
     output_parser = JsonOutputParser(pydantic_object=ComponentsList)
@@ -162,7 +177,8 @@ def _create_extract_chain(llm: LanguageModelLike) -> Runnable:
     return (
         context
         | response_synthesizer
-        | itemgetter('list')
+        | itemgetter('items')
+        | RunnableLambda(replace_id)
     )
 
 @chain
