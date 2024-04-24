@@ -5,7 +5,7 @@
     "id": {
       "title": "Id",
       "description": "Generate a unique identifier for the step",
-      "pattern": "^[0-9a-z]{32}$",
+      "pattern": "^[0-9a-zA-Z]{24}$",
       "type": "string"
     },
     "name": {
@@ -679,7 +679,7 @@
             "transition": {
               "title": "Transition",
               "description": "Id of the step to transition to after this exit",
-              "pattern": "^[0-9a-z]{32}$",
+              "pattern": "^[0-9a-zA-Z]{24}$",
               "type": "string"
             }
           },
@@ -706,7 +706,7 @@
             "transition": {
               "title": "Transition",
               "description": "Id of the step to transition to after this exit",
-              "pattern": "^[0-9a-z]{32}$",
+              "pattern": "^[0-9a-zA-Z]{24}$",
               "type": "string"
             }
           },
@@ -733,7 +733,7 @@
             "transition": {
               "title": "Transition",
               "description": "Id of the step to transition to after this exit",
-              "pattern": "^[0-9a-z]{32}$",
+              "pattern": "^[0-9a-zA-Z]{24}$",
               "type": "string"
             }
           },
@@ -760,7 +760,7 @@
             "transition": {
               "title": "Transition",
               "description": "Id of the step to transition to after this exit",
-              "pattern": "^[0-9a-z]{32}$",
+              "pattern": "^[0-9a-zA-Z]{24}$",
               "type": "string"
             }
           },
@@ -786,7 +786,7 @@
             "transition": {
               "title": "Transition",
               "description": "Id of the step to transition to after this exit",
-              "pattern": "^[0-9a-z]{32}$",
+              "pattern": "^[0-9a-zA-Z]{24}$",
               "type": "string"
             },
             "condition": {

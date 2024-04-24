@@ -1,3 +1,4 @@
+import os
 from operator import itemgetter
 from langchain_openai import ChatOpenAI
 import json
@@ -11,6 +12,7 @@ from langchain_core.runnables import (
 from jsonschema import Draft7Validator
 from typing import List
 from langchain_core.pydantic_v1 import BaseModel, Field
+OPENAI_MODELS = os.environ["OPENAI_MODELS"]
 
 RESPONSE_TEMPLATE = """\
 # Character
@@ -79,7 +81,7 @@ def create_self_check_chain(input):
     return chain.invoke(input)
 
 
-openai_gpt = ChatOpenAI(model="gpt-4-0125-preview", streaming=False)
+openai_gpt = ChatOpenAI(model=OPENAI_MODELS, temperature=0)
 llm = openai_gpt.configurable_alternatives(
     ConfigurableField(id="llm"),
     default_key="openai_gpt",

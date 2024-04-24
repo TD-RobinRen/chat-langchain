@@ -41,7 +41,7 @@ def create_condense_question_chain (llm: LanguageModelLike) -> Runnable:
         ).with_config(run_name="ChainWithNoHistory"),
     ).with_config(run_name="RouteDependingOnChatHistory")
 
-openai_gpt = ChatOpenAI(model="gpt-4-0125-preview", streaming=False)
+openai_gpt = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 llm = openai_gpt.configurable_alternatives(
     ConfigurableField(id="llm"),
     default_key="openai_gpt",
