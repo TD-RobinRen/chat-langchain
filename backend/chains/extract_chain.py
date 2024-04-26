@@ -87,7 +87,7 @@ def get_retriever() -> BaseRetriever:
         by_text=False,
         attributes=["source", "name", "version"],
     )
-    return vectorstore.as_retriever(search_kwargs=dict(k=30))
+    return vectorstore.as_retriever(search_kwargs=dict(k=1))
 
 def create_retriever_chain() -> Runnable:
     retriever = get_retriever()

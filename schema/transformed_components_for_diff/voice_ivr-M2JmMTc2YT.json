@@ -1,0 +1,161 @@
+{
+    "properties": {
+        "id": {
+            "title": "Id",
+            "description": "Generate a unique identifier for the step"
+        },
+        "name": {
+            "title": "Name",
+            "description": "Summarize what does this component do in few words",
+            "type": "string"
+        },
+        "component": {
+            "$ref": "#/definitions/ComponentInfo"
+        },
+        "exits": {
+            "items": {
+                "$ref": "#/definitions/Exit"
+            },
+            "title": "Exits",
+            "description": "Possible exit points or outcomes from this step"
+        },
+        "properties": {
+            "properties": {
+                "audio_message": {
+                    "oneOf": [
+                        {
+                            "properties": {
+                                "text": {
+                                    "title": "Message to output"
+                                }
+                            },
+                            "title": "Text to speech"
+                        },
+                        {
+                            "title": "Audio file upload"
+                        },
+                        {
+                            "oneOf": [
+                                {
+                                    "title": "URL to audio file"
+                                },
+                                {
+                                    "title": "Variable in the flow context"
+                                }
+                            ],
+                            "title": "Other sources"
+                        }
+                    ],
+                    "title": "Play audio message",
+                    "description": "Configure the audio message the user will hear."
+                },
+                "timeout_selection": {
+                    "properties": {
+                        "speech_timeout": {
+                            "title": "Recognition timeout in seconds",
+                            "description": "How long we wait for speech before matching it to a keyword."
+                        }
+                    },
+                    "title": "Speech recognition",
+                    "description": "Settings for speech recognition."
+                },
+                "language_selection": {
+                    "properties": {
+                        "language": {
+                            "title": "Language of voice and audio",
+                            "description": "(1) Language only available if you have text to Speech powered by Amazon Polly enabled in your account"
+                        }
+                    },
+                    "title": "Language",
+                    "description": "Configure the language the component will detect and the language of the audio outputs."
+                }
+            }
+        },
+        "context_mappings": {
+            "title": "Context Mappings",
+            "description": "Mappings of context variables for this step"
+        },
+        "created_at": {
+            "title": "Created At",
+            "description": "The date and time when the step was created."
+        }
+    },
+    "definitions": {
+        "ComponentInfo": {
+            "properties": {
+                "name": {
+                    "const": "voice_ivr-M2JmMTc2YT",
+                    "type": "string"
+                }
+            },
+            "title": "ComponentInfo"
+        },
+        "Exit": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "no_match",
+                            "type": "string"
+                        }
+                    },
+                    "title": "No match",
+                    "description": "If the voice command doesn't match any keyword."
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "timeout",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Timeout",
+                    "description": "If no voice command is detected or the caller doesn't speak until timeout."
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "condition": {
+                            "properties": {
+                                "routing_conditions": {
+                                    "title": "Keywords"
+                                }
+                            },
+                            "title": "Voice command"
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    },
+                    "title": "Voice command exits",
+                    "description": "Define the voice keyword the caller needs to speak to select that exit."
+                }
+            ],
+            "title": "Exit"
+        }
+    },
+    "title": "Component"
+}

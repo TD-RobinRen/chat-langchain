@@ -1,0 +1,161 @@
+{
+    "properties": {
+        "id": {
+            "title": "Id",
+            "description": "Generate a unique identifier for the step"
+        },
+        "name": {
+            "title": "Name",
+            "description": "Summarize what does this component do in few words",
+            "type": "string"
+        },
+        "component": {
+            "$ref": "#/definitions/ComponentInfo"
+        },
+        "exits": {
+            "items": {
+                "$ref": "#/definitions/Exit"
+            },
+            "title": "Exits",
+            "description": "Possible exit points or outcomes from this step"
+        },
+        "properties": {
+            "properties": {
+                "message": {
+                    "oneOf": [
+                        {
+                            "properties": {
+                                "message_list": {
+                                    "items": {
+                                        "properties": {
+                                            "text": {
+                                                "title": "Text to speech"
+                                            },
+                                            "language": {
+                                                "title": "Language of audio output",
+                                                "description": "(1) Language only available if you have text to Speech powered by Amazon Polly enabled in your account"
+                                            }
+                                        },
+                                        "title": "Text to speech"
+                                    }
+                                }
+                            },
+                            "title": "Text to speech"
+                        },
+                        {
+                            "title": "Audio file upload"
+                        },
+                        {
+                            "oneOf": [
+                                {
+                                    "title": "URL to audio file"
+                                },
+                                {
+                                    "title": "Variable in the flow context"
+                                }
+                            ],
+                            "title": "Other sources"
+                        }
+                    ],
+                    "title": "Play audio message",
+                    "description": "Configure the audio message the user will hear."
+                }
+            }
+        },
+        "context_mappings": {
+            "title": "Context Mappings",
+            "description": "Mappings of context variables for this step"
+        },
+        "created_at": {
+            "title": "Created At",
+            "description": "The date and time when the step was created."
+        }
+    },
+    "definitions": {
+        "ComponentInfo": {
+            "properties": {
+                "name": {
+                    "const": "standard_ivr-M2NlYzMzNz",
+                    "type": "string"
+                }
+            },
+            "title": "ComponentInfo"
+        },
+        "Exit": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "condition": {
+                            "properties": {
+                                "timeout": {
+                                    "title": "Time in seconds",
+                                    "description": "Integer indicating in seconds for how long we will wait for the input. It resets as new digits are input"
+                                }
+                            },
+                            "description": "Timeout in seconds"
+                        },
+                        "name": {
+                            "const": "timeout",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Timeout",
+                    "description": ""
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "invalid",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Invalid",
+                    "description": "If an invalid key is pressed"
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "condition": {
+                            "properties": {
+                                "keypress": {
+                                    "title": "Keypress"
+                                }
+                            },
+                            "title": "Keypress exits"
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    },
+                    "title": "Custom Exits",
+                    "description": "Exit that the component will use if the condition is evaluated to true"
+                }
+            ],
+            "title": "Exit"
+        }
+    },
+    "title": "Component"
+}

@@ -6,6 +6,9 @@ from langchain_core.pydantic_v1 import BaseModel
 from langchain_core.runnables import (
     Runnable,
     RunnablePassthrough,
+    RunnableBranch,
+    RunnableLambda,
+    chain,
 )
 from langsmith import Client
 
@@ -14,6 +17,8 @@ from typing import Dict, List, Optional
 from chains.extract_chain import extract_chain
 from chains.generate_chain import generate_chain
 from chains.output_chain import output_chain
+
+from chains.generate_diff_chain import generate_diff_chain
 
 client = Client()
 
@@ -30,6 +35,9 @@ app.add_middleware(
 class ChatRequest(BaseModel):
     question: str
     chat_history: Optional[List[Dict[str, str]]]
+    diff_json: Optional[object]
+    chat_type: Optional[str]
+    component_list: Optional[List[str]]
 
 def serialize_history(request: ChatRequest):
     chat_history = request["chat_history"] or []
@@ -41,7 +49,18 @@ def serialize_history(request: ChatRequest):
             converted_chat_history.append(AIMessage(content=message["ai"]))
     return converted_chat_history
 
+def route_chain(input) -> Runnable:
+    print(f"---------------------->>>>{input['chat_type']}")
+    if input["chat_type"] == "diff":
+        return generate_diff_chain
+    elif input["chat_type"] == "generate":
+        return generate_flow_chain()
+        
+
 def create_main_chain() -> Runnable:
+    return RunnableLambda(route_chain)
+
+def generate_flow_chain() -> Runnable:
     result = (
         RunnablePassthrough.assign(chat_history=serialize_history)
         |
