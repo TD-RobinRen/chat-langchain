@@ -1,0 +1,333 @@
+{
+    "properties": {
+        "id": {
+            "title": "Id",
+            "description": "Generate a unique identifier for the step"
+        },
+        "name": {
+            "title": "Name",
+            "description": "Summarize what does this component do in few words",
+            "type": "string"
+        },
+        "component": {
+            "$ref": "#/definitions/ComponentInfo"
+        },
+        "exits": {
+            "items": {
+                "$ref": "#/definitions/Exit"
+            },
+            "title": "Exits",
+            "description": "Possible exit points or outcomes from this step"
+        },
+        "properties": {
+            "properties": {
+                "priority": {
+                    "oneOf": [
+                        {
+                            "title": "List of priorities"
+                        },
+                        {
+                            "title": "Variable in the flow context"
+                        }
+                    ],
+                    "title": "Priority",
+                    "description": "Define the priority for this assignment request"
+                },
+                "time_limit": {
+                    "properties": {
+                        "time": {
+                            "title": "Time in seconds"
+                        },
+                        "waiting_music": {
+                            "oneOf": [
+                                {
+                                    "title": "Default Music"
+                                },
+                                {
+                                    "title": "Audio file upload"
+                                },
+                                {
+                                    "oneOf": [
+                                        {
+                                            "title": "URL to audio file"
+                                        },
+                                        {
+                                            "title": "Variable in the flow context"
+                                        }
+                                    ],
+                                    "title": "Other sources"
+                                }
+                            ]
+                        }
+                    },
+                    "title": "Maximum waiting time",
+                    "description": "Maximum time to find the configured assignment"
+                },
+                "users_to_ring": {
+                    "properties": {
+                        "exhaust": {
+                            "title": "Assignment strategy",
+                            "description": "Exhaust — The agents will be rung until we exhaust all possibilities or a timeout is reached. Single Attempt — Ringing will be done a single time (the setting for the number of agents to ring in parallel will be respected)."
+                        },
+                        "forced_queueing": {
+                            "title": "Status of agents",
+                            "description": "Specify which agent statuses are eligible for assignment."
+                        },
+                        "number_of_users": {
+                            "title": "Number of agents"
+                        }
+                    },
+                    "title": "Agents to ring",
+                    "description": "Maximum number of agents that will be rang in parallel"
+                },
+                "waiting_message": {
+                    "oneOf": [
+                        {
+                            "title": "No message"
+                        },
+                        {
+                            "properties": {
+                                "delay": {
+                                    "title": "Delay in seconds",
+                                    "description": "Time before playing the instructions for the first time."
+                                },
+                                "audio_message": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "text": {
+                                                    "title": "Message to play"
+                                                },
+                                                "language": {
+                                                    "title": "Language of audio output",
+                                                    "description": "(1) Language only available if you have text to Speech powered by Amazon Polly enabled in your account"
+                                                }
+                                            },
+                                            "title": "Text to speech"
+                                        },
+                                        {
+                                            "title": "Audio file upload"
+                                        },
+                                        {
+                                            "oneOf": [
+                                                {
+                                                    "title": "URL to audio file"
+                                                },
+                                                {
+                                                    "title": "Variable in the flow context"
+                                                }
+                                            ],
+                                            "title": "Other sources"
+                                        }
+                                    ]
+                                },
+                                "recurrence_delay": {
+                                    "oneOf": [
+                                        {
+                                            "title": "Do not repeat"
+                                        },
+                                        {
+                                            "title": "Repeat every...",
+                                            "description": "Time between each playback of the instructions message"
+                                        }
+                                    ],
+                                    "title": "Repetition in seconds",
+                                    "description": "Specify if the message should be repeated and the time interval between repetitions."
+                                }
+                            },
+                            "title": "Play waiting message..."
+                        }
+                    ],
+                    "title": "Waiting message",
+                    "description": "Message to explain keypress alternatives offered to contacts while they are in the waiting queue"
+                },
+                "assignment_parameters": {
+                    "oneOf": [
+                        {
+                            "properties": {
+                                "ring_groups": {
+                                    "oneOf": [
+                                        {
+                                            "title": "List of Ring Groups in your account"
+                                        },
+                                        {
+                                            "title": "Variables in the flow context"
+                                        }
+                                    ]
+                                }
+                            },
+                            "title": "Ring Groups"
+                        },
+                        {
+                            "properties": {
+                                "agents": {
+                                    "oneOf": [
+                                        {
+                                            "title": "List of agents in your account"
+                                        },
+                                        {
+                                            "title": "Variables in the flow context"
+                                        }
+                                    ]
+                                }
+                            },
+                            "title": "Agents"
+                        },
+                        {
+                            "properties": {
+                                "attributes": {
+                                    "properties": {
+                                        "sort_agents_by": {
+                                            "title": "Sort agents by"
+                                        },
+                                        "attributes_list": {
+                                            "items": {
+                                                "oneOf": [
+                                                    {
+                                                        "title": "Attribute"
+                                                    },
+                                                    {
+                                                        "title": "Variable"
+                                                    }
+                                                ]
+                                            },
+                                            "title": "Attributes"
+                                        },
+                                        "attributes_rule": {
+                                            "title": "Attributes rule"
+                                        }
+                                    }
+                                }
+                            },
+                            "title": "Attributes"
+                        }
+                    ],
+                    "title": "Assignment Parameters",
+                    "description": "Select and configure which attributes will be used for matching a call with an agent"
+                }
+            }
+        },
+        "context_mappings": {
+            "title": "Context Mappings",
+            "description": "Mappings of context variables for this step"
+        },
+        "created_at": {
+            "title": "Created At",
+            "description": "The date and time when the step was created."
+        }
+    },
+    "definitions": {
+        "ComponentInfo": {
+            "properties": {
+                "name": {
+                    "const": "assignment_and_dial-M2JhZTViYT",
+                    "type": "string"
+                }
+            },
+            "title": "ComponentInfo"
+        },
+        "Exit": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "call_finished",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Call finished",
+                    "description": "There was a successful match and a conversation with an agent has finished."
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "call_no_answer",
+                            "type": "string"
+                        }
+                    },
+                    "title": "No answer",
+                    "description": "There was at least one successful dial attempt but no agent was available."
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "time_limit_reached",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Maximum waiting time reached",
+                    "description": "There was a match but all agents are busy and the configured time out was reached."
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "no_match",
+                            "type": "string"
+                        }
+                    },
+                    "title": "No match found",
+                    "description": "A match could not be found."
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "condition": {
+                            "properties": {
+                                "keypress": {
+                                    "title": "Keypress"
+                                }
+                            },
+                            "title": "Keypress exits"
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    },
+                    "title": "Alternative Exits",
+                    "description": "Offer key press alternatives to callers while they are in waiting queue."
+                }
+            ],
+            "title": "Exit"
+        }
+    },
+    "title": "Component"
+}

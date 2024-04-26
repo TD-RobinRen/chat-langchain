@@ -1,0 +1,46 @@
+{
+    "properties": {
+        "id": {
+            "title": "Id",
+            "description": "Generate a unique identifier for the step"
+        },
+        "name": {
+            "title": "Name",
+            "description": "Summarize what does this component do in few words",
+            "type": "string"
+        },
+        "component": {
+            "$ref": "#/definitions/ComponentInfo"
+        },
+        "exits": {
+            "items": {
+                "$ref": "#/definitions/Exit"
+            },
+            "title": "Exits",
+            "description": "Possible exit points or outcomes from this step"
+        },
+        "context_mappings": {
+            "title": "Context Mappings",
+            "description": "Mappings of context variables for this step"
+        },
+        "created_at": {
+            "title": "Created At",
+            "description": "The date and time when the step was created."
+        }
+    },
+    "definitions": {
+        "ComponentInfo": {
+            "properties": {
+                "name": {
+                    "const": "hangup_call-OTE5ZmM0NW",
+                    "type": "string"
+                }
+            },
+            "title": "ComponentInfo"
+        },
+        "Exit": {
+            "title": "Exit"
+        }
+    },
+    "title": "Component"
+}

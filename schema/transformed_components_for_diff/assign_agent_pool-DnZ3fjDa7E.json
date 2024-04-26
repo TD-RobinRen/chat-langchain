@@ -1,0 +1,132 @@
+{
+    "properties": {
+        "id": {
+            "title": "Id",
+            "description": "Generate a unique identifier for the step"
+        },
+        "name": {
+            "title": "Name",
+            "description": "Summarize what does this component do in few words",
+            "type": "string"
+        },
+        "component": {
+            "$ref": "#/definitions/ComponentInfo"
+        },
+        "exits": {
+            "items": {
+                "$ref": "#/definitions/Exit"
+            },
+            "title": "Exits",
+            "description": "Possible exit points or outcomes from this step"
+        },
+        "properties": {
+            "properties": {
+                "time_limit": {
+                    "properties": {
+                        "time_selection": {
+                            "oneOf": [
+                                {
+                                    "properties": {
+                                        "time": {
+                                            "title": "Time in seconds"
+                                        }
+                                    },
+                                    "title": "Time in seconds"
+                                },
+                                {
+                                    "title": "Variable in the flow context"
+                                }
+                            ],
+                            "title": "Select how to set waiting time"
+                        }
+                    },
+                    "title": "Maximum waiting time",
+                    "description": "Maximum time to find the configured assignment"
+                },
+                "assignment_parameters": {
+                    "title": "Assignment Parameters",
+                    "description": "Configure the Pool ID that will be used to match a call with an agent"
+                }
+            }
+        },
+        "context_mappings": {
+            "title": "Context Mappings",
+            "description": "Mappings of context variables for this step"
+        },
+        "created_at": {
+            "title": "Created At",
+            "description": "The date and time when the step was created."
+        }
+    },
+    "definitions": {
+        "ComponentInfo": {
+            "properties": {
+                "name": {
+                    "const": "assign_agent_pool-DnZ3fjDa7E",
+                    "type": "string"
+                }
+            },
+            "title": "ComponentInfo"
+        },
+        "Exit": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "call_no_answer",
+                            "type": "string"
+                        }
+                    },
+                    "title": "No answer",
+                    "description": "There was at least one successful dial attempt but no agent was available."
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "time_limit_reached",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Maximum waiting time reached",
+                    "description": "There was a match but all agents are busy and the configured time out was reached."
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "no_match",
+                            "type": "string"
+                        }
+                    },
+                    "title": "No match found",
+                    "description": "A match could not be found."
+                }
+            ],
+            "title": "Exit"
+        }
+    },
+    "title": "Component"
+}

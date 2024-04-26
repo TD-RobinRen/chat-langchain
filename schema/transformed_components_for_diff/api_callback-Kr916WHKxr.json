@@ -1,0 +1,255 @@
+{
+    "properties": {
+        "id": {
+            "title": "Id",
+            "description": "Generate a unique identifier for the step"
+        },
+        "name": {
+            "title": "Name",
+            "description": "Summarize what does this component do in few words",
+            "type": "string"
+        },
+        "component": {
+            "$ref": "#/definitions/ComponentInfo"
+        },
+        "exits": {
+            "items": {
+                "$ref": "#/definitions/Exit"
+            },
+            "title": "Exits",
+            "description": "Possible exit points or outcomes from this step"
+        },
+        "properties": {
+            "properties": {
+                "priority": {
+                    "oneOf": [
+                        {
+                            "title": "List of priorities"
+                        },
+                        {
+                            "title": "Variable in the flow context"
+                        }
+                    ],
+                    "title": "Priority",
+                    "description": "Define the priority for this assignment request"
+                },
+                "time_limit": {
+                    "properties": {
+                        "time": {
+                            "title": "Time"
+                        }
+                    },
+                    "title": "Maximum waiting time",
+                    "description": "Maximum time to find the configured assignment"
+                },
+                "request_parameters": {
+                    "properties": {
+                        "extension": {
+                            "oneOf": [
+                                {
+                                    "title": "No extension"
+                                },
+                                {
+                                    "title": "From variable in the flow context"
+                                }
+                            ]
+                        },
+                        "contact_phone_number": {
+                            "title": "Number to dial"
+                        },
+                        "outbound_phone_number": {
+                            "oneOf": [
+                                {
+                                    "title": "Outbound number"
+                                },
+                                {
+                                    "title": "Variable in flow context"
+                                }
+                            ],
+                            "title": "Outbound caller id",
+                            "description": "Select and configure the caller ID to use in the outgoing call"
+                        }
+                    },
+                    "title": "Request parameters",
+                    "description": "Configure callback according to the context parameters received."
+                },
+                "assignment_parameters": {
+                    "oneOf": [
+                        {
+                            "properties": {
+                                "ring_groups": {
+                                    "oneOf": [
+                                        {
+                                            "title": "List of Ring Groups in your account"
+                                        },
+                                        {
+                                            "title": "Variables in the flow context"
+                                        }
+                                    ]
+                                }
+                            },
+                            "title": "Ring Groups"
+                        },
+                        {
+                            "properties": {
+                                "agents": {
+                                    "oneOf": [
+                                        {
+                                            "title": "List of agents in your account"
+                                        },
+                                        {
+                                            "title": "Variables in the flow context"
+                                        }
+                                    ]
+                                }
+                            },
+                            "title": "Agents"
+                        },
+                        {
+                            "properties": {
+                                "attributes": {
+                                    "properties": {
+                                        "attributes_list": {
+                                            "items": {
+                                                "oneOf": [
+                                                    {
+                                                        "title": "Attribute"
+                                                    },
+                                                    {
+                                                        "title": "Variable"
+                                                    }
+                                                ]
+                                            },
+                                            "title": "Attributes"
+                                        },
+                                        "attributes_rule": {
+                                            "title": "Attributes rule"
+                                        }
+                                    }
+                                }
+                            },
+                            "title": "Attributes"
+                        }
+                    ],
+                    "title": "Assignment Parameters",
+                    "description": "Select and configure which attributes will be used for matching a call with an agent"
+                }
+            }
+        },
+        "context_mappings": {
+            "title": "Context Mappings",
+            "description": "Mappings of context variables for this step"
+        },
+        "created_at": {
+            "title": "Created At",
+            "description": "The date and time when the step was created."
+        }
+    },
+    "definitions": {
+        "ComponentInfo": {
+            "properties": {
+                "name": {
+                    "const": "api_callback-Kr916WHKxr",
+                    "type": "string"
+                }
+            },
+            "title": "ComponentInfo"
+        },
+        "Exit": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "invalid",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Invalid Caller Id",
+                    "description": "If selected contact phone number is invalid"
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "invalid_outbound_caller_id",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Invalid Outbound Caller Id",
+                    "description": "If selected caller id is invalid"
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "no_match",
+                            "type": "string"
+                        }
+                    },
+                    "title": "No match",
+                    "description": "If no matching agents are found"
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "time_limit_reached",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Timeout",
+                    "description": "If the expiration period is reached"
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "call_finished",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Call finished",
+                    "description": "There was a successful match and a conversation with an agent has finished"
+                }
+            ],
+            "title": "Exit"
+        }
+    },
+    "title": "Component"
+}

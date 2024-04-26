@@ -1,0 +1,104 @@
+{
+    "properties": {
+        "id": {
+            "title": "Id",
+            "description": "Generate a unique identifier for the step"
+        },
+        "name": {
+            "title": "Name",
+            "description": "Summarize what does this component do in few words",
+            "type": "string"
+        },
+        "component": {
+            "$ref": "#/definitions/ComponentInfo"
+        },
+        "exits": {
+            "items": {
+                "$ref": "#/definitions/Exit"
+            },
+            "title": "Exits",
+            "description": "Possible exit points or outcomes from this step"
+        },
+        "properties": {
+            "properties": {
+                "whisper_configurations": {
+                    "oneOf": [
+                        {
+                            "title": "Disabled"
+                        },
+                        {
+                            "properties": {
+                                "audio_message": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "text": {
+                                                    "title": "Message to output"
+                                                },
+                                                "language": {
+                                                    "title": "Language of audio output"
+                                                }
+                                            },
+                                            "title": "Text to speech"
+                                        },
+                                        {
+                                            "title": "Audio file upload"
+                                        }
+                                    ],
+                                    "title": "Play audio message",
+                                    "description": "Configure the audio message the agent will hear."
+                                }
+                            },
+                            "title": "Enabled"
+                        }
+                    ],
+                    "title": "Whisper message",
+                    "description": "Set a message to play to agents before they talk with the contact person"
+                }
+            }
+        },
+        "context_mappings": {
+            "title": "Context Mappings",
+            "description": "Mappings of context variables for this step"
+        },
+        "created_at": {
+            "title": "Created At",
+            "description": "The date and time when the step was created."
+        }
+    },
+    "definitions": {
+        "ComponentInfo": {
+            "properties": {
+                "name": {
+                    "const": "whisper-bnfc7Nftys",
+                    "type": "string"
+                }
+            },
+            "title": "ComponentInfo"
+        },
+        "Exit": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "ok",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Success",
+                    "description": "If the component succeeds"
+                }
+            ],
+            "title": "Exit"
+        }
+    },
+    "title": "Component"
+}

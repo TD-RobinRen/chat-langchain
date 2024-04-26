@@ -1,0 +1,166 @@
+{
+    "properties": {
+        "id": {
+            "title": "Id",
+            "description": "Generate a unique identifier for the step"
+        },
+        "name": {
+            "title": "Name",
+            "description": "Summarize what does this component do in few words",
+            "type": "string"
+        },
+        "component": {
+            "$ref": "#/definitions/ComponentInfo"
+        },
+        "exits": {
+            "items": {
+                "$ref": "#/definitions/Exit"
+            },
+            "title": "Exits",
+            "description": "Possible exit points or outcomes from this step"
+        },
+        "properties": {
+            "properties": {
+                "destination_number_settings": {
+                    "properties": {
+                        "ringing_time": {
+                            "title": "Maximum ringing time"
+                        },
+                        "destination_number": {
+                            "title": "Destination number variable"
+                        }
+                    },
+                    "title": "Destination number",
+                    "description": "Configure the destination number settings"
+                },
+                "display_call_number_settings": {
+                    "oneOf": [
+                        {
+                            "title": "Talkdesk account number"
+                        },
+                        {
+                            "title": "Variable in flow context"
+                        }
+                    ],
+                    "title": "Outbound call number",
+                    "description": "Select the source phone number to be used in outbound call"
+                }
+            }
+        },
+        "context_mappings": {
+            "title": "Context Mappings",
+            "description": "Mappings of context variables for this step"
+        },
+        "created_at": {
+            "title": "Created At",
+            "description": "The date and time when the step was created."
+        }
+    },
+    "definitions": {
+        "ComponentInfo": {
+            "properties": {
+                "name": {
+                    "const": "outbound_call-NjI0YzA3MD",
+                    "type": "string"
+                }
+            },
+            "title": "ComponentInfo"
+        },
+        "Exit": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "call_answered",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Answered",
+                    "description": "This exit will be selected if the call is answered"
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "invalid_number",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Invalid number",
+                    "description": "This exit will be selected if the destination number is invalid"
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "busy",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Busy",
+                    "description": "There was at least one successful dial but the call was rejected"
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "call_no_answer",
+                            "type": "string"
+                        }
+                    },
+                    "title": "No answer",
+                    "description": "There was at least one successful dial but no call pickup"
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "invalid_outbound_number",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Invalid outbound number",
+                    "description": "If the outbound number doesn't belong to this Talkdesk account"
+                }
+            ],
+            "title": "Exit"
+        }
+    },
+    "title": "Component"
+}

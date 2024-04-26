@@ -4,15 +4,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { RemoteRunnable } from "@langchain/core/runnables/remote";
 import { applyPatch } from "@langchain/core/utils/json_patch";
-
+import useFetchFlowDefinitions from "../utils/useFetchFlowDefinitions"
+import useFetchSteps from "../utils/useFetchSteps"
 import { EmptyState } from "./EmptyState";
 import { ChatMessageBubble, Message } from "./ChatMessageBubble";
-import { AutoResizeTextarea } from "./AutoResizeTextarea";
+import { PopupTextarea } from "./PopupTextarea";
 import { marked } from "marked";
 import { Renderer } from "marked";
 import hljs from "highlight.js";
 import "highlight.js/styles/gradient-dark.css";
-
 import "react-toastify/dist/ReactToastify.css";
 import {
   IconButton,
@@ -22,37 +22,44 @@ import {
 } from "@chakra-ui/react";
 import { ArrowUpIcon } from "@chakra-ui/icons";
 import { apiBaseUrl } from "../utils/constants";
+import { diff } from "json-diff";
+import { matchCommands, extractJson } from "../utils";
 
-const MODEL_TYPES = [
-  "openai_gpt",
-];
+const MODEL_TYPES = ["openai_gpt"];
 
 const defaultLlmValue =
   MODEL_TYPES[Math.floor(Math.random() * MODEL_TYPES.length)];
 
-export function ChatWindow(props: { conversationId: string }) {
+export const ChatWindow = React.memo(function ChatWindow(props: { conversationId: string }) {
   const conversationId = props.conversationId;
-
+  const fetchFlowDefinitions = useFetchFlowDefinitions();
+  const fetchSteps = useFetchSteps();
   const searchParams = useSearchParams();
 
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
   const [messages, setMessages] = useState<Array<Message>>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [llm, setLlm] = useState(
-    searchParams.get("llm") ?? "openai_gpt",
-  );
-  const [llmIsLoading, setLlmIsLoading] = useState(true);
+  const [llm, setLlm] = useState(searchParams.get("llm") ?? "openai_gpt");
+  const initialStepId = searchParams.get("initial_step_id");
+  const initialMessage = searchParams.get("initial_message") ?? "";
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
   useEffect(() => {
     setLlm(searchParams.get("llm") ?? defaultLlmValue);
-    setLlmIsLoading(false);
+    initialMessage !== "undefined" && chatHistory.length === 0 && sendInitialQuestion(initialMessage);
   }, []);
+
+  useEffect(() => {
+    if (document.activeElement !== inputRef.current) {
+      inputRef.current?.focus();
+    }
+  },[input])
 
   const [chatHistory, setChatHistory] = useState<
     { human: string; ai: string }[]
   >([]);
-  // let rawContent: any = null;
   const sendMessage = async (message?: string) => {
+    console.log('sendMessage', message);
     if (messageContainerRef.current) {
       messageContainerRef.current.classList.add("grow");
     }
@@ -93,6 +100,7 @@ export function ChatWindow(props: { conversationId: string }) {
       return `<pre class="highlight bg-gray-700" style="padding: 5px; border-radius: 5px; overflow: auto; overflow-wrap: anywhere; white-space: pre-wrap; max-width: 100%; display: block; line-height: 1.2"><code class="${language}" style="color: #d6e2ef; font-size: 12px; ">${highlightedCode}</code></pre>`;
     };
     marked.setOptions({ renderer });
+
     try {
       const sourceStepName = "";
       let streamedResponse: Record<string, any> = {};
@@ -103,11 +111,95 @@ export function ChatWindow(props: { conversationId: string }) {
         },
       });
       const llmDisplayName = llm ?? "openai_gpt";
+      let diffJson = undefined;
+      // /diff 3fe9ba57da1b41e8a094e08afa5025f5, 4ca93fc076f84d56bc43114fcede44a2
+      const messageType = matchCommands(messageValue)?.split(' ')[0].substring(1) ?? 'chat'
+      let stepsChange = undefined
+      let requestPrams: any = {
+        chat_type: messageType
+      };
+
+      switch(messageType) {
+        case 'diff': {
+          const ids:Array<string> = messageValue.substring(messageValue.indexOf(' ') + 1).replace(/\s/g, '').split(',');
+          console.log('ids', ids);
+          const baseFlow = await fetchFlowDefinitions(ids[0]); 
+          const baseFlowSteps = await fetchSteps(ids[0]);
+          baseFlow.steps = baseFlowSteps._embedded.steps
+
+          const referenceFlow = await fetchFlowDefinitions(ids[1]); 
+          const referenceFlowSteps = await fetchSteps(ids[1]);
+          referenceFlow.steps = referenceFlowSteps._embedded.steps
+          console.log('baseFlow', baseFlow);
+          console.log('referenceFlow', referenceFlow);
+          
+          diffJson = diff(baseFlow, referenceFlow, {
+            full: true,
+            // outputKeys: ["created_at"],
+            // excludeKeys: [
+            //   "id",
+            //   "account_id",
+            //   "user_id",
+            //   "name",
+            //   "description",
+            //   "trigger_type",
+            //   "status",
+            //   "version",
+            //   "previous_version",
+            //   "next_version",
+            //   "created_at",
+            //   "updated_at",
+            //   "valid",
+            //   "validation_status",
+            //   "initial_step_id",
+            //   "group_id",
+            //   "pre_conditions",
+            // ]
+          });
+        
+          console.log('diffJson', diffJson);
+          console.log('messageType', messageType);
+
+          stepsChange = diffJson.steps.map((v: any) => v[1].component.name)
+          stepsChange = Array.from(new Set(stepsChange));
+          console.log('stepsChange', stepsChange);
+          requestPrams = { ...requestPrams,
+            question: messageValue,
+            chat_history: chatHistory,
+            diff_json: diffJson,
+            component_list: stepsChange
+          }
+          break;
+        }
+        case 'explain': {
+          requestPrams = { ...requestPrams,
+            question: messageValue,
+            chat_history: chatHistory,
+            flow_json: {},
+            component_list: stepsChange
+          }
+          break;
+        }
+        case 'generate': {
+          requestPrams = { ...requestPrams,
+            question: messageValue,
+            chat_history: chatHistory,
+          }
+          break;
+        }
+        default: {
+          requestPrams = { ...requestPrams,
+            question: messageValue,
+            chat_history: chatHistory,
+            flow_json: {},
+          }
+          break;
+        }
+      }
+      if (matchCommands(messageValue) === '/diff') {
+      }
       const streamLog = await remoteChain.streamLog(
-        {
-          question: messageValue,
-          chat_history: chatHistory,
-        },
+        requestPrams,
         {
           configurable: {
             llm: llmDisplayName,
@@ -122,34 +214,40 @@ export function ChatWindow(props: { conversationId: string }) {
           includeNames: [sourceStepName],
         },
       );
-      const urlParams = new URLSearchParams(window.location.search);
-      const initialStepId = urlParams.get('initial_step_id');
-      
+
       for await (const chunk of streamLog) {
         streamedResponse = applyPatch(streamedResponse, chunk.ops).newDocument;
         if (streamedResponse.id !== undefined) {
           runId = streamedResponse.id;
         }
         if (Array.isArray(streamedResponse?.streamed_output)) {
-          accumulatedMessage = streamedResponse?.streamed_output.map(output => {
-            const regex = /```json\n([\s\S]*?)\n```/g;
-            const match = regex.exec(output);
+          console.log('streamedResponse', streamedResponse?.streamed_output);
+          accumulatedMessage = streamedResponse?.streamed_output.map((output) => {
+            console.log('item', output);
+            console.log('item.content', output?.content);
+            console.log('item.kwargs.content', output?.kwargs?.content);
+            console.log('item.lc_kwargs.content', output?.lc_kwargs?.content);
+            
+            const flowJson = extractJson(output);
 
-            if (match) {
+            if (flowJson) {
               let rawContent: any = null;
-              rawContent = JSON.parse(match[1]);
+              rawContent = JSON.parse(flowJson[1]);
 
               if (initialStepId) {
                 rawContent.initial_step_id = initialStepId;
                 rawContent.steps[0].id = initialStepId;
               }
               window.rawContent = rawContent;
+              return output
+            } else {
+              window.rawContent = null;
+              return output?.content || "";
             } 
-            return output;
-          }).join('');
+          }).join("");
         }
         const parsedResult = marked.parse(accumulatedMessage);
-        // assign inbound calls to "agent" ring group
+        
         setMessages((prevMessages) => {
           let newMessages = [...prevMessages];
           if (
@@ -157,7 +255,7 @@ export function ChatWindow(props: { conversationId: string }) {
             newMessages[messageIndex] === undefined
           ) {
             messageIndex = newMessages.length;
-            
+
             newMessages.push({
               id: Math.random().toString(),
               content: parsedResult,
@@ -173,150 +271,21 @@ export function ChatWindow(props: { conversationId: string }) {
         });
       }
 
-      // const output = {
-      //   "id": "d0e760e1c44141b082f2763a1b479a90",
-      //   "account_id": "64643fadae22dd58843ad1ab",
-      //   "user_id": "64649e765e3c241a03c651aa",
-      //   "name": "Enming Test",
-      //   "description": "",
-      //   "trigger_type": "voice_inbound",
-      //   "status": "draft",
-      //   "version": 1,
-      //   "created_at": "2024-03-06T08:14:38.810015Z",
-      //   "updated_at": "2024-04-12T07:34:36.298496Z",
-      //   "valid": true,
-      //   "validation_status": "valid",
-      //   "initial_step_id": "qqqq099-cb59-4c0d-8cb5-1126dedf5a2b",
-      //   "group_id": "ad3d5243f79d444ab96dde388eb3606e",
-      //   "pre_conditions": {},
-      //   "steps": [
-      //     {
-      //       "id": "wwww099-cb59-4c0d-8cb5-1126dedf5a2b",
-      //       "name": "Initial step",
-      //       "component": {
-      //         "name": "inbound_voice-ZjE1ZjM0MG",
-      //         "version": "1.3.x"
-      //       },
-      //       "properties": {},
-      //       "exits": [
-      //         {
-      //           "_key": "231bd8d0-927e-4b83-8b4d-503516629463",
-      //           "name": "ok",
-      //           "transition": "a83d1c76-47e4-419e-aa63-819e0cdb34e1"
-      //         }
-      //       ],
-      //       "context_mappings": {},
-      //       "created_at": "2024-03-06T08:19:24.154000Z"
-      //     },
-      //     {
-      //       "id": "eeee1c76-47e4-419e-aa63-819e0cdb34e1",
-      //       "name": "2",
-      //       "component": {
-      //         "name": "play_audio-NjFkZDU2MG",
-      //         "version": "2.16.x"
-      //       },
-      //       "properties": {
-      //         "audio_message": {
-      //           "text": "test test gsfsfdsf",
-      //           "language": "en-US"
-      //         }
-      //       },
-      //       "exits": [
-      //         {
-      //           "_key": "5e14026d-a54d-48b7-a85c-f6c3056c7a4b",
-      //           "name": "ok",
-      //           "transition": "b74f6bcd-1320-45d4-b9c4-d2c618b1c75e"
-      //         }
-      //       ],
-      //       "context_mappings": {},
-      //       "created_at": "2024-03-11T07:48:16.473000Z",
-      //       "on_error": {
-      //         "_key": "29a386f1-df44-4641-a107-6790066d9b4e",
-      //         "type": "end_flow",
-      //         "name": "error"
-      //       }
-      //     }
-      //   ],
-      //   "model": {
-      //     "1": {
-      //       "display_name": "1",
-      //       "exposed": false,
-      //       "format": {
-      //         "type": "string",
-      //         "$schema": "http://json-schema.org/draft-04/schema#",
-      //         "pattern": "^[0-9*#]+$"
-      //       },
-      //       "namespace": "current_flow"
-      //     },
-      //     "input": {
-      //       "display_name": "input",
-      //       "exposed": false,
-      //       "format": {
-      //         "type": "string",
-      //         "$schema": "http://json-schema.org/draft-04/schema#",
-      //         "pattern": "^[0-9*#]+$"
-      //       },
-      //       "namespace": "current_flow"
-      //     }
-      //   }
-      // }
-      // const urlParams = new URLSearchParams(window.location.search);
-      // const initialStepId = urlParams.get('initial_step_id');
-      // output.initial_step_id = initialStepId ?? "";
-      // output.steps[0].id = initialStepId ?? "";
-      // accumulatedMessage = marked.parse('\n\n```json\n' + JSON.stringify(output, null, 2) + '\n````\n\n')
-
-      // setMessages((prevMessages) => {
-      //   let newMessages = [...prevMessages];
-      //   if (
-      //     messageIndex === null ||
-      //     newMessages[messageIndex] === undefined
-      //   ) {
-      //     messageIndex = newMessages.length;
-      //     newMessages.push({
-      //       id: Math.random().toString(),
-      //       content: accumulatedMessage,
-      //       runId: runId,
-      //       role: "assistant",
-      //       rawContent: output,
-      //     });
-      //   } else if (newMessages[messageIndex] !== undefined) {
-      //     newMessages[messageIndex].content = accumulatedMessage;
-      //     newMessages[messageIndex].runId = runId;
-      //   }
-      //   return newMessages;
-      // });
-
       setChatHistory((prevChatHistory) => [
         ...prevChatHistory,
         { human: messageValue, ai: accumulatedMessage },
       ]);
-      setIsLoading(false);
     } catch (e) {
       setMessages((prevMessages) => prevMessages.slice(0, -1));
-      setIsLoading(false);
       setInput(messageValue);
       throw e;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const sendInitialQuestion = async (question: string) => {
     await sendMessage(question);
-  };
-
-  const insertUrlParam = (key: string, value?: string) => {
-    if (window.history.pushState) {
-      const searchParams = new URLSearchParams(window.location.search);
-      searchParams.set(key, value ?? "");
-      const newurl =
-        window.location.protocol +
-        "//" +
-        window.location.host +
-        window.location.pathname +
-        "?" +
-        searchParams.toString();
-      window.history.pushState({ path: newurl }, "", newurl);
-    }
   };
 
   return (
@@ -342,21 +311,19 @@ export function ChatWindow(props: { conversationId: string }) {
         )}
       </div>
       <InputGroup size="md" alignItems={"center"}>
-        <AutoResizeTextarea
+        <PopupTextarea
           value={input}
-          maxRows={5}
-          marginRight={"56px"}
-          placeholder="Input something..."
-          borderColor={"rgb(58, 58, 61)"}
-          onChange={(e) => setInput(e.target.value)}
+          ref={inputRef}
+          onChange={value => setInput(value)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
+              console.log("Enter key pressed", input)
               e.preventDefault();
               sendMessage();
             } else if (e.key === "Enter" && e.shiftKey) {
               e.preventDefault();
               setInput(input + "\n");
-            }
+            } 
           }}
         />
         <InputRightElement h="full">
@@ -375,4 +342,4 @@ export function ChatWindow(props: { conversationId: string }) {
       </InputGroup>
     </div>
   );
-}
+});

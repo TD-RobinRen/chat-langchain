@@ -1,5 +1,6 @@
 import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
+import { apiHost } from "../utils/constants";
 import * as DOMPurify from "dompurify";
 import {
   VStack,
@@ -56,33 +57,32 @@ export function ChatMessageBubble(props: {
   const [applyIsLoading, setApplyIsLoading] = useState(false);
 
   const createSteps = async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const flowId = urlParams.get('flow_id');
-  const auth_token = { authorization: urlParams.get('auth_token')??'', 'Content-Type': 'application/json' };
-  const apiHost = "api.talkdeskstg.com";
+    const urlParams = new URLSearchParams(window.location.search);
+    const flowId = urlParams.get('flow_id');
+    const auth_token = { authorization: urlParams.get('auth_token')??'', 'Content-Type': 'application/json' };
+
+    setApplyIsLoading(true);
+    try {
+      console.log('3     body', JSON.stringify(window.rawContent?.steps))
+      const response = await fetch(`https://${apiHost}/flow_definitions/${flowId}/steps`, {
+        method: 'PUT',
+        headers: auth_token,
+        body: JSON.stringify(window.rawContent?.steps)
+      });
     
-  setApplyIsLoading(true);
-  try {
-    console.log('3     body', JSON.stringify(window.rawContent?.steps))
-    const response = await fetch(`https://${apiHost}/flow_definitions/${flowId}/steps`, {
-      method: 'PUT',
-      headers: auth_token,
-      body: JSON.stringify(window.rawContent?.steps)
-    });
-  
-    if (response.status === 200) {
-      window.parent.postMessage('refresh', 'http://localhost:8000/');
+      if (response.status === 200) {
+        window.parent.postMessage('refresh', 'http://localhost:8000/');
+        setApplyIsLoading(false);
+        return await response.json();
+      }
+      return {};
+    } catch (e: any) {
       setApplyIsLoading(false);
-      return await response.json();
+      throw new Error(`Error occurs: ${e}`);
+    } finally {
+      setApplyIsLoading(false);
     }
-    return {};
-  } catch (e: any) {
-    setApplyIsLoading(false);
-    throw new Error(`Error occurs: ${e}`);
-  } finally {
-    setApplyIsLoading(false);
-  }
-};
+  };
 
   const answerElements =
     role === "assistant"
@@ -126,7 +126,7 @@ export function ChatMessageBubble(props: {
 
       {props.message.role !== "user" &&
         props.isMostRecent &&
-        props.messageCompleted && (
+        props.messageCompleted && window.rawContent && (
           <HStack spacing={2}>
             <Button
               size="sm"

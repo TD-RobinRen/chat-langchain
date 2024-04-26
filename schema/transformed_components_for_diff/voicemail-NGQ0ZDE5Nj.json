@@ -1,0 +1,108 @@
+{
+    "properties": {
+        "id": {
+            "title": "Id",
+            "description": "Generate a unique identifier for the step"
+        },
+        "name": {
+            "title": "Name",
+            "description": "Summarize what does this component do in few words",
+            "type": "string"
+        },
+        "component": {
+            "$ref": "#/definitions/ComponentInfo"
+        },
+        "exits": {
+            "items": {
+                "$ref": "#/definitions/Exit"
+            },
+            "title": "Exits",
+            "description": "Possible exit points or outcomes from this step"
+        },
+        "properties": {
+            "properties": {
+                "record_parameters": {
+                    "oneOf": [
+                        {
+                            "properties": {
+                                "without_transcription_max_duration": {
+                                    "title": "Max duration in seconds"
+                                }
+                            },
+                            "title": "Do not transcribe"
+                        },
+                        {
+                            "properties": {
+                                "with_transcription_max_duration": {
+                                    "title": "Max duration in seconds"
+                                }
+                            },
+                            "title": "Transcribe to English"
+                        }
+                    ],
+                    "title": "Recording",
+                    "description": "Configure the voicemail recording."
+                },
+                "assignment_parameters": {
+                    "oneOf": [
+                        {
+                            "properties": {
+                                "ring_groups": {
+                                    "oneOf": [
+                                        {
+                                            "title": "List of Ring Groups in your account"
+                                        },
+                                        {
+                                            "title": "Variables in the flow context"
+                                        }
+                                    ]
+                                }
+                            },
+                            "title": "Ring Groups"
+                        },
+                        {
+                            "properties": {
+                                "agents": {
+                                    "oneOf": [
+                                        {
+                                            "title": "List of agents in your account"
+                                        },
+                                        {
+                                            "title": "Variables in the flow context"
+                                        }
+                                    ]
+                                }
+                            },
+                            "title": "Agents"
+                        }
+                    ],
+                    "title": "Assignment Parameters",
+                    "description": "Select and configure which attributes will be used for redirecting voicemail to agents"
+                }
+            }
+        },
+        "context_mappings": {
+            "title": "Context Mappings",
+            "description": "Mappings of context variables for this step"
+        },
+        "created_at": {
+            "title": "Created At",
+            "description": "The date and time when the step was created."
+        }
+    },
+    "definitions": {
+        "ComponentInfo": {
+            "properties": {
+                "name": {
+                    "const": "voicemail-NGQ0ZDE5Nj",
+                    "type": "string"
+                }
+            },
+            "title": "ComponentInfo"
+        },
+        "Exit": {
+            "title": "Exit"
+        }
+    },
+    "title": "Component"
+}

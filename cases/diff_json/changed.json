@@ -1,0 +1,124 @@
+{
+  "id": "f4eb91db69e84885b2547e343efa4ca3",
+  "account_id": "64643fadae22dd58843ad1ab",
+  "user_id": "64649df4667594238abb5f9b",
+  "name": "Base Test",
+  "description": "",
+  "trigger_type": "voice_inbound",
+  "status": "draft",
+  "version": 2,
+  "previous_version": "2cbcece4779b4fda8734e093350f0ae0",
+  "created_at": "2024-04-24T06:00:52.823168Z",
+  "updated_at": "2024-04-24T06:04:40.913139Z",
+  "valid": true,
+  "validation_status": "valid",
+  "initial_step_id": "a1260b451ad54e4ba6f16cdae4f28c7e",
+  "group_id": "8a9b44665b964de4aa14c63de89c6b17",
+  "pre_conditions": {},
+  "supported_trigger_types": [],
+  "steps": [
+    {
+      "id": "a1260b451ad54e4ba6f16cdae4f28c7e",
+      "name": "Initial step",
+      "component": { "name": "inbound_voice-ZjE1ZjM0MG", "version": "1.3.x" },
+      "properties": {},
+      "context_mappings": {},
+      "created_at": "2024-04-24T05:58:15.319000Z",
+      "exits": [
+        {
+          "_key": "fed41ea7-c20b-45bd-9893-5d54a31b124b",
+          "name": "ok",
+          "transition": "a415aa75b98340f2975ff66d7f58b0e1"
+        }
+      ]
+    },
+    {
+      "id": "a415aa75b98340f2975ff66d7f58b0e1",
+      "name": "Assignment",
+      "component": {
+        "name": "assignment_and_dial-M2JhZTViYT",
+        "version": "3.23.x"
+      },
+      "properties": {
+        "priority": { "priorities_list": 10 },
+        "time_limit": { "time": 360, "waiting_music": {} },
+        "users_to_ring": {
+          "exhaust": true,
+          "forced_queueing": false,
+          "number_of_users": 1
+        },
+        "waiting_message": {},
+        "assignment_parameters": {
+          "agents": { "agents_list": ["64649df4667594238abb5f9b"] }
+        }
+      },
+      "context_mappings": {},
+      "created_at": "2024-04-24T05:59:07.651000Z",
+      "exits": [
+        {
+          "_key": "9f1b2e52-b682-4a61-bd85-b488b88ce8cd",
+          "name": "call_finished"
+        },
+        {
+          "_key": "0ba9c830-05d5-4d80-b772-296b3d0371ad",
+          "name": "call_no_answer",
+          "transition": "34016a8ced504681b0cd815d52765660"
+        },
+        {
+          "_key": "bf024232-b126-474b-9dd0-89fe45f9d7a2",
+          "name": "time_limit_reached",
+          "transition": "34016a8ced504681b0cd815d52765660"
+        },
+        {
+          "_key": "0719c4a8-679e-47e3-9bca-13bc2f57d531",
+          "name": "no_match",
+          "transition": "9c1b05cf-72e8-44df-aab8-d2e7a8589b35"
+        }
+      ]
+    },
+    {
+      "id": "34016a8ced504681b0cd815d52765660",
+      "name": "End",
+      "component": { "name": "hangup_call-OTE5ZmM0NW", "version": "1.0.x" },
+      "properties": {},
+      "exits": [],
+      "context_mappings": {},
+      "created_at": "2024-04-24T05:59:29.239000Z"
+    },
+    {
+      "id": "fefa855092a14f63a0c0722508565bc3",
+      "name": "Voicemail",
+      "component": { "name": "voicemail-NGQ0ZDE5Nj", "version": "2.4.x" },
+      "properties": {
+        "record_parameters": { "without_transcription_max_duration": 300 },
+        "assignment_parameters": {
+          "ring_groups": { "ring_groups_list": ["agents"] }
+        }
+      },
+      "exits": [],
+      "context_mappings": {},
+      "created_at": "2024-04-24T05:59:43.443000Z"
+    },
+    {
+      "name": "Play audio",
+      "id": "9c1b05cf-72e8-44df-aab8-d2e7a8589b35",
+      "component": { "name": "play_audio-NjFkZDU2MG", "version": "2.16.x" },
+      "properties": {
+        "audio_message": {
+          "text": "Sorry, please leave your message, we'll call you back.",
+          "language": "en-US"
+        }
+      },
+      "context_mappings": {},
+      "created_at": "2024-04-24T06:01:47.075Z",
+      "exits": [
+        {
+          "_key": "f6259674-ae52-42b3-85c7-69d7eb98abd2",
+          "name": "ok",
+          "transition": "fefa855092a14f63a0c0722508565bc3"
+        }
+      ]
+    }
+  ],
+  "model": {}
+}

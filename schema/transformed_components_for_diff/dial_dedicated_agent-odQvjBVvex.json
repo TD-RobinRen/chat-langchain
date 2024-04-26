@@ -1,0 +1,109 @@
+{
+    "properties": {
+        "id": {
+            "title": "Id",
+            "description": "Generate a unique identifier for the step"
+        },
+        "name": {
+            "title": "Name",
+            "description": "Summarize what does this component do in few words",
+            "type": "string"
+        },
+        "component": {
+            "$ref": "#/definitions/ComponentInfo"
+        },
+        "exits": {
+            "items": {
+                "$ref": "#/definitions/Exit"
+            },
+            "title": "Exits",
+            "description": "Possible exit points or outcomes from this step"
+        },
+        "properties": {
+            "properties": {
+                "assignment_parameters": {
+                    "oneOf": [
+                        {
+                            "title": "An agent in your account"
+                        },
+                        {
+                            "title": "Variable in the flow context"
+                        }
+                    ],
+                    "title": "Assignment Parameters",
+                    "description": "Select and configure which attributes will be used for matching a call with an agent"
+                },
+                "ringing_parameters": {
+                    "properties": {
+                        "timeout": {
+                            "title": "Time in seconds"
+                        }
+                    },
+                    "title": "Maximum ringing time",
+                    "description": "Maximum time to ring the selected agent"
+                }
+            }
+        },
+        "context_mappings": {
+            "title": "Context Mappings",
+            "description": "Mappings of context variables for this step"
+        },
+        "created_at": {
+            "title": "Created At",
+            "description": "The date and time when the step was created."
+        }
+    },
+    "definitions": {
+        "ComponentInfo": {
+            "properties": {
+                "name": {
+                    "const": "dial_dedicated_agent-odQvjBVvex",
+                    "type": "string"
+                }
+            },
+            "title": "ComponentInfo"
+        },
+        "Exit": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "call_no_answer",
+                            "type": "string"
+                        }
+                    },
+                    "title": "No answer",
+                    "description": "There was at least one successful dial attempt but no agent was available."
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "no_match",
+                            "type": "string"
+                        }
+                    },
+                    "title": "No match",
+                    "description": "A match could not be found."
+                }
+            ],
+            "title": "Exit"
+        }
+    },
+    "title": "Component"
+}

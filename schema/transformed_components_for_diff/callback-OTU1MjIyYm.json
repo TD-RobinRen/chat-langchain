@@ -1,0 +1,397 @@
+{
+    "properties": {
+        "id": {
+            "title": "Id",
+            "description": "Generate a unique identifier for the step"
+        },
+        "name": {
+            "title": "Name",
+            "description": "Summarize what does this component do in few words",
+            "type": "string"
+        },
+        "component": {
+            "$ref": "#/definitions/ComponentInfo"
+        },
+        "exits": {
+            "items": {
+                "$ref": "#/definitions/Exit"
+            },
+            "title": "Exits",
+            "description": "Possible exit points or outcomes from this step"
+        },
+        "properties": {
+            "properties": {
+                "priority": {
+                    "oneOf": [
+                        {
+                            "title": "List of priorities"
+                        },
+                        {
+                            "title": "Variable in the flow context"
+                        }
+                    ],
+                    "title": "Priority",
+                    "description": "Define the priority for this assignment request"
+                },
+                "time_limit": {
+                    "properties": {
+                        "time": {
+                            "title": "Time"
+                        }
+                    },
+                    "title": "Maximum waiting time",
+                    "description": "Maximum time to find the configured assignment"
+                },
+                "messages_to_play": {
+                    "oneOf": [
+                        {
+                            "properties": {
+                                "language": {
+                                    "title": "Language of audio output",
+                                    "description": "(1) Language only available if you have text to Speech powered by Amazon Polly enabled in your account"
+                                },
+                                "tts_callback_request": {
+                                    "properties": {
+                                        "callback_failed": {
+                                            "title": "Error in request",
+                                            "description": "Will play if an error occurred during request."
+                                        },
+                                        "callback_successful": {
+                                            "title": "Request successful",
+                                            "description": "Will play if the callback was successfully requested."
+                                        }
+                                    },
+                                    "title": "Request callback"
+                                },
+                                "tts_callback_waiting": {
+                                    "properties": {
+                                        "callback_unsuccessful": {
+                                            "oneOf": [
+                                                {
+                                                    "title": "Don't play message"
+                                                },
+                                                {
+                                                    "title": "Call and play message"
+                                                }
+                                            ],
+                                            "title": "Timeout / No match / Error",
+                                            "description": "Only plays if the expiration period is reached, agents don't pickup or an error occurs."
+                                        }
+                                    },
+                                    "title": "Waiting for callback"
+                                }
+                            },
+                            "title": "Text to Speech"
+                        },
+                        {
+                            "properties": {
+                                "asset_callback_request": {
+                                    "properties": {
+                                        "callback_failed": {
+                                            "properties": {
+                                                "talkdesk_resource": {
+                                                    "title": "Error in request",
+                                                    "description": "Will play if an error occurred during request."
+                                                }
+                                            }
+                                        },
+                                        "callback_successful": {
+                                            "properties": {
+                                                "talkdesk_resource": {
+                                                    "title": "Request successful",
+                                                    "description": "Will play if the callback was successfully requested."
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "title": "Request callback"
+                                },
+                                "asset_callback_waiting": {
+                                    "properties": {
+                                        "callback_unsuccessful": {
+                                            "oneOf": [
+                                                {
+                                                    "title": "Don't play message"
+                                                },
+                                                {
+                                                    "title": "Call and play message"
+                                                }
+                                            ],
+                                            "title": "Timeout / No match / Error",
+                                            "description": "Only plays if the expiration period is reached, agents don't pickup or an error occurs."
+                                        }
+                                    },
+                                    "title": "Waiting for callback"
+                                }
+                            },
+                            "title": "Audio file upload"
+                        },
+                        {
+                            "oneOf": [
+                                {
+                                    "properties": {
+                                        "url_callback_request": {
+                                            "properties": {
+                                                "callback_failed": {
+                                                    "title": "Error in request",
+                                                    "description": "Will play if an error occurred during request."
+                                                },
+                                                "callback_successful": {
+                                                    "title": "Request successful",
+                                                    "description": "Will play if the callback was successfully requested."
+                                                }
+                                            },
+                                            "title": "Request callback"
+                                        },
+                                        "url_callback_waiting": {
+                                            "properties": {
+                                                "callback_unsuccessful": {
+                                                    "oneOf": [
+                                                        {
+                                                            "title": "Don't play message"
+                                                        },
+                                                        {
+                                                            "title": "Call and play message"
+                                                        }
+                                                    ],
+                                                    "title": "Timeout / No match / Error",
+                                                    "description": "Only plays if the expiration period is reached, agents don't pickup or an error occurs."
+                                                }
+                                            },
+                                            "title": "Waiting for callback"
+                                        }
+                                    },
+                                    "title": "URL to audio file"
+                                },
+                                {
+                                    "properties": {
+                                        "url_callback_request_context": {
+                                            "properties": {
+                                                "callback_failed": {
+                                                    "title": "Error in request",
+                                                    "description": "Will play if an error occurred during request."
+                                                },
+                                                "callback_successful": {
+                                                    "title": "Request successful",
+                                                    "description": "Will play if the callback was successfully requested."
+                                                }
+                                            },
+                                            "title": "Request callback"
+                                        },
+                                        "url_callback_waiting_context": {
+                                            "properties": {
+                                                "callback_unsuccessful": {
+                                                    "oneOf": [
+                                                        {
+                                                            "title": "Don't play message"
+                                                        },
+                                                        {
+                                                            "title": "Call and play message"
+                                                        }
+                                                    ],
+                                                    "title": "Timeout / No match / Error",
+                                                    "description": "Only plays if the expiration period is reached, agents don't pickup or an error occurs."
+                                                }
+                                            },
+                                            "title": "Waiting for callback"
+                                        }
+                                    },
+                                    "title": "Variable in the flow context"
+                                }
+                            ],
+                            "title": "Other sources"
+                        }
+                    ],
+                    "title": "Messages to Play",
+                    "description": "Define the messages for the different events that may occur in a callback."
+                },
+                "request_parameters": {
+                    "properties": {
+                        "extension": {
+                            "oneOf": [
+                                {
+                                    "title": "No extension"
+                                },
+                                {
+                                    "title": "From variable in the flow context"
+                                }
+                            ]
+                        },
+                        "custom_phone_number": {
+                            "oneOf": [
+                                {
+                                    "title": "Inbound number"
+                                },
+                                {
+                                    "title": "From variable in the flow context"
+                                }
+                            ]
+                        }
+                    },
+                    "title": "Request parameters",
+                    "description": "Configure callback according to the context parameters received."
+                },
+                "outbound_settings": {
+                    "oneOf": [
+                        {
+                            "title": "Use same as inbound call"
+                        },
+                        {
+                            "oneOf": [
+                                {
+                                    "title": "Talkdesk account number"
+                                },
+                                {
+                                    "title": "Variable in flow context"
+                                }
+                            ],
+                            "title": "Use a different number"
+                        }
+                    ],
+                    "title": "Outbound caller id",
+                    "description": "Select and configure the caller ID to use in the outgoing call"
+                },
+                "assignment_parameters": {
+                    "oneOf": [
+                        {
+                            "properties": {
+                                "ring_groups": {
+                                    "oneOf": [
+                                        {
+                                            "title": "List of Ring Groups in your account"
+                                        },
+                                        {
+                                            "title": "Variables in the flow context"
+                                        }
+                                    ]
+                                }
+                            },
+                            "title": "Ring Groups"
+                        },
+                        {
+                            "properties": {
+                                "agents": {
+                                    "oneOf": [
+                                        {
+                                            "title": "List of agents in your account"
+                                        },
+                                        {
+                                            "title": "Variables in the flow context"
+                                        }
+                                    ]
+                                }
+                            },
+                            "title": "Agents"
+                        },
+                        {
+                            "properties": {
+                                "attributes": {
+                                    "properties": {
+                                        "attributes_list": {
+                                            "items": {
+                                                "oneOf": [
+                                                    {
+                                                        "title": "Attribute"
+                                                    },
+                                                    {
+                                                        "title": "Variable"
+                                                    }
+                                                ]
+                                            },
+                                            "title": "Attributes"
+                                        },
+                                        "attributes_rule": {
+                                            "title": "Attributes rule"
+                                        }
+                                    }
+                                }
+                            },
+                            "title": "Attributes"
+                        }
+                    ],
+                    "title": "Assignment Parameters",
+                    "description": "Select and configure which attributes will be used for matching a call with an agent"
+                }
+            }
+        },
+        "context_mappings": {
+            "title": "Context Mappings",
+            "description": "Mappings of context variables for this step"
+        },
+        "created_at": {
+            "title": "Created At",
+            "description": "The date and time when the step was created."
+        }
+    },
+    "definitions": {
+        "ComponentInfo": {
+            "properties": {
+                "name": {
+                    "const": "callback-OTU1MjIyYm",
+                    "type": "string"
+                }
+            },
+            "title": "ComponentInfo"
+        },
+        "Exit": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "call_finished",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Call finished",
+                    "description": "There was a successful match and a conversation with an agent has finished"
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "invalid",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Invalid Inbound Phone Number",
+                    "description": "If contact is calling with anonymous or invalid caller id"
+                },
+                {
+                    "properties": {
+                        "_key": {
+                            "title": " Key",
+                            "description": "A UUID identifying the exit, following the UUID format."
+                        },
+                        "transition": {
+                            "title": "Transition",
+                            "description": "Id of the step to transition to after this exit"
+                        },
+                        "name": {
+                            "const": "invalid_outbound_caller_id",
+                            "type": "string"
+                        }
+                    },
+                    "title": "Invalid Outbound Caller Id",
+                    "description": "If selected caller id is invalid"
+                }
+            ],
+            "title": "Exit"
+        }
+    },
+    "title": "Component"
+}

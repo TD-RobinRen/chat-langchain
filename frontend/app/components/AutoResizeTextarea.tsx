@@ -1,17 +1,19 @@
 import { Textarea, TextareaProps } from "@chakra-ui/react";
 import ResizeTextarea from "react-textarea-autosize";
-import React from "react";
+import React, { ChangeEvent} from "react";
 
 interface ResizeTextareaProps {
   maxRows?: number;
 }
 
-const ResizableTextarea: React.FC<ResizeTextareaProps> = ({
+const ResizableTextarea = React.forwardRef<HTMLTextAreaElement, ResizeTextareaProps>(({
   maxRows,
   ...props
-}) => {
-  return <ResizeTextarea maxRows={maxRows} {...props} />;
-};
+}, ref) => {
+  return <ResizeTextarea ref={ref} maxRows={maxRows} {...props} />;
+});
+
+ResizableTextarea.displayName = "ResizableTextarea"
 
 interface AutoResizeTextareaProps extends TextareaProps {
   maxRows?: number;
@@ -21,6 +23,7 @@ export const AutoResizeTextarea = React.forwardRef<
   HTMLTextAreaElement,
   AutoResizeTextareaProps
 >((props, ref) => {
+
   return (
     <Textarea
       minH="unset"
