@@ -27,6 +27,7 @@ const useSendMessage = () => {
   const searchParams = useSearchParams();
   const urlParams = new URLSearchParams(window.location.search);
   const initialStepId = urlParams.get("initial_step_id");
+  const versionList = urlParams.get("version_list")?.split(",") ?? [];
   const flowId = searchParams.get("flow_id") ?? "";
   
   const remoteChain = new RemoteRunnable({
@@ -51,11 +52,9 @@ const useSendMessage = () => {
 
     switch(messageType) {
       case 'diff': {
-        const ids:Array<string> = messageValue.substring(messageValue.indexOf(' ') + 1).replace(/\s/g, '').split(',');
-        console.log('ids', ids);
-        const baseFlow = await fetchFlowAndSteps(ids[0]);
+        const baseFlow = await fetchFlowAndSteps(versionList[0]);
 
-        const referenceFlow = await fetchFlowAndSteps(ids[1]);
+        const referenceFlow = await fetchFlowAndSteps(versionList[1]);
         console.log('baseFlow', baseFlow);
         console.log('referenceFlow', referenceFlow);
         

@@ -44,6 +44,7 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
   const [llm, setLlm] = useState(searchParams.get("llm") ?? "openai_gpt");
   const initialStepId = searchParams.get("initial_step_id");
   const initialMessage = searchParams.get("initial_message") ?? "";
+  const versionList = searchParams.get("version_list")?.split(",") ?? [];
   const flowId = searchParams.get("flow_id") ?? "";
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   useEffect(() => {
@@ -91,15 +92,15 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
     let messageIndex: number | null = null;
 
     let renderer = new Renderer();
-    renderer.paragraph = (text) => {
-      return text + "\n";
-    };
-    renderer.list = (text) => {
-      return `${text}\n\n`;
-    };
-    renderer.listitem = (text) => {
-      return `\n• ${text}`;
-    };
+    // renderer.paragraph = (text) => {
+    //   return text + "\n";
+    // };
+    // renderer.list = (text) => {
+    //   return `${text}\n\n`;
+    // };
+    // renderer.listitem = (text) => {
+    //   return `\n• ${text}`;
+    // };
     renderer.code = (code, language) => {
       const validLanguage = hljs.getLanguage(language || "")
         ? language
@@ -131,11 +132,9 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
 
       switch(messageType) {
         case 'diff': {
-          const ids:Array<string> = messageValue.substring(messageValue.indexOf(' ') + 1).replace(/\s/g, '').split(',');
-          console.log('ids', ids);
-          const baseFlow = await fetchFlowAndSteps(ids[0]);
+          const baseFlow = await fetchFlowAndSteps(versionList[0]);
 
-          const referenceFlow = await fetchFlowAndSteps(ids[1]);
+          const referenceFlow = await fetchFlowAndSteps(versionList[1]);
           console.log('baseFlow', baseFlow);
           console.log('referenceFlow', referenceFlow);
           
