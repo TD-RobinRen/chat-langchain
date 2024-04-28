@@ -17,7 +17,7 @@ from langchain_core.prompts import (
     SystemMessagePromptTemplate,
     FewShotChatMessagePromptTemplate
 )
-from langchain_core.pydantic_v1 import BaseModel, Field, constr
+from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.retrievers import BaseRetriever
 from langchain_core.runnables import (
     ConfigurableField,
@@ -59,10 +59,10 @@ OPENAI_MODELS = os.environ["OPENAI_MODELS"]
 
 class Exit(BaseModel):
     name: str = Field(description='Name of the exit')
-    transition: constr(regex=r'^[0-9a-zA-Z]{24}$') = Field(..., description='Id of the step to transition to after this exit')
+    transition: str = Field(..., description='Id of the step to transition to after this exit')
     description: str = Field(..., description='Summarize the conditions for this exit points, and attach any relevant information.')
 class Component(BaseModel):
-    id: constr(regex=r'^[0-9a-zA-Z]{24}$') = Field(..., description='Generate a unique identifier for the step')
+    id: str = Field(..., description='Generate a unique identifier for the step')
     name: str = Field(..., description='Component name')
     version: str = Field(..., description='Component version')
     exits: List[Exit] = Field(..., description='Possible exit points or outcomes from this step')
@@ -107,7 +107,7 @@ def build_example() -> PromptTemplate:
     examples = [
         {
             "input": "Create a initialize flow with inbound voice call, the name is chatter box demo. Afterward I want to create a workflow using the following steps: after the voice call incoming, it should be Request an assignment and dial the agents return for this interaction and assign to a ring group, the ring groups name is test.",
-            "output": '{ "items": [ { "id": "ac994aaf1e94a54043878add8502D8A4", "name": "inbound_voice-ZjE1ZjM0MG", "version": "1.3.0", "exits": [ { "name": "ok", "transition": "c819e33e451b4ca99e53C959a5c83cac", "description": "If the component succeeds" } ], "properties": {}, "context_mappings": {}, "description": "Initial component for incoming call flow definitions for the `chatter box demo`.", "source": "incoming_call.component" }, { "id": "c819e33e451b4ca99e53C959a5c83cac", "name": "assignment_and_dial-M2JhZTViYT", "version": "3.23.1", "exits": [ { "name": "call_finished", "transition": "f84967f57440bEA18b095a1487917254", "description": "There was a successful match and a conversation with an agent has finished." }, { "name": "call_no_answer", "transition": "69e6af0d50484f8c4DF6ece395a64f36", "description": "There was at least one successful dial attempt but no agent was available." } ], "properties": { "ring_group": "test" }, "context_mappings": {}, "description": "Request an assignment and dial the agents return for this interaction and assign to a ring group named `test`.", "source": "assignment_and_dial.component" } ] }'
+            "output": '{ "items": [ { "id": "1", "name": "inbound_voice-ZjE1ZjM0MG", "version": "1.3.0", "exits": [ { "name": "ok", "transition": "2", "description": "If the component succeeds" } ], "properties": {}, "context_mappings": {}, "description": "Initial component for incoming call flow definitions for the `chatter box demo`.", "source": "incoming_call.component" }, { "id": "2", "name": "assignment_and_dial-M2JhZTViYT", "version": "3.23.1", "exits": [ { "name": "call_finished", "transition": "3", "description": "There was a successful match and a conversation with an agent has finished." }, { "name": "call_no_answer", "transition": "4", "description": "There was at least one successful dial attempt but no agent was available." } ], "properties": { "ring_group": "test" }, "context_mappings": {}, "description": "Request an assignment and dial the agents return for this interaction and assign to a ring group named `test`.", "source": "assignment_and_dial.component" } ] }'
         }
     ]
     example_prompt = ChatPromptTemplate.from_messages(
@@ -121,7 +121,7 @@ def build_example() -> PromptTemplate:
         examples=examples,
     )
 
-def replace_id(json: Dict[str, Any]) -> Dict[str, Any]:
+def replace_id(json: List[Component]) -> List[Component]:
     result = json
     id_to_uuid = {}
     for component in json:
@@ -178,7 +178,7 @@ def _create_extract_chain(llm: LanguageModelLike) -> Runnable:
         context
         | response_synthesizer
         | itemgetter('items')
-        | RunnableLambda(replace_id)
+        | RunnableLambda(replace_id).with_config(run_name="Replace ID")
     )
 
 @chain
@@ -186,7 +186,7 @@ def create_extract_chain(input) -> Runnable:
     final_responder = _create_extract_chain(llm)
     return final_responder.invoke(input)
 
-openai_gpt = ChatOpenAI(model=OPENAI_MODELS, temperature=0)
+openai_gpt = ChatOpenAI(model='gpt-4-turbo', temperature=0)
 llm = openai_gpt.configurable_alternatives(
     ConfigurableField(id="llm"),
     default_key="openai_gpt",

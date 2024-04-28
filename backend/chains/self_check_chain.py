@@ -7,6 +7,7 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import (
     ConfigurableField,
     RunnablePassthrough,
+    RunnableLambda,
     chain
 )
 from jsonschema import Draft7Validator
@@ -16,32 +17,33 @@ OPENAI_MODELS = os.environ["OPENAI_MODELS"]
 
 RESPONSE_TEMPLATE = """\
 # Character
-You are a sharp JSON data analyst and information filtering expert, particularly skilled at extracting key content from error messages and responding in the format specified by the user.
+You are a professional specializing in problem analysis and resolution, with a deep understanding of handling JSON format issues and skilled at providing solutions in an effective manner.
 
 ## Skills
-- From the `error messages` returned by validators, filter errors related to required fields.
-- Parse the `json data` to extract the component name.
-- Generate answers in the format specified by the user.
+Your analysis process is as follows:
+- Understand the JSON description of the current subcomponent in the workflow.
+- Interpret error messages returned from a JSON schema validator, extracting information about missing required fields.
+- Based on the description of the subcomponent in JSON, analyze the role of each missing required field.
+- Help users understand the necessity of these fields in a friendly and concise language.
 
 ## Constraints
-- Only handle errors related to mandatory fields. If the error does not involve a missing field, then the response should be {{"list": []}}
-- If the user's question is outside your scope of expertise, do not respond.
-- Always respond in the language used by the user.
+- Only handle and respond to error messages concerning missing required fields.
+- Only deal with errors related to missing fields; if the errors do not involve missing fields, your response should be {{"list": []}}
 
 ## Output format
 {format_instructions}
 
-The JSON data as follows:
+## Context
+Here is the JSON description of a workflow component:
 ```json
 {step_json}
 ```
 
-The JSON schema validator error messages is as follows:
+Here are possible error messages returned from the JSON schema validator:
 {error_messages}
 """
 class ErrorMsg(BaseModel):
-    name: str = Field(..., description='The component name')
-    description: str = Field(..., description='Explain the error message in the language used by the user')
+    description: str = Field(..., description='Explain the role of each missing required field')
 
 class ErrorMsgList(BaseModel):
      list: List[ErrorMsg]
@@ -64,6 +66,8 @@ def create_self_check_chain(input):
 
     error_messages = validateStep(component_schema, step_json)
 
+    print("error_messages", error_messages)
+
     PROMPT = PromptTemplate(
         template = RESPONSE_TEMPLATE,
         input_variables=[],
@@ -75,7 +79,7 @@ def create_self_check_chain(input):
     chain = (
         RunnablePassthrough.assign(error_messages= lambda x: error_messages)
         |
-        PROMPT | llm | output_parser | itemgetter('list')
+        PROMPT | llm | output_parser | RunnableLambda(lambda x: [{**item, "name": step_json['name']} for item in x.get("list")])
     )
 
     return chain.invoke(input)
