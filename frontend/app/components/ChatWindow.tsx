@@ -24,6 +24,7 @@ import { ArrowUpIcon } from "@chakra-ui/icons";
 import { apiBaseUrl } from "../utils/constants";
 import { diff } from "json-diff";
 import { matchCommands, extractJson } from "../utils";
+// import { useSendMessage } from "../utils/useSendMessage";
 
 const MODEL_TYPES = ["openai_gpt"];
 
@@ -43,11 +44,13 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
   const [llm, setLlm] = useState(searchParams.get("llm") ?? "openai_gpt");
   const initialStepId = searchParams.get("initial_step_id");
   const initialMessage = searchParams.get("initial_message") ?? "";
+  const flowId = searchParams.get("flow_id") ?? "";
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   useEffect(() => {
     setLlm(searchParams.get("llm") ?? defaultLlmValue);
     initialMessage !== "undefined" && chatHistory.length === 0 && sendInitialQuestion(initialMessage);
   }, []);
+  // const sendChatMessage = useSendMessage();
 
   useEffect(() => {
     if (document.activeElement !== inputRef.current) {
@@ -58,6 +61,14 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
   const [chatHistory, setChatHistory] = useState<
     { human: string; ai: string }[]
   >([]);
+
+  const fetchFlowAndSteps = async (flowId: string) => {
+    const flow = await fetchFlowDefinitions(flowId); 
+    const flowSteps = await fetchSteps(flowId);
+    flow.steps = flowSteps._embedded.steps;
+    return flow;
+  }
+
   const sendMessage = async (message?: string) => {
     console.log('sendMessage', message);
     if (messageContainerRef.current) {
@@ -111,7 +122,6 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
         },
       });
       const llmDisplayName = llm ?? "openai_gpt";
-      let diffJson = undefined;
       // /diff 3fe9ba57da1b41e8a094e08afa5025f5, 4ca93fc076f84d56bc43114fcede44a2
       const messageType = matchCommands(messageValue)?.split(' ')[0].substring(1) ?? 'chat'
       let stepsChange = undefined
@@ -123,38 +133,30 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
         case 'diff': {
           const ids:Array<string> = messageValue.substring(messageValue.indexOf(' ') + 1).replace(/\s/g, '').split(',');
           console.log('ids', ids);
-          const baseFlow = await fetchFlowDefinitions(ids[0]); 
-          const baseFlowSteps = await fetchSteps(ids[0]);
-          baseFlow.steps = baseFlowSteps._embedded.steps
+          const baseFlow = await fetchFlowAndSteps(ids[0]);
 
-          const referenceFlow = await fetchFlowDefinitions(ids[1]); 
-          const referenceFlowSteps = await fetchSteps(ids[1]);
-          referenceFlow.steps = referenceFlowSteps._embedded.steps
+          const referenceFlow = await fetchFlowAndSteps(ids[1]);
           console.log('baseFlow', baseFlow);
           console.log('referenceFlow', referenceFlow);
           
-          diffJson = diff(baseFlow, referenceFlow, {
+          const diffJson = diff(baseFlow, referenceFlow, {
             full: true,
-            // outputKeys: ["created_at"],
-            // excludeKeys: [
-            //   "id",
-            //   "account_id",
-            //   "user_id",
-            //   "name",
-            //   "description",
-            //   "trigger_type",
-            //   "status",
-            //   "version",
-            //   "previous_version",
-            //   "next_version",
-            //   "created_at",
-            //   "updated_at",
-            //   "valid",
-            //   "validation_status",
-            //   "initial_step_id",
-            //   "group_id",
-            //   "pre_conditions",
-            // ]
+            excludeKeys: [
+              "id",
+              "account_id",
+              "user_id",
+              "description",
+              "trigger_type",
+              "status",
+              "previous_version",
+              "next_version",
+              "created_at",
+              "updated_at",
+              "valid",
+              "validation_status",
+              "group_id",
+              "pre_conditions",
+            ]
           });
         
           console.log('diffJson', diffJson);
@@ -171,33 +173,24 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
           }
           break;
         }
-        case 'explain': {
+        default: {
+          const flow = await fetchFlowAndSteps(flowId);
+
+          stepsChange = flow?.steps?.map((v: any) => v[1].component.name)
+          stepsChange = Array.from(new Set(stepsChange));
+
           requestPrams = { ...requestPrams,
             question: messageValue,
             chat_history: chatHistory,
-            flow_json: {},
+            flow_json: flow,
             component_list: stepsChange
           }
           break;
         }
-        case 'generate': {
-          requestPrams = { ...requestPrams,
-            question: messageValue,
-            chat_history: chatHistory,
-          }
-          break;
-        }
-        default: {
-          requestPrams = { ...requestPrams,
-            question: messageValue,
-            chat_history: chatHistory,
-            flow_json: {},
-          }
-          break;
-        }
       }
-      if (matchCommands(messageValue) === '/diff') {
-      }
+
+      // const { accumulatedMessage, rawContent } = await sendChatMessage(requestPrams, conversationId)
+
       const streamLog = await remoteChain.streamLog(
         requestPrams,
         {
