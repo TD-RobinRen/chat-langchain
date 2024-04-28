@@ -176,7 +176,7 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
         default: {
           const flow = await fetchFlowAndSteps(flowId);
 
-          stepsChange = flow?.steps?.map((v: any) => v[1].component.name)
+          stepsChange = flow?.steps?.map((v: any) => v.component.name)
           stepsChange = Array.from(new Set(stepsChange));
 
           requestPrams = { ...requestPrams,
