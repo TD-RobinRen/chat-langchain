@@ -1,4 +1,4 @@
-const urlParams = new URLSearchParams(window.location.search);
+const urlParams = new URLSearchParams(global.location?.search);
 const auth_token = { authorization: urlParams.get('auth_token')??'', 'Content-Type': 'application/json' };
 // const apiHost = "api.talkdeskstg.com";
 
