@@ -66,7 +66,7 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
   const fetchFlowAndSteps = async (flowId: string) => {
     const flow = await fetchFlowDefinitions(flowId); 
     const flowSteps = await fetchSteps(flowId);
-    flow.steps = flowSteps._embedded.steps;
+    flow.steps = flowSteps?._embedded?.steps;
     return flow;
   }
 
@@ -92,15 +92,15 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
     let messageIndex: number | null = null;
 
     let renderer = new Renderer();
-    // renderer.paragraph = (text) => {
-    //   return text + "\n";
-    // };
-    // renderer.list = (text) => {
-    //   return `${text}\n\n`;
-    // };
-    // renderer.listitem = (text) => {
-    //   return `\n• ${text}`;
-    // };
+    renderer.paragraph = (text) => {
+      return "\n" + text;
+    };
+    renderer.list = (text) => {
+      return `${text}\n`;
+    };
+    renderer.listitem = (text) => {
+      return `\n• ${text}`;
+    };
     renderer.code = (code, language) => {
       const validLanguage = hljs.getLanguage(language || "")
         ? language
