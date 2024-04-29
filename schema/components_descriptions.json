@@ -753,23 +753,6 @@
         ],
         "description": "The Forward to external number component enables you to route the call to an external number."
     },
-    "hang_up.component": {
-        "source": "hang_up.component",
-        "name": "hang_up-GC1Usd23ghe627s",
-        "version": "1.0.3",
-        "default_exits": [
-            {
-                "name": "room_finished",
-                "type": "optional",
-                "title": "Call disconnected",
-                "description": "The participant was disconnected from the call with success",
-                "effects": {
-                    "voice_participant": false
-                }
-            }
-        ],
-        "description": "The function of the Hangup component is to disconnect the call to both the contact person and the agent.\nIf no optional exit is selected, the Hangup will be a final component, and the flow execution will terminate."
-    },
     "incoming_call.component": {
         "source": "incoming_call.component",
         "name": "inbound_voice-ZjE1ZjM0MG",
