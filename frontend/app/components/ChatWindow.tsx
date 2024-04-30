@@ -6,6 +6,8 @@ import { RemoteRunnable } from "@langchain/core/runnables/remote";
 import { applyPatch } from "@langchain/core/utils/json_patch";
 import useFetchFlowDefinitions from "../utils/useFetchFlowDefinitions"
 import useFetchSteps from "../utils/useFetchSteps"
+import useFetchInteractionTriggers from "../utils/useFetchInteractionTriggers";
+import useFetchNumbers from "../utils/useFetchNumbers";
 import { EmptyState } from "./EmptyState";
 import { ChatMessageBubble, Message } from "./ChatMessageBubble";
 import { PopupTextarea } from "./PopupTextarea";
@@ -35,6 +37,8 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
   const conversationId = props.conversationId;
   const fetchFlowDefinitions = useFetchFlowDefinitions();
   const fetchSteps = useFetchSteps();
+  const fetchInteractionTriggers = useFetchInteractionTriggers();
+  const fetchNumbers = useFetchNumbers();
   const searchParams = useSearchParams();
 
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
@@ -196,6 +200,24 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
           }
           break;
         }
+        case 'chat': {
+          const numbers = await fetchNumbers();
+          const flow = await fetchFlowAndSteps(flowId);
+
+          stepsChange = flow?.steps?.map((v: any) => v.component.name)
+          stepsChange = Array.from(new Set(stepsChange));
+          const interactionTriggers = await fetchInteractionTriggers(flowId);
+          const numberIds = interactionTriggers._embedded.interaction_triggers.filter((trigger: any) => trigger.resource_type === 'number').map((trigger: any) => trigger.resource_id);
+          const filteredNumbers = numbers._embedded.phone_numbers.filter((number: any) => numberIds.includes(number.id)).map((number: any) => removeLinks(number));
+          requestPrams = { ...requestPrams,
+            question: extractMessage(messageValue),
+            chat_history: chatHistory,
+            flow_json: flow,
+            component_list: stepsChange,
+            numbers: filteredNumbers
+          }
+          break;
+        }
         default: {
           const flow = await fetchFlowAndSteps(flowId);
 
@@ -258,7 +280,7 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
               return output
             } else {
               window.rawContent = null;
-              return output?.content || "";
+              return output || "";
             } 
           }).join("");
         }
