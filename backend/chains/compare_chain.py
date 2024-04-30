@@ -94,7 +94,7 @@ def _compare_chain(input) -> Runnable:
         [
             SystemMessagePromptTemplate(prompt=SystemPrompt),
             few_shot_prompt,
-            ("human", "current_json:{flow_json}, compared_flow_json:{compared_flow_json}"),
+            ("human", "flow_json:{flow_json}, compared_flow_json:{compared_flow_json}, question: {question}"),
         ]
     )
 
