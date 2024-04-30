@@ -11,6 +11,7 @@ from langchain_core.prompts import (
     SystemMessagePromptTemplate,
     FewShotChatMessagePromptTemplate
 )
+from langchain_core.output_parsers import StrOutputParser
 from langchain.schema.retriever import BaseRetriever
 from langchain_core.runnables import (
     ConfigurableField,
@@ -103,6 +104,8 @@ def _diff_chain(input) -> Runnable:
         prompt
         |
         llm
+        |
+        StrOutputParser()
     )
 
     return chain
