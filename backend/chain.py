@@ -11,6 +11,7 @@ from chains.generate.main import generate_chain
 from chains.general_chain import general_chain
 from chains.diff_chain import diff_chain
 from chains.compare_chain import compare_chain
+from chains.explain_chain import explain_chain
 
 client = Client()
 
@@ -40,6 +41,8 @@ def route_chain(input) -> Runnable:
         return compare_chain
     elif input["chat_type"] == "generate":
         return generate_chain
+    elif input["chat_type"] == "explain":
+        return explain_chain
     else:
         return general_chain
 
