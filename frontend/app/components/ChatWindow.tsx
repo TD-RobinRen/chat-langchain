@@ -23,7 +23,7 @@ import {
 import { ArrowUpIcon } from "@chakra-ui/icons";
 import { apiBaseUrl } from "../utils/constants";
 import { diff } from "json-diff";
-import { matchCommands, extractJson } from "../utils";
+import { matchCommands, extractJson, extractMessage, removeLinks } from "../utils";
 // import { useSendMessage } from "../utils/useSendMessage";
 
 const MODEL_TYPES = ["openai_gpt"];
@@ -67,7 +67,7 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
     const flow = await fetchFlowDefinitions(flowId); 
     const flowSteps = await fetchSteps(flowId);
     flow.steps = flowSteps?._embedded?.steps;
-    return flow;
+    return removeLinks(flow);
   }
 
   const sendMessage = async (message?: string) => {
@@ -163,12 +163,36 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
 
           stepsChange = diffJson.steps.map((v: any) => v[1].component.name)
           stepsChange = Array.from(new Set(stepsChange));
+          let componentList = baseFlow?.steps?.map((v: any) => v.component.name).concat(referenceFlow?.steps?.map((v: any) => v.component.name))
+          componentList = Array.from(new Set(componentList));
+          const filterDeep = (obj: any) => {
+            if (typeof obj !== 'object' || obj === null) {
+              return obj;
+            }
+            const result: any = {};
+            for (const key in obj) {
+              if (key === 'steps' || key === 'name' || key === 'initial_step_id' || key === 'version' ) {
+                result[key] = obj[key]
+                if (key === 'steps') {
+                  result[key] = obj[key]?.map((v: any) => {
+                    const { _links, created_at, ...rest } = v;
+                    return rest;
+                  })
+                }
+              } 
+            }
+            return result;
+          }
+
           console.log('stepsChange', stepsChange);
           requestPrams = { ...requestPrams,
-            question: messageValue,
+            question: extractMessage(messageValue),
             chat_history: chatHistory,
             diff_json: diffJson,
-            component_list: stepsChange
+            flow_json: filterDeep(baseFlow),
+            compared_flow_json: filterDeep(referenceFlow),
+            component_list: stepsChange,
+            compared_component_list: componentList,
           }
           break;
         }
@@ -179,7 +203,7 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
           stepsChange = Array.from(new Set(stepsChange));
 
           requestPrams = { ...requestPrams,
-            question: messageValue,
+            question: extractMessage(messageValue),
             chat_history: chatHistory,
             flow_json: flow,
             component_list: stepsChange
