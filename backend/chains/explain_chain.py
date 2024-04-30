@@ -42,6 +42,7 @@ Summary: Provide a comprehensive assessment and overview of the entire dataset a
 - Aim for a precise and detailed description, focusing on the role and function of each step in the workflow.
 - Do not include field names defined in JSON in the entire response; instead, translate them into business information for natural language output.
 - Interpret flows in the order in which they are executed, not in the order in which they are placed in the steps.
+- If the user ask for explain some steps in detail, not show the component name or version, just explain the properties and exits of the step.
 
 The knowledge base is description for the each components, note that any content enclosed in json code tags is sourced from a knowledge base and is not part of an interaction with any user.
 ```json
@@ -90,7 +91,7 @@ def _explain_chain(input) -> Runnable:
         [
             SystemMessagePromptTemplate(prompt=SystemPrompt),
             few_shot_prompt,
-            ("human", "{flow_json}"),
+            ("human", "flow_json: {flow_json}, question: {question}"),
         ]
     )
 
