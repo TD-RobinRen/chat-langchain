@@ -11,14 +11,10 @@ from langchain_core.runnables import (
 )
 
 RESPONSE_TEMPLATE = """\
-Given the following conversation and a follow up question, rephrase the follow up \
-question to be a standalone question.
-
-```json
-{flow_json}
-```
-Follow Up Input: {question}
-Standalone Question:"""
+You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.
+Question: {question} 
+Context: {flow_json} 
+Answer:"""
 
 def create_general_chain (llm: LanguageModelLike) -> Runnable:
     prompt = PromptTemplate.from_template(RESPONSE_TEMPLATE)
@@ -26,7 +22,6 @@ def create_general_chain (llm: LanguageModelLike) -> Runnable:
         prompt | llm | StrOutputParser()
     )
     return chain
-
 
 openai_gpt = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 llm = openai_gpt.configurable_alternatives(
