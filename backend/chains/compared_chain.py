@@ -122,4 +122,4 @@ llm = openai_gpt.configurable_alternatives(
     [openai_gpt]
 )
 
-generate_compared_chain = create_diff_chain()
+compare_chain = create_compare_chain()

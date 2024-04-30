@@ -9,8 +9,8 @@ from typing import Dict, List, Optional
 
 from chains.generate.main import generate_chain
 from chains.general_chain import general_chain
-from chains.generate_diff_chain import generate_diff_chain
-from chains.generate_compared_chain import generate_compared_chain
+from chains.diff_chain import diff_chain
+from chains.compare_chain import compare_chain
 
 client = Client()
 
@@ -37,7 +37,7 @@ class ChatRequest(BaseModel):
 def route_chain(input) -> Runnable:
     print(f"---------------------->>>>{input['chat_type']}")
     if input["chat_type"] == "diff":
-        return generate_compared_chain
+        return compare_chain
     elif input["chat_type"] == "generate":
         return generate_chain
     else:
