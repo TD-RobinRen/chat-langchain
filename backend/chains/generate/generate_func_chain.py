@@ -20,8 +20,8 @@ from langchain_core.runnables import (
     chain,
 )
 from langchain_openai import ChatOpenAI
-from chains.generate_wrap_chain import generate_wrap_chain
-from chains.self_check_chain import self_check_chain
+from chains.generate.wrap_chain import generate_wrap_chain
+from chains.generate.self_check_chain import self_check_chain
 from json_template import JsonTemplates
 
 RESPONSE_TEMPLATE = """\
@@ -134,7 +134,7 @@ def merge_json(input):
         return new_dict[1]
     return {}
 
-def create_generate_chain() -> Runnable:
+def create_generate_func_chain() -> Runnable:
     child_chain = {
         "batch_input": itemgetter("extracted_data") | RunnableLambda(split_extrated_data)
     } | generate_step_chain
@@ -159,4 +159,4 @@ llm = openai_gpt.configurable_alternatives(
     [openai_gpt]
 )
 
-generate_chain = create_generate_chain()
+generate_func_chain = create_generate_func_chain()
