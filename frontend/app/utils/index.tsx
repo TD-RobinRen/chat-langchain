@@ -17,3 +17,21 @@ export const matchCommands = (text: string): string | null => {
 export const jsonMarkdownRegex = /```json\n([\s\S]*?)\n```/g;
 
 export const extractJson = (text:string) => jsonMarkdownRegex.exec(text);
+
+export const extractMessage = (str: string) => {
+  return str.replace(/^(\/diff|\/explain|\/generate)\s/, '');
+};
+
+export const removeLinks = (obj: any): any => {
+  if (Array.isArray(obj)) {
+    return obj.map(removeLinks);
+  } else if (obj !== null && typeof obj === 'object') {
+    const newObj = { ...obj };
+    delete newObj._links;
+    Object.keys(newObj).forEach(key => {
+      newObj[key] = removeLinks(newObj[key]);
+    });
+    return newObj;
+  }
+  return obj;
+};
