@@ -81,7 +81,7 @@ def get_schema_data(input) -> List:
     return schema_list
 
 @chain
-def _diff_chain(input) -> Runnable:
+def _compare_chain(input) -> Runnable:
     few_shot_prompt = build_example()
 
     SystemPrompt = PromptTemplate(
@@ -105,11 +105,11 @@ def _diff_chain(input) -> Runnable:
 
     return chain
 
-def create_diff_chain() -> Runnable:
+def create_compare_chain() -> Runnable:
     return (
         RunnablePassthrough.assign(context=get_schema_data)
         |
-        _diff_chain
+        _compare_chain
     )
 
 openai_gpt = ChatOpenAI(model=OPENAI_MODELS, temperature=0)
