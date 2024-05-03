@@ -14,9 +14,8 @@ export const matchCommands = (text: string): string | null => {
   return null;
 }
 
-export const jsonMarkdownRegex = /```json\n([\s\S]*?)\n```/g;
 
-export const extractJson = (text:string) => jsonMarkdownRegex.exec(text);
+export const extractJson = (text: string) => /```json\n([\s\S]*?)\n```/ig.exec(text);
 
 export const extractMessage = (str: string) => {
   return str.replace(/^(\/diff|\/explain|\/generate)\s/, '');

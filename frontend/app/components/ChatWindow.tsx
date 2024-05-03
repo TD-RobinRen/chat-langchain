@@ -262,10 +262,6 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
           console.log('streamedResponse', streamedResponse?.streamed_output);
           accumulatedMessage = streamedResponse?.streamed_output.map((output) => {
             console.log('item', output);
-            console.log('item.content', output?.content);
-            console.log('item.kwargs.content', output?.kwargs?.content);
-            console.log('item.lc_kwargs.content', output?.lc_kwargs?.content);
-            
             const flowJson = extractJson(output);
 
             if (flowJson) {

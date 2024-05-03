@@ -34,6 +34,7 @@ class ChatRequest(BaseModel):
     flow_json: Optional[object]
     compared_flow_json: Optional[object]
     compared_component_list: Optional[List[str]]
+    numbers: Optional[List]
 
 def route_chain(input) -> Runnable:
     print(f"---------------------->>>>{input['chat_type']}")

@@ -149,8 +149,6 @@ const useSendMessage = () => {
         console.log('streamedResponse', streamedResponse?.streamed_output);
         streamedOutput = streamedResponse?.streamed_output.map((output) => {
           console.log('item', output);
-          console.log('item.content', output?.content);
-          console.log('item.lc_kwargs.content', output?.lc_kwargs?.content);
           
           const flowJson = extractJson(output);
 
