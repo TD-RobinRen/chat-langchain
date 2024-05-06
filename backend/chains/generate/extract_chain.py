@@ -186,7 +186,7 @@ def create_extract_chain(input) -> Runnable:
     final_responder = _create_extract_chain(llm)
     return final_responder.invoke(input)
 
-openai_gpt = ChatOpenAI(model='gpt-4-turbo', temperature=0)
+openai_gpt = ChatOpenAI(model='gpt-4-turbo-preview', temperature=0)
 llm = openai_gpt.configurable_alternatives(
     ConfigurableField(id="llm"),
     default_key="openai_gpt",

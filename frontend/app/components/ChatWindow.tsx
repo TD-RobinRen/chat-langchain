@@ -263,6 +263,7 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
           accumulatedMessage = streamedResponse?.streamed_output.map((output) => {
             console.log('item', output);
             const flowJson = extractJson(output);
+            console.log(`🚀 ~ file: ChatWindow.tsx:270 ~ accumulatedMessage=streamedResponse?.streamed_output.map ~ flowJson:`, flowJson)
 
             if (flowJson) {
               let rawContent: any = null;
