@@ -1,13 +1,4 @@
-# 🦜️🔗 Chat LangChain
-
-This repo is an implementation of a locally hosted chatbot specifically focused on question answering over the [LangChain documentation](https://python.langchain.com/).
-Built with [LangChain](https://github.com/langchain-ai/langchain/), [FastAPI](https://fastapi.tiangolo.com/), and [Next.js](https://nextjs.org).
-
-Deployed version: [chat.langchain.com](https://chat.langchain.com)
-
-> Looking for the JS version? Click [here](https://github.com/langchain-ai/chat-langchainjs).
-
-The app leverages LangChain's streaming support and async API to update the page in real time for multiple users.
+# 🦜️🔗 ChatterBox power by LangChain
 
 ## ✅ Running locally
 1. Install backend dependencies: `poetry install`.
