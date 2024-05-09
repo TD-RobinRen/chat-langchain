@@ -96,6 +96,9 @@ export const ChatWindow = React.memo(function ChatWindow(props: { conversationId
     let messageIndex: number | null = null;
 
     let renderer = new Renderer();
+    renderer.heading = (text) => {
+      return `\n${text}`;
+    };
     renderer.paragraph = (text) => {
       return "\n" + text;
     };
