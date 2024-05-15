@@ -87,11 +87,16 @@ def _explain_chain(input) -> Runnable:
         input_variables=['context']
     )
 
+    default_question="Explain the JSON data."
+    question = input.get('question')
+    if question is None or question == '':
+        question = default_question
+
     prompt = ChatPromptTemplate.from_messages(
         [
             SystemMessagePromptTemplate(prompt=SystemPrompt),
             few_shot_prompt,
-            ("human", "flow_json: {flow_json}, question: {question}"),
+           ("human", "flow_json: {flow_json}, question: {question}".format(flow_json="{flow_json}", question=question))
         ]
     )
 
