@@ -1,4 +1,5 @@
 # 🦜️🔗 ChatterBox power by LangChain
+![Architecture diagram](./assets/images/excalidraw.png)
 
 ## ✅ Running locally
 1. Install backend dependencies: `poetry install`.
